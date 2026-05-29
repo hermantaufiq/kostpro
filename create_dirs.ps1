@@ -1,0 +1,1 @@
+New-Item -ItemType Directory -Force -Path "resources\views\emails\tagihan", "resources\views\emails\penyewaan", "resources\views\emails\payment", "resources\views\user\penyewaan", "resources\views\payment" | Out-Null
