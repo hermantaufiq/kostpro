@@ -94,11 +94,27 @@
         <!-- Payment Action Panel -->
         <div class="space-y-4">
             @if(in_array($tagihan->status->value, ['unpaid', 'overdue']))
+                @php
+                    $pendingPayment = $tagihan->pembayaran && $tagihan->pembayaran->status->value === 'pending';
+                @endphp
                 <div class="bg-white rounded-2xl shadow-soft border border-slate-100 p-6">
                     <h3 class="font-bold text-slate-900 mb-4">Bayar Tagihan</h3>
-                    <p class="text-sm text-slate-500 mb-6">Pilih metode pembayaran yang Anda inginkan. Transaksi Anda aman & terenkripsi.</p>
 
-                    <form action="{{ route('payment.create', $tagihan->id) }}" method="POST">
+                    @if($pendingPayment)
+                        {{-- Ada pembayaran pending aktif --}}
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 flex items-start gap-3">
+                            <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                            <div>
+                                <p class="text-sm font-semibold text-amber-800">Pembayaran Sedang Diproses</p>
+                                <p class="text-xs text-amber-700 mt-1">Invoice pembayaran sudah dibuat. Silakan selesaikan pembayaran Anda atau tunggu beberapa saat.</p>
+                                <p class="text-xs text-amber-600 mt-2 font-mono">Kode: {{ $tagihan->pembayaran->kode_pembayaran }}</p>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-sm text-slate-500 mb-6">Pilih metode pembayaran yang Anda inginkan. Transaksi Anda aman &amp; terenkripsi.</p>
+                    @endif
+
+                    <form action="{{ route('payment.create', $tagihan->id) }}" method="POST" id="payment-form">
                         @csrf
                         <div class="space-y-3 mb-6">
                             <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-indigo-400 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
@@ -124,15 +140,17 @@
                             </label>
                         </div>
 
-                        <button type="submit" class="btn-primary w-full justify-center">
+                        <button type="submit" id="pay-btn" class="btn-primary w-full justify-center" {{ $pendingPayment ? 'disabled' : '' }}
+                            style="{{ $pendingPayment ? 'opacity:0.5; cursor:not-allowed;' : '' }}"
+                            onclick="this.disabled=true; this.innerHTML='<span>Memproses...</span>'; this.form.submit();">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            Lanjutkan Pembayaran
+                            {{ $pendingPayment ? 'Pembayaran Sudah Dibuat' : 'Lanjutkan Pembayaran' }}
                         </button>
                     </form>
 
                     <div class="mt-4 flex items-center gap-2 text-xs text-slate-400 justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                        Powered by Xendit — Aman & Terpercaya
+                        Powered by Xendit — Aman &amp; Terpercaya
                     </div>
                 </div>
             @elseif($tagihan->status->value === 'paid')

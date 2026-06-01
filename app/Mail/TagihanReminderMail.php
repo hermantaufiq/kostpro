@@ -28,17 +28,14 @@ class TagihanReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Tagihan Reminder Mail',
+            subject: 'Reminder: Tagihan Kos Mendekati Jatuh Tempo',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.tagihan.reminder',
         );
     }
 

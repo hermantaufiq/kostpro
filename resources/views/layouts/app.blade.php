@@ -32,7 +32,7 @@
                     <a href="{{ url('/kamar') }}" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Cari Kamar</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Dashboard</a>
-                        <a href="#" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Tagihan</a>
+                        <a href="{{ route('user.tagihan.index') }}" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Tagihan</a>
                     @endauth
                 </div>
 

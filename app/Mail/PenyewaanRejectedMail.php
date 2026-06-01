@@ -28,17 +28,14 @@ class PenyewaanRejectedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Penyewaan Rejected Mail',
+            subject: 'Status Penyewaan Kamar - KosPro',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.penyewaan.rejected',
         );
     }
 

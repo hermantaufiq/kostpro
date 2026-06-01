@@ -42,7 +42,7 @@
                     <label for="remember" class="ml-2 block text-sm text-slate-700">Ingat Saya</label>
                 </div>
                 <div class="text-sm">
-                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Lupa password?</a>
+                    <!-- <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Lupa password?</a> -->
                 </div>
             </div>
 

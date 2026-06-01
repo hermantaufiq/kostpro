@@ -102,7 +102,7 @@
                 <h4 class="font-bold text-indigo-900 text-lg">Penyewaan Disetujui!</h4>
                 <p class="text-sm text-indigo-700 mt-1">Silakan lakukan pembayaran tagihan pertama dan deposit untuk mengaktifkan sewa Anda.</p>
             </div>
-            <a href="#" class="btn-primary whitespace-nowrap">
+            <a href="{{ route('user.tagihan.index') }}" class="btn-primary whitespace-nowrap">
                 Lihat Tagihan
             </a>
         </div>

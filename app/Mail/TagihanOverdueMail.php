@@ -28,17 +28,14 @@ class TagihanOverdueMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Tagihan Overdue Mail',
+            subject: 'PEMBERITAHUAN: Tagihan Kos Anda Telah Lewat Jatuh Tempo',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.tagihan.overdue',
         );
     }
 
