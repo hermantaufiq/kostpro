@@ -17,49 +17,73 @@ class PenyewaanForm
     {
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Select::make('kamar_id')
-                    ->relationship('kamar', 'id')
-                    ->required(),
-                TextInput::make('kode_penyewaan')
-                    ->required(),
-                DatePicker::make('tanggal_masuk')
-                    ->required(),
-                DatePicker::make('tanggal_keluar'),
-                TextInput::make('durasi_bulan')
-                    ->required()
-                    ->numeric()
-                    ->default(1),
-                Select::make('status')
-                    ->options(StatusPenyewaan::class)
-                    ->default('pending')
-                    ->required(),
-                Textarea::make('catatan_penyewa')
-                    ->columnSpanFull(),
-                Textarea::make('catatan_admin')
-                    ->columnSpanFull(),
-                TextInput::make('approved_by')
-                    ->numeric(),
-                DateTimePicker::make('tanggal_approval'),
-                TextInput::make('ktp_url')
-                    ->url(),
-                TextInput::make('ktp_path'),
-                TextInput::make('kontrak_url')
-                    ->url(),
-                TextInput::make('harga_bulanan_snapshot')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('deposit_amount')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Toggle::make('deposit_paid')
-                    ->required(),
-                DateTimePicker::make('deposit_paid_at'),
-                DateTimePicker::make('checkin_at'),
-                DateTimePicker::make('checkout_at'),
+                \Filament\Forms\Components\Section::make('Informasi Penyewa & Kamar')
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Penyewa')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Select::make('kamar_id')
+                            ->label('Kamar')
+                            ->relationship('kamar', 'nama')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        TextInput::make('kode_penyewaan')
+                            ->label('Kode Booking')
+                            ->default(fn () => 'BOOK-' . strtoupper(uniqid()))
+                            ->readOnly()
+                            ->required(),
+                        Select::make('status')
+                            ->options(StatusPenyewaan::class)
+                            ->default('pending')
+                            ->required(),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Durasi Sewa')
+                    ->schema([
+                        DatePicker::make('tanggal_masuk')
+                            ->required(),
+                        DatePicker::make('tanggal_keluar'),
+                        TextInput::make('durasi_bulan')
+                            ->required()
+                            ->numeric()
+                            ->default(1),
+                    ])->columns(3),
+
+                \Filament\Forms\Components\Section::make('Biaya & Tagihan')
+                    ->schema([
+                        TextInput::make('harga_bulanan_snapshot')
+                            ->label('Harga Bulanan')
+                            ->required()
+                            ->numeric()
+                            ->prefix('Rp'),
+                        TextInput::make('deposit_amount')
+                            ->label('Deposit')
+                            ->required()
+                            ->numeric()
+                            ->default(0)
+                            ->prefix('Rp'),
+                        Toggle::make('deposit_paid')
+                            ->label('Deposit Lunas?'),
+                    ])->columns(3),
+
+                \Filament\Forms\Components\Section::make('Dokumen & Catatan')
+                    ->schema([
+                        \Filament\Forms\Components\FileUpload::make('ktp_path')
+                            ->label('KTP')
+                            ->image()
+                            ->directory('penyewaan-ktp'),
+                        \Filament\Forms\Components\FileUpload::make('kontrak_url')
+                            ->label('Surat Kontrak (PDF/Image)')
+                            ->directory('penyewaan-kontrak'),
+                        Textarea::make('catatan_penyewa')
+                            ->columnSpanFull(),
+                        Textarea::make('catatan_admin')
+                            ->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 }

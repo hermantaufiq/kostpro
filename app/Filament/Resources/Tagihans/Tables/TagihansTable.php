@@ -19,63 +19,50 @@ class TagihansTable
     {
         return $table
             ->columns([
-                TextColumn::make('penyewaan.id')
-                    ->searchable(),
-                TextColumn::make('user.name')
-                    ->searchable(),
                 TextColumn::make('kode_tagihan')
+                    ->label('No. Invoice')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('user.name')
+                    ->label('Penyewa')
                     ->searchable(),
-                TextColumn::make('periode_bulan')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('periode_tahun')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('jumlah_tagihan')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('jumlah_denda')
-                    ->numeric()
+                TextColumn::make('penyewaan.kode_penyewaan')
+                    ->label('Booking')
+                    ->searchable(),
+                TextColumn::make('periode')
+                    ->label('Periode')
+                    ->getStateUsing(fn (\App\Models\Tagihan $record) => $record->periode_bulan . '/' . $record->periode_tahun)
                     ->sortable(),
                 TextColumn::make('total_tagihan')
-                    ->numeric()
+                    ->label('Total')
+                    ->money('IDR')
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('tanggal_tagihan')
-                    ->date()
-                    ->sortable(),
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'unpaid' => 'warning',
+                        'paid' => 'success',
+                        'overdue' => 'danger',
+                        default => 'gray',
+                    }),
                 TextColumn::make('tanggal_jatuh_tempo')
-                    ->date()
+                    ->label('Jatuh Tempo')
+                    ->date('d M Y')
                     ->sortable(),
-                TextColumn::make('tanggal_bayar')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('reminder_count')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('last_reminder_at')
-                    ->dateTime()
-                    ->sortable(),
-                IconColumn::make('is_auto_generated')
-                    ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('status')
+                    ->options(\App\Enums\StatusTagihan::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                \Filament\Tables\Actions\Action::make('print')
+                    ->label('Print Invoice')
+                    ->icon('heroicon-m-printer')
+                    ->color('info')
+                    ->url(fn (\App\Models\Tagihan $record) => route('invoice.print', ['id' => $record->id]))
+                    ->openUrlInNewTab(),
                 ViewAction::make(),
                 EditAction::make(),
             ])

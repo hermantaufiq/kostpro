@@ -7,7 +7,7 @@ use App\Models\Kamar;
 
 class OccupancyWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Tingkat Keterisian Kamar (Occupancy)';
+    protected ?string $heading = 'Tingkat Keterisian Kamar (Occupancy)';
     protected static ?int $sort = 3;
 
     protected function getData(): array

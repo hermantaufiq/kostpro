@@ -15,29 +15,48 @@ class UserForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('email')
-                    ->label('Email address')
-                    ->email()
-                    ->required(),
-                TextInput::make('phone')
-                    ->tel(),
-                TextInput::make('nik'),
-                Textarea::make('alamat')
-                    ->columnSpanFull(),
-                TextInput::make('foto_ktp_url')
-                    ->url(),
-                Toggle::make('is_active')
-                    ->required(),
-                Select::make('user_type')
-                    ->options(['admin' => 'Admin', 'tenant' => 'Tenant'])
-                    ->default('tenant')
-                    ->required(),
-                DateTimePicker::make('email_verified_at'),
-                TextInput::make('password')
-                    ->password()
-                    ->required(),
+                \Filament\Forms\Components\Section::make('Informasi Pribadi')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Nama Lengkap')
+                            ->required(),
+                        TextInput::make('email')
+                            ->label('Email Address')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('phone')
+                            ->label('No. Telepon (WhatsApp)')
+                            ->tel(),
+                        TextInput::make('nik')
+                            ->label('NIK KTP')
+                            ->numeric(),
+                        Textarea::make('alamat')
+                            ->label('Alamat Lengkap')
+                            ->columnSpanFull(),
+                        \Filament\Forms\Components\FileUpload::make('foto_ktp_url')
+                            ->label('Foto KTP')
+                            ->image()
+                            ->directory('ktp-images')
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Akun & Keamanan')
+                    ->schema([
+                        Select::make('user_type')
+                            ->label('Tipe Pengguna')
+                            ->options(['admin' => 'Admin', 'tenant' => 'Tenant'])
+                            ->default('tenant')
+                            ->required(),
+                        Toggle::make('is_active')
+                            ->label('Status Akun Aktif')
+                            ->default(true)
+                            ->required(),
+                        TextInput::make('password')
+                            ->password()
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $context): bool => $context === 'create'),
+                    ])->columns(2),
             ]);
     }
 }

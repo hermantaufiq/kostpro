@@ -37,3 +37,5 @@ Route::get('/payment/return', [\App\Http\Controllers\Payment\PaymentController::
 Route::post('/webhook/xendit', [\App\Http\Controllers\Payment\WebhookController::class, 'handle'])->name('webhook.xendit');
 
 require __DIR__.'/auth.php';
+
+Route::get('/invoice/{id}/print', function($id) { return "Fitur Cetak Invoice #$id sedang dikembangkan"; })->name('invoice.print');

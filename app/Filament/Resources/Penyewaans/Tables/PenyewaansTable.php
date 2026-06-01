@@ -19,69 +19,73 @@ class PenyewaansTable
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')
-                    ->searchable(),
-                TextColumn::make('kamar.id')
-                    ->searchable(),
                 TextColumn::make('kode_penyewaan')
+                    ->label('Kode Booking')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('user.name')
+                    ->label('Penyewa')
+                    ->searchable(),
+                TextColumn::make('kamar.nama')
+                    ->label('Kamar')
                     ->searchable(),
                 TextColumn::make('tanggal_masuk')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('tanggal_keluar')
-                    ->date()
+                    ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('durasi_bulan')
+                    ->label('Durasi (Bulan)')
                     ->numeric()
+                    ->sortable(),
+                TextColumn::make('harga_bulanan_snapshot')
+                    ->label('Harga')
+                    ->money('IDR')
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('approved_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('tanggal_approval')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('ktp_url')
-                    ->searchable(),
-                TextColumn::make('ktp_path')
-                    ->searchable(),
-                TextColumn::make('kontrak_url')
-                    ->searchable(),
-                TextColumn::make('harga_bulanan_snapshot')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('deposit_amount')
-                    ->numeric()
-                    ->sortable(),
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'active' => 'primary',
+                        'rejected' => 'danger',
+                        default => 'gray',
+                    }),
                 IconColumn::make('deposit_paid')
+                    ->label('Deposit')
                     ->boolean(),
-                TextColumn::make('deposit_paid_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('checkin_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('checkout_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('status')
+                    ->options(\App\Enums\StatusPenyewaan::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                \Filament\Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-m-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'pending')
+                    ->action(function (\App\Models\Penyewaan $record) {
+                        $record->update([
+                            'status' => 'approved',
+                            'approved_by' => auth()->id(),
+                            'tanggal_approval' => now(),
+                        ]);
+                    }),
+                \Filament\Tables\Actions\Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-m-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'pending')
+                    ->action(function (\App\Models\Penyewaan $record) {
+                        $record->update([
+                            'status' => 'rejected',
+                            'approved_by' => auth()->id(),
+                            'tanggal_approval' => now(),
+                        ]);
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
             ])

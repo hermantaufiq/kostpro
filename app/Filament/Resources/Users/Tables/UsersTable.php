@@ -19,38 +19,47 @@ class UsersTable
     {
         return $table
             ->columns([
+                \Filament\Tables\Columns\ImageColumn::make('foto_ktp_url')
+                    ->label('KTP')
+                    ->circular(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('email')
                     ->label('Email address')
-                    ->searchable(),
+                    ->searchable()
+                    ->icon('heroicon-m-envelope'),
                 TextColumn::make('phone')
-                    ->searchable(),
+                    ->label('WhatsApp')
+                    ->searchable()
+                    ->icon('heroicon-m-phone'),
                 TextColumn::make('nik')
-                    ->searchable(),
-                TextColumn::make('foto_ktp_url')
-                    ->searchable(),
-                IconColumn::make('is_active')
-                    ->boolean(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('user_type')
-                    ->badge(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Tipe')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'admin' => 'danger',
+                        'tenant' => 'success',
+                        default => 'gray',
+                    }),
+                IconColumn::make('is_active')
+                    ->label('Aktif')
+                    ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Terdaftar')
+                    ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('user_type')
+                    ->options(['admin' => 'Admin', 'tenant' => 'Tenant']),
+                \Filament\Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Status Aktif'),
                 TrashedFilter::make(),
             ])
             ->recordActions([

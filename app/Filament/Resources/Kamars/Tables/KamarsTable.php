@@ -19,41 +19,50 @@ class KamarsTable
     {
         return $table
             ->columns([
+                \Filament\Tables\Columns\ImageColumn::make('images')
+                    ->circular()
+                    ->stacked()
+                    ->limit(3),
                 TextColumn::make('kode_kamar')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('nama')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('tipe')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'standar' => 'gray',
+                        'deluxe' => 'info',
+                        'vip' => 'warning',
+                        'suite' => 'success',
+                        default => 'gray',
+                    }),
                 TextColumn::make('lantai')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('luas')
-                    ->searchable(),
                 TextColumn::make('harga_bulanan')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('harga_deposit')
-                    ->numeric()
+                    ->money('IDR')
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'tersedia' => 'success',
+                        'terisi' => 'primary',
+                        'maintenance' => 'danger',
+                        'reserved' => 'warning',
+                        default => 'gray',
+                    }),
                 IconColumn::make('is_featured')
-                    ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->boolean()
+                    ->label('Featured'),
             ])
             ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('status')
+                    ->options(\App\Enums\StatusKamar::class),
+                \Filament\Tables\Filters\SelectFilter::make('tipe')
+                    ->options(\App\Enums\TipeKamar::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([

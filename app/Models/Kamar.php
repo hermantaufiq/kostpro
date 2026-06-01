@@ -30,14 +30,21 @@ class Kamar extends Model
         'status',
         'meta',
         'is_featured',
+        'images',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'tipe' => TipeKamar::class,
         'status' => StatusKamar::class,
         'fasilitas' => 'array',
         'meta' => 'array',
         'is_featured' => 'boolean',
+        'images' => 'array',
     ];
 
     public function fotoKamar(): HasMany

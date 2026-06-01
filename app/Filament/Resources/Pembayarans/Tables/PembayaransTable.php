@@ -15,52 +15,68 @@ class PembayaransTable
     {
         return $table
             ->columns([
-                TextColumn::make('tagihan.id')
+                TextColumn::make('kode_pembayaran')
+                    ->label('Kode Bayar')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('tagihan.kode_tagihan')
+                    ->label('No. Invoice')
                     ->searchable(),
                 TextColumn::make('user.name')
-                    ->searchable(),
-                TextColumn::make('kode_pembayaran')
-                    ->searchable(),
-                TextColumn::make('xendit_invoice_id')
-                    ->searchable(),
-                TextColumn::make('xendit_external_id')
-                    ->searchable(),
-                TextColumn::make('xendit_payment_url')
+                    ->label('Penyewa')
                     ->searchable(),
                 TextColumn::make('metode')
-                    ->badge(),
+                    ->label('Metode')
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('channel_code')
+                    ->label('Channel')
                     ->searchable(),
                 TextColumn::make('jumlah')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('biaya_admin')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('jumlah_diterima')
-                    ->numeric()
+                    ->label('Jumlah Bayar')
+                    ->money('IDR')
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'pending' => 'warning',
+                        'success' => 'success',
+                        'failed' => 'danger',
+                        'expired' => 'danger',
+                        default => 'gray',
+                    }),
                 TextColumn::make('paid_at')
-                    ->dateTime()
+                    ->label('Tgl Bayar')
+                    ->dateTime('d M Y H:i')
                     ->sortable(),
-                TextColumn::make('expired_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                \Filament\Tables\Filters\SelectFilter::make('status')
+                    ->options(\App\Enums\StatusPembayaran::class),
+                \Filament\Tables\Filters\SelectFilter::make('metode')
+                    ->options(\App\Enums\MetodePembayaran::class),
             ])
             ->recordActions([
+                \Filament\Tables\Actions\Action::make('approve_manual')
+                    ->label('Verifikasi Manual')
+                    ->icon('heroicon-m-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (\App\Models\Pembayaran $record) => $record->status->value === 'pending' && $record->metode->value === 'manual')
+                    ->action(function (\App\Models\Pembayaran $record) {
+                        // Approve manual payment
+                        $record->update([
+                            'status' => 'success',
+                            'paid_at' => now(),
+                        ]);
+                        
+                        // Update tagihan
+                        $record->tagihan->update([
+                            'status' => 'paid',
+                            'tanggal_bayar' => now(),
+                        ]);
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
             ])

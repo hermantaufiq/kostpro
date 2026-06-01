@@ -17,47 +17,78 @@ class TagihanForm
     {
         return $schema
             ->components([
-                Select::make('penyewaan_id')
-                    ->relationship('penyewaan', 'id')
-                    ->required(),
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                TextInput::make('kode_tagihan')
-                    ->required(),
-                TextInput::make('periode_bulan')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('periode_tahun')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('jumlah_tagihan')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('jumlah_denda')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('total_tagihan')
-                    ->numeric(),
-                Select::make('status')
-                    ->options(StatusTagihan::class)
-                    ->default('unpaid')
-                    ->required(),
-                DatePicker::make('tanggal_tagihan')
-                    ->required(),
-                DatePicker::make('tanggal_jatuh_tempo')
-                    ->required(),
-                DateTimePicker::make('tanggal_bayar'),
-                TextInput::make('reminder_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                DateTimePicker::make('last_reminder_at'),
-                Textarea::make('catatan')
-                    ->columnSpanFull(),
-                Toggle::make('is_auto_generated')
-                    ->required(),
+                \Filament\Forms\Components\Section::make('Informasi Relasi')
+                    ->schema([
+                        Select::make('penyewaan_id')
+                            ->label('Kode Booking')
+                            ->relationship('penyewaan', 'kode_penyewaan')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Select::make('user_id')
+                            ->label('Penyewa')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        TextInput::make('kode_tagihan')
+                            ->label('No. Invoice')
+                            ->default(fn () => 'INV-' . date('Ymd') . '-' . strtoupper(uniqid()))
+                            ->readOnly()
+                            ->required(),
+                        Select::make('status')
+                            ->options(StatusTagihan::class)
+                            ->default('unpaid')
+                            ->required(),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Rincian Biaya')
+                    ->schema([
+                        TextInput::make('jumlah_tagihan')
+                            ->label('Tagihan Pokok')
+                            ->required()
+                            ->numeric()
+                            ->prefix('Rp'),
+                        TextInput::make('jumlah_denda')
+                            ->label('Denda (Keterlambatan)')
+                            ->required()
+                            ->numeric()
+                            ->default(0)
+                            ->prefix('Rp'),
+                        TextInput::make('total_tagihan')
+                            ->label('Total Harus Dibayar')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->helperText('Dikosongkan jika ingin dihitung otomatis oleh sistem saat disimpan.'),
+                    ])->columns(3),
+
+                \Filament\Forms\Components\Section::make('Periode & Waktu')
+                    ->schema([
+                        TextInput::make('periode_bulan')
+                            ->label('Bulan ke-')
+                            ->required()
+                            ->numeric(),
+                        TextInput::make('periode_tahun')
+                            ->label('Tahun')
+                            ->required()
+                            ->numeric()
+                            ->default(date('Y')),
+                        DatePicker::make('tanggal_tagihan')
+                            ->label('Tanggal Diterbitkan')
+                            ->default(now())
+                            ->required(),
+                        DatePicker::make('tanggal_jatuh_tempo')
+                            ->label('Jatuh Tempo')
+                            ->required(),
+                        DateTimePicker::make('tanggal_bayar')
+                            ->label('Waktu Pembayaran'),
+                    ])->columns(3),
+
+                \Filament\Forms\Components\Section::make('Catatan')
+                    ->schema([
+                        Textarea::make('catatan')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }
