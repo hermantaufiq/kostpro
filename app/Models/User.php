@@ -8,11 +8,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +31,7 @@ class User extends Authenticatable
         'alamat',
         'foto_ktp_url',
         'is_active',
+        'user_type',
     ];
 
     /**
@@ -72,5 +76,10 @@ class User extends Authenticatable
     public function notifikasi(): HasMany
     {
         return $this->hasMany(Notifikasi::class);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->user_type === 'admin' && $this->hasRole(['super_admin', 'admin_operasional', 'admin_keuangan']);
     }
 }
