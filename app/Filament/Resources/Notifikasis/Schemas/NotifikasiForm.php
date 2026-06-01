@@ -15,22 +15,37 @@ class NotifikasiForm
     {
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                TextInput::make('judul')
-                    ->required(),
-                Textarea::make('pesan')
-                    ->required()
-                    ->columnSpanFull(),
-                Select::make('tipe')
-                    ->options(TipeNotifikasi::class)
-                    ->default('sistem')
-                    ->required(),
-                TextInput::make('data'),
-                TextInput::make('action_url')
-                    ->url(),
-                DateTimePicker::make('read_at'),
+                \Filament\Forms\Components\Section::make('Tujuan & Tipe')
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Kirim ke (Penyewa)')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Select::make('tipe')
+                            ->label('Tipe Notifikasi')
+                            ->options(TipeNotifikasi::class)
+                            ->default('sistem')
+                            ->required(),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Isi Notifikasi')
+                    ->schema([
+                        TextInput::make('judul')
+                            ->label('Judul / Subjek')
+                            ->required()
+                            ->columnSpanFull(),
+                        Textarea::make('pesan')
+                            ->label('Isi Pesan')
+                            ->required()
+                            ->rows(4)
+                            ->columnSpanFull(),
+                        TextInput::make('action_url')
+                            ->label('URL Tombol Aksi (opsional)')
+                            ->url()
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }
