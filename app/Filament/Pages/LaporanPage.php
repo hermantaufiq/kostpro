@@ -8,10 +8,11 @@ use App\Models\Tagihan;
 use App\Models\Pembayaran;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
+use BackedEnum;
 
 class LaporanPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-chart-bar';
     protected static ?string $navigationLabel = 'Laporan';
     protected static ?string $title = 'Laporan Keuangan & Hunian';
     protected static ?int $navigationSort = 10;

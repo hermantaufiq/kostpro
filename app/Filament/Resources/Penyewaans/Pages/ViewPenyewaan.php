@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Penyewaans\Pages;
 
 use App\Filament\Resources\Penyewaans\PenyewaanResource;
-use Filament\Actions\EditAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewPenyewaan extends ViewRecord

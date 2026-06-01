@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Kamars\Pages;
 
 use App\Filament\Resources\Kamars\KamarResource;
-use Filament\Actions\CreateAction;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListKamars extends ListRecords

@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Penyewaans\Pages;
 
 use App\Filament\Resources\Penyewaans\PenyewaanResource;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPenyewaan extends EditRecord

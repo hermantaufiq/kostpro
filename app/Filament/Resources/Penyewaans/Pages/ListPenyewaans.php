@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Penyewaans\Pages;
 
 use App\Filament\Resources\Penyewaans\PenyewaanResource;
-use Filament\Actions\CreateAction;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListPenyewaans extends ListRecords

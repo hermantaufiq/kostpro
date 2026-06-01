@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Pembayarans\Pages;
 
 use App\Filament\Resources\Pembayarans\PembayaranResource;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPembayaran extends EditRecord

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Tagihans\Pages;
 
 use App\Filament\Resources\Tagihans\TagihanResource;
-use Filament\Actions\CreateAction;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListTagihans extends ListRecords

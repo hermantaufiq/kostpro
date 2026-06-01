@@ -9,9 +9,7 @@ Route::get('/kamar', [KamarController::class, 'index'])->name('kamar.index');
 Route::get('/kamar/{id}', [KamarController::class, 'show'])->name('kamar.show');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('user.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
 
     // Penyewaan
     Route::get('/kamar/{id}/sewa', [\App\Http\Controllers\User\PenyewaanController::class, 'create'])->name('user.penyewaan.create');

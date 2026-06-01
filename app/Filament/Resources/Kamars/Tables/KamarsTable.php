@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Kamars\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
@@ -32,7 +32,7 @@ class KamarsTable
                     ->sortable(),
                 TextColumn::make('tipe')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
                         'standar' => 'gray',
                         'deluxe' => 'info',
                         'vip' => 'warning',
@@ -47,7 +47,7 @@ class KamarsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
                         'tersedia' => 'success',
                         'terisi' => 'primary',
                         'maintenance' => 'danger',
