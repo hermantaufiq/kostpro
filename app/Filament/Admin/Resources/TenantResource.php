@@ -62,6 +62,11 @@ class TenantResource extends Resource
             ->defaultSort('name');
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->where('user_type', 'tenant');
+    }
+
     public static function getNavigationIcon(): ?string { return 'heroicon-o-users'; }
     public static function getNavigationLabel(): string { return 'Penyewa'; }
     public static function getNavigationGroup(): ?string { return 'Master Data'; }

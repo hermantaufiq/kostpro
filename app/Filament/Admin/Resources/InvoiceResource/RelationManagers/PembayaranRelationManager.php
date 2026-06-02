@@ -30,8 +30,8 @@ class PembayaranRelationManager extends RelationManager
                     ->label('Metode Pembayaran')
                     ->options(MetodePembayaran::class)
                     ->required(),
-                Forms\Components\TextInput::make('xendit_id')
-                    ->label('Xendit ID')
+                Forms\Components\TextInput::make('xendit_invoice_id')
+                    ->label('Xendit Invoice ID')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('channel_code')
                     ->label('Channel Code')
@@ -46,7 +46,7 @@ class PembayaranRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('id')
+            ->recordTitleAttribute('kode_pembayaran')
             ->columns([
                 Tables\Columns\TextColumn::make('paid_at')
                     ->label('Tanggal Pembayaran')
@@ -58,14 +58,14 @@ class PembayaranRelationManager extends RelationManager
                     ->sortable(),
                 Tables\Columns\TextColumn::make('metode')
                     ->label('Metode')
-                    ->formatStateUsing(fn ($state) => $state->label())
+                    ->formatStateUsing(fn ($state) => $state instanceof MetodePembayaran ? $state->label() : $state)
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
-                        'success' => StatusPembayaran::Lunas->value,
-                        'warning' => StatusPembayaran::Pending->value,
-                        'danger' => StatusPembayaran::Failed->value,
+                        'success' => fn($state) => $state === StatusPembayaran::Success,
+                        'warning' => fn($state) => $state === StatusPembayaran::Pending,
+                        'danger' => fn($state) => $state === StatusPembayaran::Failed,
                     ])
                     ->sortable(),
             ])

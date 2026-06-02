@@ -84,7 +84,12 @@ class RoomResource extends Resource
                     ->schema([
                         Textarea::make('deskripsi')
                             ->label('Deskripsi')
-                            ->rows(4),
+                            ->rows(4)->columnSpanFull(),
+                        \Filament\Forms\Components\CheckboxList::make('fasilitasMaster')
+                            ->relationship('fasilitasMaster', 'nama')
+                            ->label('Fasilitas (Pilih dari Master Data)')
+                            ->columns(3)
+                            ->columnSpanFull(),
                         Checkbox::make('is_featured')
                             ->label('Tampilkan di Halaman Utama'),
                     ]),

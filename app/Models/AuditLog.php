@@ -12,6 +12,7 @@ class AuditLog extends Model
     protected $fillable = [
         'user_id',
         'event',
+        'description',
         'model_type',
         'model_id',
         'old_values',
@@ -33,10 +34,5 @@ class AuditLog extends Model
     public function subject()
     {
         return $this->morphTo('model', 'model_type', 'model_id');
-    }
-
-    public function getDescriptionAttribute(): string
-    {
-        return "{$this->event} {$this->model_type}";
     }
 }

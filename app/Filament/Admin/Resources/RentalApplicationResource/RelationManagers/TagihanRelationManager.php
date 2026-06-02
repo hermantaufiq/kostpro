@@ -23,11 +23,11 @@ class TagihanRelationManager extends RelationManager
                 Forms\Components\DatePicker::make('tanggal_jatuh_tempo')
                     ->label('Tanggal Jatuh Tempo')
                     ->required(),
-                Forms\Components\TextInput::make('nominal')
+                Forms\Components\TextInput::make('jumlah_tagihan')
                     ->label('Nominal (Rp)')
                     ->numeric()
                     ->required(),
-                Forms\Components\TextInput::make('denda')
+                Forms\Components\TextInput::make('jumlah_denda')
                     ->label('Denda (Rp)')
                     ->numeric()
                     ->default(0),
@@ -41,27 +41,27 @@ class TagihanRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('id')
+            ->recordTitleAttribute('kode_tagihan')
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal_jatuh_tempo')
                     ->label('Jatuh Tempo')
                     ->date('d M Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('nominal')
+                Tables\Columns\TextColumn::make('jumlah_tagihan')
                     ->label('Nominal')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('denda')
+                Tables\Columns\TextColumn::make('jumlah_denda')
                     ->label('Denda')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
-                        'success' => StatusTagihan::Lunas->value,
-                        'warning' => StatusTagihan::JatuhTempo->value,
-                        'danger' => StatusTagihan::Overdue->value,
-                        'primary' => StatusTagihan::Pending->value,
+                        'success' => fn($state) => $state === StatusTagihan::Paid,
+                        'warning' => fn($state) => $state === StatusTagihan::Overdue,
+                        'danger' => fn($state) => $state === StatusTagihan::Cancelled,
+                        'primary' => fn($state) => $state === StatusTagihan::Unpaid,
                     ])
                     ->sortable(),
             ])

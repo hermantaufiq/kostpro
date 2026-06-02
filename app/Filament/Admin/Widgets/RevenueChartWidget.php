@@ -28,7 +28,7 @@ class RevenueChartWidget extends ChartWidget
             $date = now()->subDays($i)->startOfDay();
             $labels[] = $date->format('d M');
 
-            $revenue = Pembayaran::where('status', StatusPembayaran::Lunas)
+            $revenue = Pembayaran::where('status', StatusPembayaran::Success)
                 ->whereDate('paid_at', $date)
                 ->sum('jumlah_diterima');
 

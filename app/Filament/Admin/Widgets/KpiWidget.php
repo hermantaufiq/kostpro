@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 
 class KpiWidget extends BaseWidget
 {
-    protected static ?string $pollingInterval = '30s';
+    protected ?string $pollingInterval = '30s';
 
     public static function getSort(): int
     {

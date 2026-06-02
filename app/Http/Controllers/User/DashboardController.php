@@ -9,6 +9,9 @@ use App\Models\Notifikasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Enums\StatusPenyewaan;
+use App\Enums\StatusTagihan;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -18,13 +21,13 @@ class DashboardController extends Controller
         // Cari penyewaan yang sedang aktif
         $activePenyewaan = Penyewaan::with('kamar')
             ->where('user_id', $userId)
-            ->where('status', 'active')
+            ->where('status', StatusPenyewaan::Active)
             ->first();
 
         // Cari semua tagihan yang belum lunas
         $tagihanAktif = Tagihan::with('penyewaan.kamar')
             ->where('user_id', $userId)
-            ->whereIn('status', ['unpaid', 'overdue'])
+            ->whereIn('status', [StatusTagihan::Unpaid, StatusTagihan::Overdue])
             ->orderBy('tanggal_jatuh_tempo', 'asc')
             ->get();
 

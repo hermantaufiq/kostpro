@@ -17,7 +17,7 @@ class SendInvoiceReminderJob implements ShouldQueue
     public function handle(): void
     {
         // Get invoices due in 3 days
-        $upcomingInvoices = Tagihan::where('status', '!=', StatusTagihan::Lunas)
+        $upcomingInvoices = Tagihan::where('status', '!=', StatusTagihan::Paid)
             ->whereDate('tanggal_jatuh_tempo', '<=', Carbon::now()->addDays(3))
             ->whereDate('tanggal_jatuh_tempo', '>', Carbon::now())
             ->with('penyewaan.user')
@@ -28,7 +28,7 @@ class SendInvoiceReminderJob implements ShouldQueue
                 'user_id' => $tagihan->penyewaan->user_id,
                 'tipe' => TipeNotifikasi::InvoiceReminder,
                 'judul' => 'Pengingat Pembayaran Tagihan',
-                'pesan' => 'Tagihan Rp ' . number_format($tagihan->nominal, 0, ',', '.') . ' jatuh tempo pada ' . $tagihan->tanggal_jatuh_tempo->format('d M Y'),
+                'pesan' => 'Tagihan Rp ' . number_format($tagihan->jumlah_tagihan, 0, ',', '.') . ' jatuh tempo pada ' . Carbon::parse($tagihan->tanggal_jatuh_tempo)->format('d M Y'),
                 'read_at' => null,
             ]);
         }

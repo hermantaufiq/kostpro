@@ -24,27 +24,26 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Pembayaran::class;
 
-    protected static ?string $recordTitleAttribute = 'kode_transaksi';
+    protected static ?string $recordTitleAttribute = 'kode_pembayaran';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
             Section::make('Informasi Pembayaran')->schema([
-                TextInput::make('kode_transaksi')->disabled(),
+                TextInput::make('kode_pembayaran')->disabled(),
                 Select::make('tagihan_id')->relationship('tagihan', 'kode_tagihan')->required(),
                 TextInput::make('jumlah')->numeric()->required(),
                 Select::make('metode')
                     ->options(fn() => collect(MetodePembayaran::cases())->mapWithKeys(fn($c) => [$c->value => $c->label()]))
                     ->required(),
-                DateTimePicker::make('tanggal_pembayaran'),
+                DateTimePicker::make('paid_at')->label('Tanggal Pembayaran'),
             ]),
 
             Section::make('Status & Xendit')->schema([
                 Select::make('status')
                     ->options(fn() => collect(StatusPembayaran::cases())->mapWithKeys(fn($c) => [$c->value => $c->label()]))
                     ->required(),
-                TextInput::make('xendit_id'),
-                Textarea::make('catatan')->rows(3),
+                TextInput::make('xendit_invoice_id')->label('Xendit Invoice ID'),
             ]),
         ]);
     }
@@ -53,18 +52,19 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kode_transaksi')->searchable()->sortable(),
+                TextColumn::make('kode_pembayaran')->searchable()->sortable(),
                 TextColumn::make('tagihan.kode_tagihan')->label('Tagihan'),
+                TextColumn::make('tagihan.penyewaan.user.name')->label('Penyewa'), // Added penyewa
                 TextColumn::make('jumlah')->money('IDR', 0),
                 TextColumn::make('metode')
                     ->formatStateUsing(fn($state) => $state instanceof MetodePembayaran ? $state->label() : $state),
-                TextColumn::make('tanggal_pembayaran')->datetime('d/m/Y H:i'),
+                TextColumn::make('paid_at')->label('Tanggal Pembayaran')->datetime('d/m/Y H:i'),
                 BadgeColumn::make('status')
                     ->formatStateUsing(fn($state) => $state instanceof StatusPembayaran ? $state->label() : $state)
                     ->colors([
-                        'success' => fn($s) => $s instanceof StatusPembayaran && $s === StatusPembayaran::Lunas,
+                        'success' => fn($s) => $s instanceof StatusPembayaran && $s === StatusPembayaran::Success,
                         'warning' => fn($s) => $s instanceof StatusPembayaran && $s === StatusPembayaran::Pending,
-                        'danger' => fn($s) => $s instanceof StatusPembayaran && $s === StatusPembayaran::Gagal,
+                        'danger' => fn($s) => $s instanceof StatusPembayaran && $s === StatusPembayaran::Failed,
                     ]),
             ])
             ->filters([SelectFilter::make('status')])
@@ -76,8 +76,8 @@ class PaymentResource extends Resource
                         ->color('success')
                         ->visible(fn($record) => $record->status === StatusPembayaran::Pending)
                         ->action(function ($record) {
-                            $record->update(['status' => StatusPembayaran::Lunas, 'tanggal_pembayaran' => now()]);
-                            $record->tagihan->update(['status' => 'Lunas']);
+                            $record->update(['status' => StatusPembayaran::Success, 'paid_at' => now()]);
+                            $record->tagihan->update(['status' => \App\Enums\StatusTagihan::Paid, 'tanggal_bayar' => now()]);
                         })
                         ->successNotificationTitle('Pembayaran dikonfirmasi'),
 
@@ -86,7 +86,7 @@ class PaymentResource extends Resource
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->visible(fn($record) => $record->status === StatusPembayaran::Pending)
-                        ->action(fn($record) => $record->update(['status' => StatusPembayaran::Gagal]))
+                        ->action(fn($record) => $record->update(['status' => StatusPembayaran::Failed]))
                         ->successNotificationTitle('Pembayaran ditolak'),
                 ]),
             ])

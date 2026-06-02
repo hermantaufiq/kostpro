@@ -30,10 +30,10 @@ class InvoiceResource extends Resource
             Section::make('Informasi Tagihan')->schema([
                 TextInput::make('kode_tagihan')->disabled(),
                 Select::make('penyewaan_id')->relationship('penyewaan', 'kode_penyewaan')->required(),
-                TextInput::make('nominal')->numeric()->required(),
-                TextInput::make('denda')->numeric(),
+                TextInput::make('jumlah_tagihan')->numeric()->required(),
+                TextInput::make('jumlah_denda')->numeric(),
                 DatePicker::make('tanggal_jatuh_tempo')->required(),
-                DatePicker::make('tanggal_dibayar'),
+                DatePicker::make('tanggal_bayar'),
             ]),
 
             Section::make('Status & Catatan')->schema([
@@ -51,14 +51,14 @@ class InvoiceResource extends Resource
             ->columns([
                 TextColumn::make('kode_tagihan')->searchable()->sortable(),
                 TextColumn::make('penyewaan.user.name')->label('Penyewa'),
-                TextColumn::make('nominal')->money('IDR', 0),
+                TextColumn::make('jumlah_tagihan')->money('IDR', 0),
                 TextColumn::make('tanggal_jatuh_tempo')->date('d/m/Y'),
                 BadgeColumn::make('status')
                     ->formatStateUsing(fn($state) => $state instanceof StatusTagihan ? $state->label() : $state)
                     ->colors([
-                        'success' => fn($s) => $s instanceof StatusTagihan && $s === StatusTagihan::Lunas,
-                        'danger' => fn($s) => $s instanceof StatusTagihan && ($s === StatusTagihan::JatuhTempo || $s === StatusTagihan::Overdue),
-                        'warning' => fn($s) => $s instanceof StatusTagihan && $s === StatusTagihan::Pending,
+                        'success' => fn($s) => $s instanceof StatusTagihan && $s === StatusTagihan::Paid,
+                        'danger' => fn($s) => $s instanceof StatusTagihan && ($s === StatusTagihan::Overdue || $s === StatusTagihan::Cancelled),
+                        'warning' => fn($s) => $s instanceof StatusTagihan && $s === StatusTagihan::Unpaid,
                     ]),
             ])
             ->filters([SelectFilter::make('status')])

@@ -71,22 +71,14 @@ class RentalApplicationResource extends Resource
                         ->color('success')
                         ->visible(fn($record) => $record->status === StatusPenyewaan::Pending)
                         ->action(function ($record) {
-                            $record->update(['status' => StatusPenyewaan::Approved]);
+                            $record->update([
+                                'status' => StatusPenyewaan::Approved,
+                                'approved_by' => auth()->id(),
+                                'tanggal_approval' => now(),
+                            ]);
                             
-                            // Create invoices for each month
-                            $startDate = $record->tanggal_masuk;
-                            $monthCount = $record->durasi_bulan ?? 1;
-                            
-                            for ($i = 0; $i < $monthCount; $i++) {
-                                $dueDate = $startDate->copy()->addMonths($i)->endOfMonth();
-                                Tagihan::create([
-                                    'penyewaan_id' => $record->id,
-                                    'nominal' => $record->harga_bulanan_snapshot,
-                                    'denda' => 0,
-                                    'tanggal_jatuh_tempo' => $dueDate,
-                                    'status' => 'Pending',
-                                ]);
-                            }
+                            // Generate invoices
+                            \App\Services\InvoiceService::createMonthlyInvoices($record);
                         })
                         ->successNotificationTitle('Pengajuan disetujui & tagihan dibuat'),
 
@@ -95,7 +87,15 @@ class RentalApplicationResource extends Resource
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->visible(fn($record) => $record->status === StatusPenyewaan::Pending)
-                        ->action(fn($record) => $record->update(['status' => StatusPenyewaan::Rejected]))
+                        ->form([
+                            \Filament\Forms\Components\Textarea::make('catatan_admin')
+                                ->label('Alasan Penolakan')
+                                ->required(),
+                        ])
+                        ->action(fn($record, array $data) => $record->update([
+                            'status' => StatusPenyewaan::Rejected,
+                            'catatan_admin' => $data['catatan_admin'],
+                        ]))
                         ->successNotificationTitle('Pengajuan ditolak'),
 
                     Action::make('activate')

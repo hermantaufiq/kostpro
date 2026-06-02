@@ -11,6 +11,7 @@ use App\Services\KamarAvailabilityService;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
+use App\Filament\Admin\Widgets\RecentActivityWidget;
 
 class AdminDashboard extends Dashboard
 {
@@ -28,6 +29,7 @@ class AdminDashboard extends Dashboard
             \App\Filament\Admin\Widgets\OccupancyChartWidget::class,
             \App\Filament\Admin\Widgets\PaymentMethodChartWidget::class,
             \App\Filament\Admin\Widgets\TenantGrowthChartWidget::class,
+            RecentActivityWidget::class,
         ];
     }
 }
