@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\SendInvoiceReminderJob;
+use App\Jobs\ProcessOverdueInvoicesJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -9,14 +11,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // ─── KosPro Scheduler ──────────────────────────────────────────
-// Generate tagihan bulanan — setiap tanggal 1 jam 07:00
-Schedule::command('kostpro:generate-tagihan')->monthlyOn(1, '07:00');
+// Process overdue invoices — setiap hari jam 07:00
+Schedule::job(new ProcessOverdueInvoicesJob())->dailyAt('07:00');
 
-// Cek tagihan overdue — setiap hari jam 08:00
-Schedule::command('kostpro:check-overdue')->dailyAt('08:00');
-
-// Kirim reminder H-3 — setiap hari jam 09:00
-Schedule::command('kostpro:send-reminder --days=3')->dailyAt('09:00');
-
-// Kirim reminder H-1 — setiap hari jam 09:30
-Schedule::command('kostpro:send-reminder --days=1')->dailyAt('09:30');
+// Send invoice reminders — setiap hari jam 08:00
+Schedule::job(new SendInvoiceReminderJob())->dailyAt('08:00');

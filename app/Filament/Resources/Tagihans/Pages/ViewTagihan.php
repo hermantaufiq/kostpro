@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Tagihans\Pages;
 
 use App\Filament\Resources\Tagihans\TagihanResource;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewTagihan extends ViewRecord

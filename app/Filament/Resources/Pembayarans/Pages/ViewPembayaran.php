@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Pembayarans\Pages;
 
 use App\Filament\Resources\Pembayarans\PembayaranResource;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewPembayaran extends ViewRecord

@@ -34,4 +34,9 @@ class AuditLog extends Model
     {
         return $this->morphTo('model', 'model_type', 'model_id');
     }
+
+    public function getDescriptionAttribute(): string
+    {
+        return "{$this->event} {$this->model_type}";
+    }
 }

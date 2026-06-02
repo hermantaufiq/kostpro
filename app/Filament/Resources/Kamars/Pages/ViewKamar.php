@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Kamars\Pages;
 
 use App\Filament\Resources\Kamars\KamarResource;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewKamar extends ViewRecord

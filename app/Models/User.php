@@ -32,6 +32,10 @@ class User extends Authenticatable implements FilamentUser
         'foto_ktp_url',
         'is_active',
         'user_type',
+        'staff_role',
+        'assigned_department',
+        'last_login_at',
+        'login_count',
     ];
 
     /**
@@ -55,6 +59,8 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
+            'login_count' => 'integer',
         ];
     }
 
