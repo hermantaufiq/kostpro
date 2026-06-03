@@ -21,7 +21,7 @@ class KamarObserver
             foreach ($kamar->images as $index => $imagePath) {
                 $newPaths[] = $imagePath;
                 $foto = $kamar->fotoKamar()->firstOrNew(['foto_path' => $imagePath]);
-                $foto->foto_url = \Illuminate\Support\Facades\Storage::url($imagePath);
+                $foto->foto_url = '/storage/' . $imagePath;
                 $foto->is_thumbnail = ($index === 0);
                 $foto->sort_order = $index;
                 $foto->save();
