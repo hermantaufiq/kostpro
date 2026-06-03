@@ -12,8 +12,6 @@ use Filament\Notifications\Notification;
 
 class SettingsPage extends Page
 {
-    protected string $view = 'filament.pages.settings-page';
-
     public ?array $data = [];
 
     public static function getNavigationIcon(): string
@@ -81,7 +79,7 @@ class SettingsPage extends Page
                             ->label('Informasi Rekening Pembayaran')
                             ->placeholder("BCA 1234567890 a.n Admin\nMandiri 0987654321 a.n Admin")
                             ->rows(4),
-                        TextInput::make('nominal_denda')
+                        \Filament\Forms\Components\TextInput::make('nominal_denda')
                             ->label('Nominal Denda Keterlambatan per Hari')
                             ->numeric()
                             ->prefix('Rp')
@@ -89,6 +87,24 @@ class SettingsPage extends Page
                     ]),
             ])
             ->statePath('data');
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Form::make([
+                    \Filament\Schemas\Components\EmbeddedSchema::make('form')
+                ])
+                ->livewireSubmitHandler('save')
+                ->footer([
+                    \Filament\Schemas\Components\Actions::make([
+                        \Filament\Actions\Action::make('save')
+                            ->label('Simpan Pengaturan')
+                            ->submit('save')
+                    ])
+                ]),
+            ]);
     }
 
     public function save(): void
