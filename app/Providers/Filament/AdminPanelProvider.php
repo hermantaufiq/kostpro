@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\AdminOnly;
 use App\Http\Middleware\LogAdminActivity;
+use App\Http\Middleware\RedirectNonAdminToAdminLogin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -65,6 +66,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                RedirectNonAdminToAdminLogin::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
