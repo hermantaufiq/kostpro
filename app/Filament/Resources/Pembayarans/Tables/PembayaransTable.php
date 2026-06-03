@@ -8,15 +8,12 @@ use App\Models\Pembayaran;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
 use Filament\Actions\ExportAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class PembayaransTable
@@ -66,7 +63,6 @@ class PembayaransTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(StatusPembayaran::class),
-                TrashedFilter::make(),
             ])
             ->recordActions([
                 Action::make('approve_manual')
@@ -101,8 +97,6 @@ class PembayaransTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(\App\Filament\Exports\PembayaranExporter::class),
                 ]),
