@@ -22,7 +22,6 @@ class Tagihan extends Model
         'periode_tahun',
         'jumlah_tagihan',
         'jumlah_denda',
-        'total_tagihan',
         'status',
         'tanggal_tagihan',
         'tanggal_jatuh_tempo',

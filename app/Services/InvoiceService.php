@@ -75,7 +75,6 @@ class InvoiceService
                 'periode_tahun'      => (int) $periodeDate->format('Y'),
                 'jumlah_tagihan'     => $penyewaan->harga_bulanan_snapshot,
                 'jumlah_denda'       => 0,
-                'total_tagihan'      => $penyewaan->harga_bulanan_snapshot,
                 'status'             => StatusTagihan::Unpaid,
                 'tanggal_tagihan'    => $invoiceDate->toDateString(),
                 'tanggal_jatuh_tempo'=> $dueDate->toDateString(),
