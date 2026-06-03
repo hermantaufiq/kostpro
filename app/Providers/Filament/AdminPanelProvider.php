@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -17,6 +16,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\AdminOnly;
+use App\Http\Middleware\FilamentAuthenticate;
 use App\Http\Middleware\LogAdminActivity;
 use App\Http\Middleware\RedirectNonAdminToAdminLogin;
 
@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 RedirectNonAdminToAdminLogin::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                FilamentAuthenticate::class,
             ]);
     }
 }
