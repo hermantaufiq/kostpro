@@ -35,15 +35,18 @@ class FilamentAuthenticate extends Middleware
 
         $panel = Filament::getCurrentOrDefaultPanel();
 
-        // Check if the user can access the admin panel
-        $canAccess = $user instanceof FilamentUser
-            ? $user->canAccessPanel($panel)
-            : (config('app.env') === 'local');
+        $canAccess = $user->user_type === 'admin'
+            && in_array($user->staff_role, ['super_admin', 'admin_operasional', 'admin_keuangan']);
 
         if (! $canAccess) {
-            throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman Admin.')
-            );
+            // Log them out from all guards and redirect to admin login
+            // instead of throwing 403 Forbidden
+            $guard->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $this->unauthenticated($request, $guards);
+            return;
         }
     }
 
