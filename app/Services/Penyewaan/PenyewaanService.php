@@ -58,7 +58,21 @@ class PenyewaanService implements PenyewaanServiceInterface
                 'tanggal_approval' => now(),
             ]);
 
-            // Todo: Dispatch event to generate initial tagihan
+            // Generate initial monthly invoices
+            \App\Services\InvoiceService::createMonthlyInvoices($penyewaan);
+
+            // Create notification for tenant
+            \App\Models\Notifikasi::create([
+                'user_id' => $penyewaan->user_id,
+                'tipe' => \App\Enums\TipeNotifikasi::PenyewaanApproved,
+                'judul' => 'Pengajuan Sewa Disetujui',
+                'pesan' => 'Pengajuan sewa Anda untuk kamar ' . $penyewaan->kamar->nama . ' telah disetujui.',
+                'read_at' => null,
+            ]);
+
+            // Send approval email
+            \App\Jobs\SendEmailApprovalJob::dispatch($penyewaan, 'approved');
+
             return $penyewaan;
         });
     }
@@ -76,6 +90,18 @@ class PenyewaanService implements PenyewaanServiceInterface
             $this->kamarRepository->update($penyewaan->kamar_id, [
                 'status' => StatusKamar::Tersedia
             ]);
+
+            // Create notification for tenant
+            \App\Models\Notifikasi::create([
+                'user_id' => $penyewaan->user_id,
+                'tipe' => \App\Enums\TipeNotifikasi::PenyewaanRejected,
+                'judul' => 'Pengajuan Sewa Ditolak',
+                'pesan' => 'Pengajuan sewa Anda untuk kamar ' . $penyewaan->kamar->nama . ' telah ditolak.' . ($catatan ? ' Catatan: ' . $catatan : ''),
+                'read_at' => null,
+            ]);
+
+            // Send rejection email
+            \App\Jobs\SendEmailApprovalJob::dispatch($penyewaan, 'rejected');
 
             return $penyewaan;
         });

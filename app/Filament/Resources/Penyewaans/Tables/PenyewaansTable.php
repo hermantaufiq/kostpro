@@ -67,11 +67,7 @@ class PenyewaansTable
                     ->requiresConfirmation()
                     ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'pending')
                     ->action(function (\App\Models\Penyewaan $record) {
-                        $record->update([
-                            'status' => 'approved',
-                            'approved_by' => auth()->id(),
-                            'tanggal_approval' => now(),
-                        ]);
+                        app(\App\Contracts\Services\PenyewaanServiceInterface::class)->approveSewa($record->id, auth()->id());
                     }),
                 \Filament\Actions\Action::make('reject')
                     ->label('Reject')
@@ -80,11 +76,7 @@ class PenyewaansTable
                     ->requiresConfirmation()
                     ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'pending')
                     ->action(function (\App\Models\Penyewaan $record) {
-                        $record->update([
-                            'status' => 'rejected',
-                            'approved_by' => auth()->id(),
-                            'tanggal_approval' => now(),
-                        ]);
+                        app(\App\Contracts\Services\PenyewaanServiceInterface::class)->rejectSewa($record->id, auth()->id());
                     }),
                 ViewAction::make(),
                 EditAction::make(),
