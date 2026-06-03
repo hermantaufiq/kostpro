@@ -10,10 +10,8 @@ use App\Filament\Resources\Tagihans\Schemas\TagihanForm;
 use App\Filament\Resources\Tagihans\Schemas\TagihanInfolist;
 use App\Filament\Resources\Tagihans\Tables\TagihansTable;
 use App\Models\Tagihan;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -21,46 +19,33 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class TagihanResource extends Resource
 {
     protected static ?string $model = Tagihan::class;
+    protected static ?string $recordTitleAttribute = 'no_tagihan';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    public static function getNavigationIcon(): string { return 'heroicon-o-document-text'; }
+    public static function getNavigationLabel(): string { return 'Tagihan'; }
+    public static function getNavigationGroup(): ?string { return 'Keuangan'; }
+    public static function getNavigationSort(): ?int { return 1; }
+    public static function getModelLabel(): string { return 'Tagihan'; }
 
-    public static function form(Schema $schema): Schema
-    {
-        return TagihanForm::configure($schema);
-    }
+    public static function form(Schema $schema): Schema { return TagihanForm::configure($schema); }
+    public static function infolist(Schema $schema): Schema { return TagihanInfolist::configure($schema); }
+    public static function table(Table $table): Table { return TagihansTable::configure($table); }
 
-    public static function infolist(Schema $schema): Schema
-    {
-        return TagihanInfolist::configure($schema);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return TagihansTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+    public static function getRelations(): array { return []; }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListTagihans::route('/'),
+            'index'  => ListTagihans::route('/'),
             'create' => CreateTagihan::route('/create'),
-            'view' => ViewTagihan::route('/{record}'),
-            'edit' => EditTagihan::route('/{record}/edit'),
+            'view'   => ViewTagihan::route('/{record}'),
+            'edit'   => EditTagihan::route('/{record}/edit'),
         ];
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 }

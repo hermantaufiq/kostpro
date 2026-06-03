@@ -2,11 +2,21 @@
 
 namespace App\Filament\Resources\Pembayarans\Tables;
 
+use App\Enums\MetodePembayaran;
+use App\Enums\StatusPembayaran;
+use App\Models\Pembayaran;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class PembayaransTable
@@ -19,77 +29,81 @@ class PembayaransTable
                     ->label('Kode Bayar')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
-                TextColumn::make('tagihan.kode_tagihan')
+                    ->weight('bold')
+                    ->copyable(),
+                TextColumn::make('tagihan.no_tagihan')
                     ->label('No. Invoice')
-                    ->searchable(),
-                TextColumn::make('user.name')
+                    ->searchable()
+                    ->placeholder('-'),
+                TextColumn::make('tagihan.penyewaan.penyewa.name')
                     ->label('Penyewa')
-                    ->searchable(),
-                TextColumn::make('metode')
+                    ->searchable()
+                    ->placeholder('-'),
+                TextColumn::make('metode_pembayaran')
                     ->label('Metode')
                     ->badge()
                     ->color('info'),
-                TextColumn::make('channel_code')
-                    ->label('Channel')
-                    ->searchable(),
-                TextColumn::make('jumlah')
+                TextColumn::make('jumlah_diterima')
                     ->label('Jumlah Bayar')
-                    ->money('IDR')
+                    ->money('idr')
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
-                        'pending' => 'warning',
-                        'success' => 'success',
-                        'failed' => 'danger',
-                        'expired' => 'danger',
-                        default => 'gray',
+                    ->color(fn ($state): string => match (is_object($state) ? $state->value : $state) {
+                        'pending'  => 'warning',
+                        'success'  => 'success',
+                        'failed'   => 'danger',
+                        'expired'  => 'gray',
+                        'refunded' => 'primary',
+                        default    => 'gray',
                     }),
                 TextColumn::make('paid_at')
                     ->label('Tgl Bayar')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('-'),
             ])
             ->filters([
-                \Filament\Tables\Filters\SelectFilter::make('status')
-                    ->options(\App\Enums\StatusPembayaran::class),
-                \Filament\Tables\Filters\SelectFilter::make('metode')
-                    ->options(\App\Enums\MetodePembayaran::class),
+                SelectFilter::make('status')
+                    ->options(StatusPembayaran::class),
+                TrashedFilter::make(),
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('approve_manual')
-                    ->label('Verifikasi Manual')
+                Action::make('approve_manual')
+                    ->label('Verifikasi')
                     ->icon('heroicon-m-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (\App\Models\Pembayaran $record) => $record->status->value === 'pending' && $record->metode->value === 'manual')
-                    ->action(function (\App\Models\Pembayaran $record) {
-                        // Approve manual payment
+                    ->visible(fn (Pembayaran $record): bool =>
+                        $record->status instanceof \BackedEnum
+                            ? $record->status->value === 'pending'
+                            : $record->status === 'pending'
+                    )
+                    ->action(function (Pembayaran $record): void {
                         $record->update([
-                            'status' => 'success',
+                            'status'  => StatusPembayaran::Success,
                             'paid_at' => now(),
                         ]);
-                        
-                        // Update tagihan
-                        $record->tagihan->update([
-                            'status' => 'paid',
-                            'tanggal_bayar' => now(),
-                        ]);
+                        if ($record->tagihan) {
+                            $record->tagihan->update([
+                                'status'       => 'paid',
+                                'tanggal_bayar' => now(),
+                            ]);
+                        }
                     }),
                 ViewAction::make(),
                 EditAction::make(),
             ])
             ->headerActions([
-                \Filament\Tables\Actions\ExportAction::make()
+                ExportAction::make()
                     ->exporter(\App\Filament\Exports\PembayaranExporter::class),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
-                    \Filament\Tables\Actions\ExportBulkAction::make()
+                    ExportBulkAction::make()
                         ->exporter(\App\Filament\Exports\PembayaranExporter::class),
                 ]),
             ]);
