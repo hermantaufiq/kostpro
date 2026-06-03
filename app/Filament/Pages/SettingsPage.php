@@ -9,9 +9,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Concerns\InteractsWithForms;
 
-class SettingsPage extends Page
+class SettingsPage extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     protected string $view = 'filament.pages.settings-page';
 
     public ?array $data = [];
