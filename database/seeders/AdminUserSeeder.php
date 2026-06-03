@@ -10,7 +10,7 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@kostpro.local'],
             [
                 'name' => 'Admin',
@@ -20,5 +20,6 @@ class AdminUserSeeder extends Seeder
                 'is_active' => 1,
             ]
         );
+        $admin->assignRole('super_admin');
     }
 }

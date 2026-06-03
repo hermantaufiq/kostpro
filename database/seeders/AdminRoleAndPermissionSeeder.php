@@ -63,6 +63,20 @@ class AdminRoleAndPermissionSeeder extends Seeder
             'export_laporan_pdf',
             'export_laporan_excel',
 
+            // Pengeluaran (Expense) Permissions
+            'view_pengeluaran',
+            'create_pengeluaran',
+            'update_pengeluaran',
+            'delete_pengeluaran',
+            'export_pengeluaran',
+
+            // Keluhan (Complaint) Permissions
+            'view_keluhan',
+            'create_keluhan',
+            'update_keluhan',
+            'delete_keluhan',
+            'export_keluhan',
+
             // System Permissions
             'view_audit_log',
             'view_dashboard',
@@ -90,6 +104,7 @@ class AdminRoleAndPermissionSeeder extends Seeder
             'view_penyewa', 'create_penyewa', 'update_penyewa', 'export_penyewa',
             'view_penyewaan', 'create_penyewaan', 'approve_penyewaan', 'reject_penyewaan', 'update_penyewaan',
             'view_notifikasi', 'send_notifikasi', 'broadcast_notifikasi',
+            'view_keluhan', 'update_keluhan', 'export_keluhan', // added keluhan for Op
             'view_audit_log',
             'view_dashboard',
         ];
@@ -99,6 +114,7 @@ class AdminRoleAndPermissionSeeder extends Seeder
         $adminKeuPermissions = [
             'view_tagihan', 'create_tagihan', 'update_tagihan', 'generate_tagihan', 'send_reminder_tagihan', 'export_tagihan',
             'view_pembayaran', 'mark_pembayaran', 'refund_pembayaran', 'export_pembayaran',
+            'view_pengeluaran', 'create_pengeluaran', 'update_pengeluaran', 'export_pengeluaran', // added pengeluaran for Keuangan
             'view_laporan', 'export_laporan_pdf', 'export_laporan_excel',
             'view_penyewa', 'export_penyewa',
             'view_audit_log',
