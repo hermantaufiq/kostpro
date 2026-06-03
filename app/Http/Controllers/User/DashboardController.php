@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Keluhan;
 use App\Models\Penyewaan;
 use App\Models\Tagihan;
 use App\Models\Notifikasi;
@@ -36,10 +37,16 @@ class DashboardController extends Controller
             ->whereNull('read_at')
             ->count();
 
+        // Hitung keluhan aktif
+        $keluhanAktif = Keluhan::where('user_id', $userId)
+            ->whereIn('status', ['menunggu', 'diproses'])
+            ->count();
+
         return view('user.dashboard', compact(
-            'activePenyewaan', 
-            'tagihanAktif', 
-            'unreadNotifCount'
+            'activePenyewaan',
+            'tagihanAktif',
+            'unreadNotifCount',
+            'keluhanAktif'
         ));
     }
 }

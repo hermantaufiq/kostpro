@@ -22,9 +22,34 @@ class KeluhanResource extends Resource
 {
     protected static ?string $model = Keluhan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
     protected static ?string $recordTitleAttribute = 'judul';
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Keluhan Penyewa';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Operasional';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::where('status', 'menunggu')->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 
     public static function form(Schema $schema): Schema
     {

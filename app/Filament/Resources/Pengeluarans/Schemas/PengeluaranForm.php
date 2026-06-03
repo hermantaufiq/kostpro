@@ -4,9 +4,11 @@ namespace App\Filament\Resources\Pengeluarans\Schemas;
 
 use App\Enums\KategoriPengeluaran;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class PengeluaranForm
@@ -20,17 +22,22 @@ class PengeluaranForm
                     ->required(),
                 TextInput::make('jumlah')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('Rp'),
                 DatePicker::make('tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()),
                 Textarea::make('keterangan')
                     ->required()
+                    ->rows(3)
                     ->columnSpanFull(),
-                TextInput::make('bukti_url')
-                    ->url(),
-                TextInput::make('created_by')
-                    ->required()
-                    ->numeric(),
+                FileUpload::make('bukti_url')
+                    ->label('Bukti Nota')
+                    ->image()
+                    ->directory('pengeluaran-bukti')
+                    ->columnSpanFull(),
+                Hidden::make('created_by')
+                    ->default(fn () => auth()->id()),
             ]);
     }
 }

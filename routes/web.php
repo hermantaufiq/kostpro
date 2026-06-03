@@ -29,6 +29,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [\App\Http\Controllers\User\ProfilController::class, 'edit'])->name('user.profil.edit');
     Route::put('/profil', [\App\Http\Controllers\User\ProfilController::class, 'update'])->name('user.profil.update');
     Route::put('/profil/password', [\App\Http\Controllers\User\ProfilController::class, 'updatePassword'])->name('user.profil.password');
+
+    // Keluhan
+    Route::get('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'index'])->name('user.keluhan.index');
+    Route::get('/keluhan/buat', [\App\Http\Controllers\User\KeluhanController::class, 'create'])->name('user.keluhan.create');
+    Route::post('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'store'])->name('user.keluhan.store');
+    Route::get('/keluhan/{keluhan}', [\App\Http\Controllers\User\KeluhanController::class, 'show'])->name('user.keluhan.show');
 });
 
 Route::get('/payment/return', [\App\Http\Controllers\Payment\PaymentController::class, 'return'])->name('payment.return');

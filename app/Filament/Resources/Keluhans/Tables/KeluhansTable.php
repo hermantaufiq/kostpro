@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources\Keluhans\Tables;
 
+use App\Enums\PrioritasKeluhan;
+use App\Enums\StatusKeluhan;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -18,37 +22,39 @@ class KeluhansTable
     {
         return $table
             ->columns([
+                TextColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->date()
+                    ->sortable(),
                 TextColumn::make('user.name')
-                    ->searchable(),
-                TextColumn::make('kamar.id')
+                    ->label('Penyewa')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('kamar.nama')
+                    ->label('Kamar')
+                    ->placeholder('-')
                     ->searchable(),
                 TextColumn::make('judul')
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(40),
                 TextColumn::make('prioritas')
                     ->badge()
-                    ->searchable(),
-                TextColumn::make('foto_url')
-                    ->searchable(),
-                TextColumn::make('resolved_at')
-                    ->dateTime()
                     ->sortable(),
-                TextColumn::make('created_at')
+                TextColumn::make('status')
+                    ->badge()
+                    ->sortable(),
+                TextColumn::make('resolved_at')
+                    ->label('Selesai')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->placeholder('-')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('status')
+                    ->options(StatusKeluhan::class),
+                SelectFilter::make('prioritas')
+                    ->options(PrioritasKeluhan::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([
