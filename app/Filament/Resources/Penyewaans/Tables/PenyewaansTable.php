@@ -60,7 +60,7 @@ class PenyewaansTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('approve')
+                \Filament\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-m-check-circle')
                     ->color('success')
@@ -73,7 +73,7 @@ class PenyewaansTable
                             'tanggal_approval' => now(),
                         ]);
                     }),
-                \Filament\Tables\Actions\Action::make('reject')
+                \Filament\Actions\Action::make('reject')
                     ->label('Reject')
                     ->icon('heroicon-m-x-circle')
                     ->color('danger')

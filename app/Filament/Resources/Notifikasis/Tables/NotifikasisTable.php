@@ -52,7 +52,7 @@ class NotifikasisTable
                     ->nullable(),
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('mark_read')
+                \Filament\Actions\Action::make('mark_read')
                     ->label('Tandai Dibaca')
                     ->icon('heroicon-m-eye')
                     ->color('success')
