@@ -31,7 +31,7 @@ use App\Filament\Admin\Widgets\KpiWidget;
 use App\Filament\Admin\Widgets\RevenueChartWidget;
 use App\Filament\Admin\Widgets\OccupancyChartWidget;
 use App\Filament\Admin\Widgets\PaymentMethodChartWidget;
-use App\Filament\Admin\Widgets\TenantGrowthChartWidget;
+use App\Filament\Admin\Widgets\TenantGrowthChartWidget; 
 use App\Filament\Admin\Widgets\RecentActivityWidget;
 
 class AdminPanelProvider extends PanelProvider
