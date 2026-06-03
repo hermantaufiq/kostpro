@@ -28,7 +28,7 @@ class ProcessPaymentConfirmationJob implements ShouldQueue
         // Create notification for tenant
         Notifikasi::create([
             'user_id' => $this->pembayaran->tagihan->penyewaan->user_id,
-            'tipe' => TipeNotifikasi::PaymentConfirmed,
+            'tipe' => TipeNotifikasi::PembayaranSucces,
             'judul' => 'Pembayaran Dikonfirmasi',
             'pesan' => 'Pembayaran Anda sebesar Rp ' . number_format($this->pembayaran->jumlah_diterima, 0, ',', '.') . ' telah dikonfirmasi.',
             'read_at' => null,

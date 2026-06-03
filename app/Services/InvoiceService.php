@@ -6,6 +6,7 @@ use App\Models\Tagihan;
 use App\Models\Penyewaan;
 use App\Enums\StatusTagihan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {

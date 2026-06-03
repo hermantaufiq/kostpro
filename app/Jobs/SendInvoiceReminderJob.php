@@ -26,9 +26,9 @@ class SendInvoiceReminderJob implements ShouldQueue
         foreach ($upcomingInvoices as $tagihan) {
             Notifikasi::create([
                 'user_id' => $tagihan->penyewaan->user_id,
-                'tipe' => TipeNotifikasi::InvoiceReminder,
-                'judul' => 'Pengingat Pembayaran Tagihan',
-                'pesan' => 'Tagihan Rp ' . number_format($tagihan->jumlah_tagihan, 0, ',', '.') . ' jatuh tempo pada ' . Carbon::parse($tagihan->tanggal_jatuh_tempo)->format('d M Y'),
+                'tipe' => TipeNotifikasi::TagihanReminder,
+                'judul' => 'Pengingat Tagihan',
+                'pesan' => 'Tagihan sebesar Rp ' . number_format($tagihan->jumlah_tagihan, 0, ',', '.') . ' akan jatuh tempo pada ' . Carbon::parse($tagihan->tanggal_jatuh_tempo)->format('d M Y'),
                 'read_at' => null,
             ]);
         }

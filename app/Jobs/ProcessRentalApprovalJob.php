@@ -6,6 +6,7 @@ use App\Models\Penyewaan;
 use App\Models\Tagihan;
 use App\Models\Notifikasi;
 use App\Enums\StatusPenyewaan;
+use App\Enums\StatusTagihan;
 use App\Enums\TipeNotifikasi;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -35,14 +36,14 @@ class ProcessRentalApprovalJob implements ShouldQueue
                 'nominal' => $this->penyewaan->harga_bulanan_snapshot,
                 'denda' => 0,
                 'tanggal_jatuh_tempo' => $dueDate,
-                'status' => 'Pending',
+                'status' => StatusTagihan::Pending,
             ]);
         }
 
         // Create notification for tenant
         Notifikasi::create([
             'user_id' => $this->penyewaan->user_id,
-            'tipe' => TipeNotifikasi::RentalApproved,
+            'tipe' => TipeNotifikasi::PenyewaanApproved,
             'judul' => 'Pengajuan Sewa Disetujui',
             'pesan' => 'Pengajuan sewa Anda untuk kamar ' . $this->penyewaan->kamar->nama . ' telah disetujui.',
             'read_at' => null,
