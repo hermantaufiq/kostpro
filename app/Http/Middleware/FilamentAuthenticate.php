@@ -41,14 +41,9 @@ class FilamentAuthenticate extends Middleware
             : (config('app.env') === 'local');
 
         if (! $canAccess) {
-            // Log them out from all guards and redirect to admin login
-            // instead of throwing 403 Forbidden
-            $guard->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            $this->unauthenticated($request, $guards);
-            return;
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman Admin.')
+            );
         }
     }
 

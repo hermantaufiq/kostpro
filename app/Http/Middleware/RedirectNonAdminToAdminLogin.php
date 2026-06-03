@@ -24,13 +24,8 @@ class RedirectNonAdminToAdminLogin
                 && $user->hasRole(['super_admin', 'admin_operasional', 'admin_keuangan']);
 
             if (!$isAdmin) {
-                // Log them out of the web guard and redirect to admin login
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return redirect()->route('filament.admin.auth.login')
-                    ->with('status', 'Silakan login menggunakan akun Admin.');
+                return redirect()->route('dashboard')
+                    ->with('error', 'Anda tidak memiliki akses ke halaman Admin.');
             }
         }
 
