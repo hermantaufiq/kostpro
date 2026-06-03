@@ -71,7 +71,13 @@ class TagihansTable
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
+                    \Filament\Tables\Actions\ExportBulkAction::make()
+                        ->exporter(\App\Filament\Exports\TagihanExporter::class),
                 ]),
+            ])
+            ->headerActions([
+                \Filament\Tables\Actions\ExportAction::make()
+                    ->exporter(\App\Filament\Exports\TagihanExporter::class),
             ]);
     }
 }

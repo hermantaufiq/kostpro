@@ -41,6 +41,30 @@ class Pembayaran extends Model
         'expired_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        $sendReceipt = function (Pembayaran $pembayaran) {
+            if ($pembayaran->status === StatusPembayaran::Success) {
+                if ($pembayaran->tagihan && $pembayaran->tagihan->penyewaan && $pembayaran->tagihan->penyewaan->penyewa && $pembayaran->tagihan->penyewaan->penyewa->email) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($pembayaran->tagihan->penyewaan->penyewa->email)
+                            ->send(new \App\Mail\ReceiptEmail($pembayaran));
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Failed to send ReceiptEmail: ' . $e->getMessage());
+                    }
+                }
+            }
+        };
+
+        static::created($sendReceipt);
+
+        static::updated(function (Pembayaran $pembayaran) use ($sendReceipt) {
+            if ($pembayaran->isDirty('status')) {
+                $sendReceipt($pembayaran);
+            }
+        });
+    }
+
     public function tagihan(): BelongsTo
     {
         return $this->belongsTo(Tagihan::class);

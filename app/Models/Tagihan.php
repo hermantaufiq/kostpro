@@ -42,6 +42,20 @@ class Tagihan extends Model
         'is_auto_generated' => 'boolean',
     ];
 
+    protected static function booted()
+    {
+        static::created(function (Tagihan $tagihan) {
+            if ($tagihan->penyewaan && $tagihan->penyewaan->penyewa && $tagihan->penyewaan->penyewa->email) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($tagihan->penyewaan->penyewa->email)
+                        ->send(new \App\Mail\InvoiceEmail($tagihan));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send InvoiceEmail: ' . $e->getMessage());
+                }
+            }
+        });
+    }
+
     public function penyewaan(): BelongsTo
     {
         return $this->belongsTo(Penyewaan::class);
