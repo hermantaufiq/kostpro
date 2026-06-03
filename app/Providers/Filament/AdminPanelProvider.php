@@ -66,10 +66,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                RedirectNonAdminToAdminLogin::class,
             ])
             ->authMiddleware([
-                FilamentAuthenticate::class,
-            ]);
+                \Filament\Http\Middleware\Authenticate::class,
+            ])
+            ->authGuard('admin');
     }
 }
