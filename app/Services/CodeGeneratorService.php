@@ -17,7 +17,15 @@ class CodeGeneratorService
         $yearMonth = $year . $month;
 
         $table = $table ?? strtolower($prefix);
-        $column = 'kode_' . strtolower($prefix);
+        
+        // Map table name to the correct primary key code column name
+        $column = match($table) {
+            'kamar' => 'kode_kamar',
+            'penyewaan' => 'kode_penyewaan',
+            'tagihan' => 'kode_tagihan',
+            'pembayaran' => 'kode_pembayaran',
+            default => 'kode_' . strtolower($prefix),
+        };
 
         // Get last number for this month
         $lastRecord = DB::table($table)
