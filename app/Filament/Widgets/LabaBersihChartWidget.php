@@ -10,7 +10,6 @@ use Illuminate\Support\Carbon;
 
 class LabaBersihChartWidget extends ChartWidget
 {
-    protected string $view = 'filament.widgets.laba-bersih-chart-widget';
 
     public function getHeading(): ?string
     {
