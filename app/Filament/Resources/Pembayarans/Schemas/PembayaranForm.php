@@ -15,7 +15,7 @@ class PembayaranForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Pembayaran')
+                \Filament\Schemas\Components\Section::make('Informasi Pembayaran')
                     ->schema([
                         Select::make('tagihan_id')
                             ->label('No. Invoice')
@@ -40,7 +40,7 @@ class PembayaranForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Detail Transaksi')
+                \Filament\Schemas\Components\Section::make('Detail Transaksi')
                     ->schema([
                         Select::make('metode')
                             ->options(MetodePembayaran::class),
@@ -64,7 +64,7 @@ class PembayaranForm
                             ->prefix('Rp'),
                     ])->columns(3),
 
-                \Filament\Forms\Components\Section::make('Xendit & Sistem')
+                \Filament\Schemas\Components\Section::make('Xendit & Sistem')
                     ->schema([
                         TextInput::make('xendit_invoice_id')
                             ->label('Xendit Invoice ID'),

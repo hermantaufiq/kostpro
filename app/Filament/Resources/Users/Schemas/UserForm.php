@@ -15,7 +15,7 @@ class UserForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Pribadi')
+                \Filament\Schemas\Components\Section::make('Informasi Pribadi')
                     ->schema([
                         TextInput::make('name')
                             ->label('Nama Lengkap')
@@ -41,7 +41,7 @@ class UserForm
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Akun & Keamanan')
+                \Filament\Schemas\Components\Section::make('Akun & Keamanan')
                     ->schema([
                         Select::make('user_type')
                             ->label('Tipe Pengguna')

@@ -15,7 +15,7 @@ class NotifikasiForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Tujuan & Tipe')
+                \Filament\Schemas\Components\Section::make('Tujuan & Tipe')
                     ->schema([
                         Select::make('user_id')
                             ->label('Kirim ke (Penyewa)')
@@ -30,7 +30,7 @@ class NotifikasiForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Isi Notifikasi')
+                \Filament\Schemas\Components\Section::make('Isi Notifikasi')
                     ->schema([
                         TextInput::make('judul')
                             ->label('Judul / Subjek')

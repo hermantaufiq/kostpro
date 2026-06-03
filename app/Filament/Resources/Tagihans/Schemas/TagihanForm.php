@@ -17,7 +17,7 @@ class TagihanForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Relasi')
+                \Filament\Schemas\Components\Section::make('Informasi Relasi')
                     ->schema([
                         Select::make('penyewaan_id')
                             ->label('Kode Booking')
@@ -42,7 +42,7 @@ class TagihanForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Rincian Biaya')
+                \Filament\Schemas\Components\Section::make('Rincian Biaya')
                     ->schema([
                         TextInput::make('jumlah_tagihan')
                             ->label('Tagihan Pokok')
@@ -62,7 +62,7 @@ class TagihanForm
                             ->helperText('Dikosongkan jika ingin dihitung otomatis oleh sistem saat disimpan.'),
                     ])->columns(3),
 
-                \Filament\Forms\Components\Section::make('Periode & Waktu')
+                \Filament\Schemas\Components\Section::make('Periode & Waktu')
                     ->schema([
                         TextInput::make('periode_bulan')
                             ->label('Bulan ke-')
@@ -84,7 +84,7 @@ class TagihanForm
                             ->label('Waktu Pembayaran'),
                     ])->columns(3),
 
-                \Filament\Forms\Components\Section::make('Catatan')
+                \Filament\Schemas\Components\Section::make('Catatan')
                     ->schema([
                         Textarea::make('catatan')
                             ->columnSpanFull(),

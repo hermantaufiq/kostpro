@@ -16,7 +16,7 @@ class KamarForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Dasar')
+                \Filament\Schemas\Components\Section::make('Informasi Dasar')
                     ->schema([
                         TextInput::make('kode_kamar')
                             ->required()
@@ -33,7 +33,7 @@ class KamarForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Detail Ruangan & Fasilitas')
+                \Filament\Schemas\Components\Section::make('Detail Ruangan & Fasilitas')
                     ->schema([
                         TextInput::make('lantai')
                             ->required()
@@ -47,7 +47,7 @@ class KamarForm
                             ->suggestions(['AC', 'Kasur Springbed', 'Lemari', 'Kamar Mandi Dalam', 'Water Heater', 'Meja Belajar', 'WiFi']),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Harga')
+                \Filament\Schemas\Components\Section::make('Harga')
                     ->schema([
                         TextInput::make('harga_bulanan')
                             ->required()
@@ -60,7 +60,7 @@ class KamarForm
                             ->prefix('Rp'),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Media & Deskripsi')
+                \Filament\Schemas\Components\Section::make('Media & Deskripsi')
                     ->schema([
                         \Filament\Forms\Components\RichEditor::make('deskripsi')
                             ->columnSpanFull(),

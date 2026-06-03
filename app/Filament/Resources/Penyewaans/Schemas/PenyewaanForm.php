@@ -17,7 +17,7 @@ class PenyewaanForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Penyewa & Kamar')
+                \Filament\Schemas\Components\Section::make('Informasi Penyewa & Kamar')
                     ->schema([
                         Select::make('user_id')
                             ->label('Penyewa')
@@ -42,7 +42,7 @@ class PenyewaanForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Durasi Sewa')
+                \Filament\Schemas\Components\Section::make('Durasi Sewa')
                     ->schema([
                         DatePicker::make('tanggal_masuk')
                             ->required(),
@@ -53,7 +53,7 @@ class PenyewaanForm
                             ->default(1),
                     ])->columns(3),
 
-                \Filament\Forms\Components\Section::make('Biaya & Tagihan')
+                \Filament\Schemas\Components\Section::make('Biaya & Tagihan')
                     ->schema([
                         TextInput::make('harga_bulanan_snapshot')
                             ->label('Harga Bulanan')
@@ -70,7 +70,7 @@ class PenyewaanForm
                             ->label('Deposit Lunas?'),
                     ])->columns(3),
 
-                \Filament\Forms\Components\Section::make('Dokumen & Catatan')
+                \Filament\Schemas\Components\Section::make('Dokumen & Catatan')
                     ->schema([
                         \Filament\Forms\Components\FileUpload::make('ktp_path')
                             ->label('KTP')
