@@ -62,6 +62,11 @@ class Kamar extends Model
         return $this->belongsToMany(Fasilitas::class, 'kamar_fasilitas');
     }
 
+    public function inventaris(): HasMany
+    {
+        return $this->hasMany(Inventaris::class);
+    }
+
     public function penyewaan(): HasMany
     {
         return $this->hasMany(Penyewaan::class);

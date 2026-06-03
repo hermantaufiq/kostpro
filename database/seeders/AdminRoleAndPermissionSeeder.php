@@ -14,70 +14,49 @@ class AdminRoleAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()['cache']->forget('spatie.permission.cache');
 
-        // Create Permissions
-        $permissions = [
-            // Kamar (Room) Permissions
-            'view_kamar',
-            'create_kamar',
-            'update_kamar',
-            'delete_kamar',
+        // Feature models that have standard CRUD permissions
+        $features = [
+            'kamar',
+            'penyewa',
+            'penyewaan',
+            'tagihan',
+            'pembayaran',
+            'notifikasi',
+            'laporan',
+            'pengeluaran',
+            'keluhan',
+            'inventaris',
+        ];
+
+        $actions = ['view_any', 'view', 'create', 'update', 'delete', 'restore', 'force_delete'];
+
+        $allPermissions = [];
+
+        foreach ($features as $feature) {
+            foreach ($actions as $action) {
+                $permissionName = $action . '_' . $feature;
+                Permission::firstOrCreate(['name' => $permissionName]);
+                $allPermissions[] = $permissionName;
+            }
+        }
+
+        // Additional Specific Permissions
+        $customPermissions = [
+            'view_any_settings', // for settings page
             'export_kamar',
-
-            // Penyewa (Tenant) Permissions
-            'view_penyewa',
-            'create_penyewa',
-            'update_penyewa',
-            'delete_penyewa',
             'export_penyewa',
-
-            // Penyewaan (Rental) Permissions
-            'view_penyewaan',
-            'create_penyewaan',
             'approve_penyewaan',
             'reject_penyewaan',
-            'update_penyewaan',
-            'delete_penyewaan',
-
-            // Tagihan (Invoice) Permissions
-            'view_tagihan',
-            'create_tagihan',
-            'update_tagihan',
-            'delete_tagihan',
             'generate_tagihan',
             'send_reminder_tagihan',
             'export_tagihan',
-
-            // Pembayaran (Payment) Permissions
-            'view_pembayaran',
             'mark_pembayaran',
             'refund_pembayaran',
             'export_pembayaran',
-
-            // Notifikasi Permissions
-            'view_notifikasi',
             'send_notifikasi',
             'broadcast_notifikasi',
-
-            // Laporan (Report) Permissions
-            'view_laporan',
             'export_laporan_pdf',
             'export_laporan_excel',
-
-            // Pengeluaran (Expense) Permissions
-            'view_pengeluaran',
-            'create_pengeluaran',
-            'update_pengeluaran',
-            'delete_pengeluaran',
-            'export_pengeluaran',
-
-            // Keluhan (Complaint) Permissions
-            'view_keluhan',
-            'create_keluhan',
-            'update_keluhan',
-            'delete_keluhan',
-            'export_keluhan',
-
-            // System Permissions
             'view_audit_log',
             'view_dashboard',
             'manage_admin_users',
@@ -86,8 +65,9 @@ class AdminRoleAndPermissionSeeder extends Seeder
             'system_settings',
         ];
 
-        foreach ($permissions as $permission) {
+        foreach ($customPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
+            $allPermissions[] = $permission;
         }
 
         // Create Roles
@@ -96,15 +76,17 @@ class AdminRoleAndPermissionSeeder extends Seeder
         $adminKeu = Role::firstOrCreate(['name' => 'admin_keuangan']);
 
         // Super Admin - All Permissions
-        $superAdmin->syncPermissions($permissions);
+        $superAdmin->syncPermissions($allPermissions);
 
         // Admin Operasional Permissions
         $adminOpPermissions = [
-            'view_kamar', 'create_kamar', 'update_kamar', 'export_kamar',
-            'view_penyewa', 'create_penyewa', 'update_penyewa', 'export_penyewa',
-            'view_penyewaan', 'create_penyewaan', 'approve_penyewaan', 'reject_penyewaan', 'update_penyewaan',
-            'view_notifikasi', 'send_notifikasi', 'broadcast_notifikasi',
-            'view_keluhan', 'update_keluhan', 'export_keluhan', // added keluhan for Op
+            'view_any_kamar', 'view_kamar', 'create_kamar', 'update_kamar', 'export_kamar',
+            'view_any_penyewa', 'view_penyewa', 'create_penyewa', 'update_penyewa', 'export_penyewa',
+            'view_any_penyewaan', 'view_penyewaan', 'create_penyewaan', 'approve_penyewaan', 'reject_penyewaan', 'update_penyewaan',
+            'view_any_notifikasi', 'view_notifikasi', 'send_notifikasi', 'broadcast_notifikasi',
+            'view_any_keluhan', 'view_keluhan', 'update_keluhan',
+            'view_any_inventaris', 'view_inventaris', 'create_inventaris', 'update_inventaris', 'delete_inventaris',
+            'view_any_settings',
             'view_audit_log',
             'view_dashboard',
         ];
@@ -112,11 +94,11 @@ class AdminRoleAndPermissionSeeder extends Seeder
 
         // Admin Keuangan Permissions
         $adminKeuPermissions = [
-            'view_tagihan', 'create_tagihan', 'update_tagihan', 'generate_tagihan', 'send_reminder_tagihan', 'export_tagihan',
-            'view_pembayaran', 'mark_pembayaran', 'refund_pembayaran', 'export_pembayaran',
-            'view_pengeluaran', 'create_pengeluaran', 'update_pengeluaran', 'export_pengeluaran', // added pengeluaran for Keuangan
-            'view_laporan', 'export_laporan_pdf', 'export_laporan_excel',
-            'view_penyewa', 'export_penyewa',
+            'view_any_tagihan', 'view_tagihan', 'create_tagihan', 'update_tagihan', 'generate_tagihan', 'send_reminder_tagihan', 'export_tagihan',
+            'view_any_pembayaran', 'view_pembayaran', 'mark_pembayaran', 'refund_pembayaran', 'export_pembayaran',
+            'view_any_pengeluaran', 'view_pengeluaran', 'create_pengeluaran', 'update_pengeluaran',
+            'view_any_laporan', 'view_laporan', 'export_laporan_pdf', 'export_laporan_excel',
+            'view_any_penyewa', 'view_penyewa', 'export_penyewa',
             'view_audit_log',
             'view_dashboard',
         ];
