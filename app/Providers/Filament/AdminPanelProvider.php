@@ -10,8 +10,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -20,19 +18,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\AdminOnly;
 use App\Http\Middleware\LogAdminActivity;
-use App\Filament\Admin\Resources\RoomResource;
-use App\Filament\Admin\Resources\TenantResource;
-use App\Filament\Admin\Resources\RentalApplicationResource;
-use App\Filament\Admin\Resources\InvoiceResource;
-use App\Filament\Admin\Resources\PaymentResource;
-use App\Filament\Admin\Resources\NotificationResource;
-use App\Filament\Admin\Resources\ReportResource;
-use App\Filament\Admin\Widgets\KpiWidget;
-use App\Filament\Admin\Widgets\RevenueChartWidget;
-use App\Filament\Admin\Widgets\OccupancyChartWidget;
-use App\Filament\Admin\Widgets\PaymentMethodChartWidget;
-use App\Filament\Admin\Widgets\TenantGrowthChartWidget; 
-use App\Filament\Admin\Widgets\RecentActivityWidget;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -45,41 +30,31 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->sidebarCollapsibleOnDesktop()
             ->brandName('KosPro Admin')
-            ->brandLogo(asset('images/logo.png'))
             ->colors([
-                'primary' => Color::Blue,
-                'danger' => Color::Rose,
-                'gray' => Color::Slate,
-                'info' => Color::Blue,
-                'success' => Color::Emerald,
-                'warning' => Color::Amber,
+                'primary'  => Color::Blue,
+                'danger'   => Color::Rose,
+                'gray'     => Color::Slate,
+                'info'     => Color::Sky,
+                'success'  => Color::Emerald,
+                'warning'  => Color::Amber,
             ])
             ->font('Inter')
-            ->favicon(asset('images/favicon.ico'))
             ->unsavedChangesAlerts()
-            ->spa()
-            ->resources([
-                RoomResource::class,
-                TenantResource::class,
-                RentalApplicationResource::class,
-                InvoiceResource::class,
-                PaymentResource::class,
-                NotificationResource::class,
-                ReportResource::class,
-            ])
+            ->discoverResources(
+                in: app_path('Filament/Resources'),
+                for: 'App\\Filament\\Resources'
+            )
+            ->discoverPages(
+                in: app_path('Filament/Pages'),
+                for: 'App\\Filament\\Pages'
+            )
             ->pages([
-                \App\Filament\Admin\Pages\AdminDashboard::class,
+                Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
-            ->widgets([
-                KpiWidget::class,
-                RevenueChartWidget::class,
-                OccupancyChartWidget::class,
-                PaymentMethodChartWidget::class,
-                TenantGrowthChartWidget::class,
-                RecentActivityWidget::class,
-                AccountWidget::class,
-            ])
+            ->discoverWidgets(
+                in: app_path('Filament/Widgets'),
+                for: 'App\\Filament\\Widgets'
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -90,8 +65,6 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                AdminOnly::class,
-                LogAdminActivity::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
