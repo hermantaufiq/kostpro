@@ -6,16 +6,12 @@ use App\Models\Setting;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Concerns\InteractsWithForms;
 
-class SettingsPage extends Page implements HasForms
+class SettingsPage extends Page
 {
-    use InteractsWithForms;
-
     protected string $view = 'filament.pages.settings-page';
 
     public ?array $data = [];
@@ -63,9 +59,9 @@ class SettingsPage extends Page implements HasForms
         ]);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('Informasi Umum')
                     ->schema([
