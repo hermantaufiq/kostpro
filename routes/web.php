@@ -10,6 +10,7 @@ Route::get('/kamar/{id}', [KamarController::class, 'show'])->name('kamar.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/notifikasi/read-all', [\App\Http\Controllers\User\DashboardController::class, 'readAllNotifikasi'])->name('user.notifikasi.readAll');
     Route::get('/panduan', function() { return view('user.panduan'); })->name('user.panduan');
 
     // Penyewaan

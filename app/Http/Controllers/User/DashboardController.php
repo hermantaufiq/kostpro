@@ -56,4 +56,13 @@ class DashboardController extends Controller
             'pengumuman'
         ));
     }
+
+    public function readAllNotifikasi()
+    {
+        Notifikasi::where('user_id', Auth::id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return redirect()->back()->with('success', 'Semua notifikasi telah ditandai sudah dibaca.');
+    }
 }

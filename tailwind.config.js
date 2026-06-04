@@ -31,6 +31,29 @@ module.exports = {
           'card-hover': '0 8px 30px rgba(0,0,0,0.12)',
           'brand': '0 4px 14px 0 rgba(99,102,241,0.35)',
         },
+        animation: {
+          'float': 'float 3s ease-in-out infinite',
+          'float-delayed': 'float 3s ease-in-out 1.5s infinite',
+          'pulse-soft': 'pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          'bounce-slight': 'bounce-slight 2s infinite',
+        },
+        keyframes: {
+          float: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-10px)' },
+          },
+          'pulse-soft': {
+            '0%, 100%': { opacity: 1 },
+            '50%': { opacity: .7 },
+          },
+          'bounce-slight': {
+            '0%, 100%': { transform: 'translateY(-5%)', animationTimingFunction: 'cubic-bezier(0.8,0,1,1)' },
+            '50%': { transform: 'none', animationTimingFunction: 'cubic-bezier(0,0,0.2,1)' },
+          },
+          shine: {
+            '100%': { transform: 'translateX(100%)' },
+          }
+        }
     },
   },
   plugins: [],
