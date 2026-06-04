@@ -35,6 +35,8 @@ class Penyewaan extends Model
         'deposit_paid_at',
         'checkin_at',
         'checkout_at',
+        'is_contract_signed',
+        'signed_at',
     ];
 
     protected $casts = [
@@ -46,6 +48,8 @@ class Penyewaan extends Model
         'checkout_at' => 'datetime',
         'status' => StatusPenyewaan::class,
         'deposit_paid' => 'boolean',
+        'is_contract_signed' => 'boolean',
+        'signed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

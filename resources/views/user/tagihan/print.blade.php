@@ -63,6 +63,14 @@
                         Rp {{ number_format($tagihan->jumlah_tagihan, 0, ',', '.') }}
                     </td>
                 </tr>
+                @if($tagihan->items && $tagihan->items->count() > 0)
+                    @foreach($tagihan->items as $item)
+                    <tr class="border-b border-slate-100">
+                        <td class="py-4 px-4">{{ $item->nama_item }}</td>
+                        <td class="py-4 px-4 text-right font-bold text-slate-900">Rp {{ number_format($item->nominal, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                @endif
                 @if($tagihan->jumlah_denda > 0)
                 <tr class="border-b border-slate-100">
                     <td class="py-4 px-4">

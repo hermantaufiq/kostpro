@@ -105,4 +105,25 @@ class PenyewaanController extends Controller
 
         return back()->with('success', 'Permintaan Anda berhasil dikirim ke Admin. Silakan cek menu Keluhan untuk memantau status tiket.');
     }
+
+    public function signContract(\Illuminate\Http\Request $request, $id)
+    {
+        $penyewaan = $this->penyewaanRepository->findById($id);
+
+        if ($penyewaan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'agree' => 'required|accepted',
+            'signature_name' => 'required|string|max:255',
+        ]);
+
+        $penyewaan->update([
+            'is_contract_signed' => true,
+            'signed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Kontrak berhasil ditandatangani. Silakan lanjutkan dengan pembayaran tagihan pertama Anda.');
+    }
 }

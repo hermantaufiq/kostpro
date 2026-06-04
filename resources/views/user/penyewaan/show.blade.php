@@ -96,10 +96,37 @@
             </div>
         </div>
 
-        @if($penyewaan->status->value == 'approved' && !$penyewaan->deposit_paid)
+        @if($penyewaan->status->value == 'approved' && !$penyewaan->is_contract_signed)
+        <div class="bg-amber-50 p-6 border-t border-amber-100">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-900 text-lg">Tanda Tangan Kontrak Digital</h4>
+                    <p class="text-sm text-amber-700 mt-1 mb-4">Penyewaan Anda telah disetujui! Sebelum Anda dapat melakukan pembayaran, Anda diwajibkan untuk menyetujui kontrak sewa KostPro.</p>
+                    
+                    <form action="{{ route('user.penyewaan.sign_contract', $penyewaan->id) }}" method="POST" class="bg-white p-5 rounded-xl border border-amber-200">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" name="agree" required class="mt-1 w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                <span class="text-sm text-slate-700">Saya telah membaca, memahami, dan menyetujui seluruh <a href="{{ route('user.panduan') }}" target="_blank" class="text-indigo-600 hover:underline">Syarat & Ketentuan serta Tata Tertib KostPro</a>. Saya berjanji akan mematuhi aturan tersebut selama masa sewa.</span>
+                            </label>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Ketik Nama Lengkap Anda (Sebagai Tanda Tangan)</label>
+                            <input type="text" name="signature_name" required placeholder="{{ Auth::user()->name }}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-indigo-500 outline-none">
+                        </div>
+                        <button type="submit" class="btn-primary w-full justify-center">Tandatangani Kontrak</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @elseif($penyewaan->status->value == 'approved' && $penyewaan->is_contract_signed && !$penyewaan->deposit_paid)
         <div class="bg-indigo-50 p-6 border-t border-indigo-100 flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-                <h4 class="font-bold text-indigo-900 text-lg">Penyewaan Disetujui!</h4>
+                <h4 class="font-bold text-indigo-900 text-lg">Kontrak Ditandatangani!</h4>
                 <p class="text-sm text-indigo-700 mt-1">Silakan lakukan pembayaran tagihan pertama dan deposit untuk mengaktifkan sewa Anda.</p>
             </div>
             <a href="{{ route('user.tagihan.index') }}" class="btn-primary whitespace-nowrap">

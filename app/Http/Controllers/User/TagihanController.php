@@ -31,7 +31,7 @@ class TagihanController extends Controller
     {
         $tagihan = \App\Models\Tagihan::where('id', $id)
             ->where('user_id', Auth::id())
-            ->with(['penyewaan.kamar', 'pembayaran'])
+            ->with(['penyewaan.kamar', 'pembayaran', 'items'])
             ->firstOrFail();
 
         return view('user.tagihan.show', compact('tagihan'));
@@ -41,7 +41,7 @@ class TagihanController extends Controller
     {
         $tagihan = \App\Models\Tagihan::where('id', $id)
             ->where('user_id', Auth::id())
-            ->with(['penyewaan.kamar', 'pembayaran'])
+            ->with(['penyewaan.kamar', 'pembayaran', 'items'])
             ->firstOrFail();
 
         return view('user.tagihan.print', compact('tagihan'));

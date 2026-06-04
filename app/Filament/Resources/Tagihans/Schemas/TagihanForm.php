@@ -59,8 +59,29 @@ class TagihanForm
                             ->label('Total Harus Dibayar')
                             ->numeric()
                             ->prefix('Rp')
-                            ->helperText('Dikosongkan jika ingin dihitung otomatis oleh sistem saat disimpan.'),
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText('Dihitung otomatis oleh MySQL (tagihan pokok + denda).'),
                     ])->columns(3),
+
+                \Filament\Schemas\Components\Section::make('Rincian Biaya Tambahan')
+                    ->schema([
+                        \Filament\Forms\Components\Repeater::make('items')
+                            ->relationship()
+                            ->schema([
+                                TextInput::make('nama_item')
+                                    ->label('Nama Item (Listrik, Air, dll)')
+                                    ->required(),
+                                TextInput::make('nominal')
+                                    ->label('Nominal')
+                                    ->required()
+                                    ->numeric()
+                                    ->prefix('Rp'),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->addActionLabel('Tambah Biaya'),
+                    ]),
 
                 \Filament\Schemas\Components\Section::make('Periode & Waktu')
                     ->schema([

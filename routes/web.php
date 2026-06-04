@@ -17,6 +17,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/kamar/{id}/sewa', [\App\Http\Controllers\User\PenyewaanController::class, 'store'])->name('user.penyewaan.store');
     Route::get('/penyewaan', [\App\Http\Controllers\User\PenyewaanController::class, 'index'])->name('user.penyewaan.index');
     Route::get('/penyewaan/{id}', [\App\Http\Controllers\User\PenyewaanController::class, 'show'])->name('user.penyewaan.show');
+    Route::post('/penyewaan/{id}/sign-contract', [\App\Http\Controllers\User\PenyewaanController::class, 'signContract'])->name('user.penyewaan.sign_contract');
     Route::post('/penyewaan/{id}/self-service', [\App\Http\Controllers\User\PenyewaanController::class, 'selfService'])->name('user.penyewaan.self_service');
 
     // Tagihan
@@ -39,6 +40,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'store'])->name('user.keluhan.store');
     Route::get('/keluhan/{keluhan}', [\App\Http\Controllers\User\KeluhanController::class, 'show'])->name('user.keluhan.show');
     Route::post('/keluhan/{keluhan}/komentar', [\App\Http\Controllers\User\KeluhanController::class, 'addKomentar'])->name('user.keluhan.komentar');
+
+    // Pasar Kos
+    Route::get('/pasar-kos', [\App\Http\Controllers\User\PasarKosController::class, 'index'])->name('user.pasar_kos.index');
+    Route::post('/pasar-kos', [\App\Http\Controllers\User\PasarKosController::class, 'store'])->name('user.pasar_kos.store');
+    Route::delete('/pasar-kos/{pasarKo}', [\App\Http\Controllers\User\PasarKosController::class, 'destroy'])->name('user.pasar_kos.destroy');
 });
 
 Route::get('/payment/return', [\App\Http\Controllers\Payment\PaymentController::class, 'return'])->name('payment.return');

@@ -74,6 +74,14 @@
                             <td class="py-4 text-slate-700 font-medium">Biaya Sewa Bulanan</td>
                             <td class="py-4 text-slate-900 font-semibold text-right">Rp {{ number_format($tagihan->jumlah_tagihan, 0, ',', '.') }}</td>
                         </tr>
+                        @if($tagihan->items && $tagihan->items->count() > 0)
+                            @foreach($tagihan->items as $item)
+                            <tr>
+                                <td class="py-4 text-slate-700 font-medium">{{ $item->nama_item }}</td>
+                                <td class="py-4 text-slate-900 font-semibold text-right">Rp {{ number_format($item->nominal, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        @endif
                         @if($tagihan->jumlah_denda > 0)
                         <tr>
                             <td class="py-4 text-red-600 font-medium">Denda Keterlambatan</td>

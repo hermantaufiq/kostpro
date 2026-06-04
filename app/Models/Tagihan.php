@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Enums\StatusTagihan;
 
@@ -14,6 +15,9 @@ class Tagihan extends Model
 
     protected $table = 'tagihan';
 
+    // NOTE: total_tagihan adalah MySQL GENERATED column (storedAs).
+    // MySQL menghitungnya sendiri, jadi JANGAN masukkan ke fillable
+    // dan JANGAN pernah mengisinya dari kode PHP.
     protected $fillable = [
         'penyewaan_id',
         'user_id',
@@ -33,12 +37,12 @@ class Tagihan extends Model
     ];
 
     protected $casts = [
-        'tanggal_tagihan' => 'date',
+        'tanggal_tagihan'     => 'date',
         'tanggal_jatuh_tempo' => 'date',
-        'tanggal_bayar' => 'datetime',
-        'last_reminder_at' => 'datetime',
-        'status' => StatusTagihan::class,
-        'is_auto_generated' => 'boolean',
+        'tanggal_bayar'       => 'datetime',
+        'last_reminder_at'    => 'datetime',
+        'status'              => StatusTagihan::class,
+        'is_auto_generated'   => 'boolean',
     ];
 
     protected static function booted()
@@ -58,6 +62,11 @@ class Tagihan extends Model
     public function penyewaan(): BelongsTo
     {
         return $this->belongsTo(Penyewaan::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(TagihanItem::class, 'tagihan_id');
     }
 
     public function user(): BelongsTo
