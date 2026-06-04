@@ -273,83 +273,74 @@
     @endif
 </div>
 
-<!-- Modal Notifikasi Modern -->
-<div id="modal-notifikasi"
-     class="fixed inset-0 z-[200] hidden items-center justify-center p-4"
-     style="display:none!important">
-</div>
-
-
 {{-- ============================================================
-     NOTIFIKASI DRAWER — Slide dari kanan (seperti app HP native)
+     NOTIFIKASI DRAWER — Bottom Sheet (Mobile) / Side Drawer (Desktop)
      ============================================================ --}}
-<div id="modal-notifikasi" style="display:none!important" aria-hidden="true"></div>
-
-<div id="notif-overlay" class="fixed inset-0 z-[300]" style="display:none; visibility:hidden;">
+<div id="notif-overlay" class="fixed inset-0 z-[300] hidden">
     {{-- Backdrop blur --}}
     <div id="notif-backdrop"
          onclick="closeNotifModal()"
-         class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-         style="opacity:0; transition: opacity 0.35s ease;"></div>
+         class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-out"></div>
 
-    {{-- Drawer panel slide dari kanan --}}
+    {{-- Drawer Panel --}}
     <div id="notif-drawer"
-         class="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white flex flex-col shadow-[−20px_0_60px_rgba(0,0,0,0.2)]"
-         style="transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);">
+         class="absolute bg-white flex flex-col shadow-2xl transition-transform duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]
+                /* Mobile: Bottom Sheet */
+                bottom-0 left-0 right-0 h-[85vh] rounded-t-3xl translate-y-full
+                /* Desktop: Side Drawer */
+                md:top-0 md:bottom-0 md:left-auto md:right-0 md:h-full md:w-[400px] md:rounded-none md:translate-y-0 md:translate-x-full">
+        
+        {{-- Mobile Drag Indicator --}}
+        <div class="md:hidden flex justify-center pt-3 pb-1 bg-white rounded-t-3xl" onclick="closeNotifModal()">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+        </div>
 
         {{-- ── HEADER ── --}}
-        <div class="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-700 px-5 pt-6 pb-5 flex-shrink-0">
-            {{-- Decorasi --}}
-            <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
-            <div class="absolute -bottom-10 -left-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
-
-            <div class="relative flex items-start justify-between mb-4">
+        <div class="relative px-6 py-5 border-b border-slate-100 flex-shrink-0 bg-white md:pt-8">
+            <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/15 border border-white/25 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="font-bold text-white text-lg leading-none">Notifikasi</h2>
-                        <p class="text-indigo-200 text-xs mt-1">Pusat pesan & informasi Anda</p>
+                        <h2 class="font-bold text-slate-800 text-xl leading-none">Notifikasi</h2>
+                        <p class="text-slate-500 text-xs mt-1">Pusat pesan & informasi Anda</p>
                     </div>
                 </div>
-                <button onclick="closeNotifModal()"
-                        id="notif-close-btn"
-                        class="w-9 h-9 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-200"
-                        style="transition: transform 0.2s ease;">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                <button onclick="closeNotifModal()" class="w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
 
             {{-- Stats bar --}}
-            <div class="relative flex gap-3">
-                <div class="flex-1 bg-white/10 border border-white/15 rounded-2xl px-3 py-2.5 text-center backdrop-blur-sm">
-                    <p class="text-white font-bold text-xl leading-none">{{ isset($notifikasi) ? $notifikasi->count() : 0 }}</p>
-                    <p class="text-indigo-200 text-[10px] mt-1 font-medium uppercase tracking-wider">Total</p>
+            <div class="flex gap-2">
+                <div class="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-center border border-slate-100">
+                    <p class="text-slate-700 font-bold text-lg leading-none">{{ isset($notifikasi) ? $notifikasi->count() : 0 }}</p>
+                    <p class="text-slate-400 text-[10px] mt-1 font-semibold uppercase">Total</p>
                 </div>
-                <div class="flex-1 bg-white/10 border border-white/15 rounded-2xl px-3 py-2.5 text-center backdrop-blur-sm">
-                    <p class="font-bold text-xl leading-none {{ $unreadNotifCount > 0 ? 'text-amber-300' : 'text-white' }}">{{ $unreadNotifCount }}</p>
-                    <p class="text-indigo-200 text-[10px] mt-1 font-medium uppercase tracking-wider">Belum Dibaca</p>
+                <div class="flex-1 bg-indigo-50 rounded-xl px-3 py-2 text-center border border-indigo-100">
+                    <p class="font-bold text-lg leading-none text-indigo-700">{{ $unreadNotifCount }}</p>
+                    <p class="text-indigo-400 text-[10px] mt-1 font-semibold uppercase">Baru</p>
                 </div>
-                <div class="flex-1 bg-white/10 border border-white/15 rounded-2xl px-3 py-2.5 text-center backdrop-blur-sm">
-                    <p class="text-emerald-300 font-bold text-xl leading-none">{{ isset($notifikasi) ? $notifikasi->whereNotNull('read_at')->count() : 0 }}</p>
-                    <p class="text-indigo-200 text-[10px] mt-1 font-medium uppercase tracking-wider">Dibaca</p>
+                <div class="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-center border border-slate-100">
+                    <p class="text-emerald-600 font-bold text-lg leading-none">{{ isset($notifikasi) ? $notifikasi->whereNotNull('read_at')->count() : 0 }}</p>
+                    <p class="text-slate-400 text-[10px] mt-1 font-semibold uppercase">Dibaca</p>
                 </div>
             </div>
         </div>
 
-        {{-- ── FILTER TABS (opsional, future-proof) ── --}}
-        <div class="flex-shrink-0 border-b border-slate-100 px-4 py-2 flex items-center justify-between bg-slate-50/70">
+        {{-- ── FILTER TABS ── --}}
+        <div class="flex-shrink-0 px-4 py-3 flex items-center justify-between bg-white border-b border-slate-50 shadow-sm z-10 relative">
             <div class="flex items-center gap-1">
-                <button class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-lg">Semua</button>
+                <button class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-white rounded-full shadow-sm">Semua</button>
                 @if($unreadNotifCount > 0)
-                <button class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">
+                <button class="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-full transition-colors flex items-center gap-1.5">
                     Belum Dibaca
-                    <span class="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-bold">{{ $unreadNotifCount }}</span>
+                    <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-bold">{{ $unreadNotifCount }}</span>
                 </button>
                 @endif
             </div>
@@ -357,23 +348,22 @@
             <form action="{{ route('user.notifikasi.readAll') }}" method="POST">
                 @csrf
                 <button type="submit" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Tandai semua
+                    Tandai dibaca
                 </button>
             </form>
             @endif
         </div>
 
         {{-- ── NOTIFICATION LIST ── --}}
-        <div class="flex-1 overflow-y-auto overscroll-contain" id="notif-list-scroll">
+        <div class="flex-1 overflow-y-auto overscroll-contain bg-slate-50/50" id="notif-list-scroll">
             @if(isset($notifikasi) && $notifikasi->count() > 0)
                 <div class="p-3 space-y-2">
                     @foreach($notifikasi as $index => $notif)
                         @php
                             $isUnread = is_null($notif->read_at);
-                            // Determine icon & color based on keywords
                             $judul = strtolower($notif->judul ?? '');
                             if (str_contains($judul, 'tagih') || str_contains($judul, 'bayar')) {
                                 $iconColor = 'bg-orange-100 text-orange-600';
@@ -393,18 +383,18 @@
                             }
                         @endphp
 
-                        <div class="relative group rounded-2xl {{ $isUnread ? 'bg-indigo-50 border border-indigo-100' : 'bg-white border border-slate-100 hover:border-slate-200' }} transition-all duration-200 overflow-hidden"
-                             style="animation: slideInRight 0.3s ease {{ $index * 0.05 }}s both;">
+                        <div class="relative group rounded-2xl bg-white border border-slate-100 hover:border-slate-200 transition-all duration-200 overflow-hidden shadow-sm hover:shadow-md"
+                             style="animation: slideInUp 0.3s ease {{ $index * 0.05 }}s both;">
 
-                            {{-- Garis kiri indikator --}}
+                            {{-- Indikator Belum Dibaca --}}
                             @if($isUnread)
-                            <div class="absolute left-0 top-3 bottom-3 w-1 bg-gradient-to-b from-indigo-500 to-violet-500 rounded-r-full"></div>
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-r-full"></div>
                             @endif
 
-                            <div class="flex gap-3 p-3.5 {{ $isUnread ? 'pl-4' : '' }}">
+                            <div class="flex gap-3.5 p-4 {{ $isUnread ? 'bg-indigo-50/30 pl-5' : '' }}">
                                 {{-- Icon --}}
-                                <div class="shrink-0">
-                                    <div class="w-10 h-10 rounded-xl {{ $iconColor }} flex items-center justify-center">
+                                <div class="shrink-0 mt-0.5">
+                                    <div class="w-10 h-10 rounded-full {{ $iconColor }} flex items-center justify-center">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $iconPath }}"/>
                                         </svg>
@@ -414,26 +404,23 @@
                                 {{-- Content --}}
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <p class="text-sm font-semibold {{ $isUnread ? 'text-slate-900' : 'text-slate-700' }} leading-snug line-clamp-1">
+                                        <p class="text-sm font-bold {{ $isUnread ? 'text-slate-900' : 'text-slate-700' }} leading-snug">
                                             {{ $notif->judul }}
                                         </p>
                                         @if($isUnread)
-                                        <span class="shrink-0 w-2 h-2 mt-1 rounded-full bg-indigo-500"
-                                              style="box-shadow: 0 0 0 3px rgba(99,102,241,0.2);"></span>
+                                        <span class="shrink-0 w-2 h-2 mt-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>
                                         @endif
                                     </div>
                                     <p class="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-2">{{ $notif->pesan }}</p>
                                     <div class="flex items-center justify-between">
-                                        <span class="inline-flex items-center gap-1 text-[11px] text-slate-400">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                             {{ $notif->created_at->diffForHumans() }}
                                         </span>
                                         @if($isUnread)
-                                        <span class="text-[10px] font-semibold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full">Baru</span>
-                                        @else
-                                        <span class="text-[10px] text-slate-400">Dibaca</span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">BARU</span>
                                         @endif
                                     </div>
                                 </div>
@@ -444,55 +431,31 @@
             @else
                 {{-- ── EMPTY STATE ── --}}
                 <div class="flex flex-col items-center justify-center h-full px-8 py-16 text-center">
-                    <div class="relative mb-6">
-                        {{-- Outer ring --}}
-                        <div class="w-28 h-28 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                            <div class="w-20 h-20 rounded-full bg-white shadow-inner flex items-center justify-center">
-                                <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                                </svg>
-                            </div>
-                        </div>
-                        {{-- Badge ceklis --}}
-                        <div class="absolute bottom-0 right-0 w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
+                    <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-5">
+                        <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
                     </div>
                     <h3 class="font-bold text-slate-800 text-lg mb-2">Semua Bersih! ✨</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed max-w-xs">
-                        Tidak ada notifikasi baru. Anda akan diberitahu saat ada informasi penting.
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Tidak ada notifikasi baru saat ini.
                     </p>
                 </div>
             @endif
         </div>
 
-        {{-- ── FOOTER ── --}}
-        <div class="flex-shrink-0 border-t border-slate-100 bg-white px-4 py-3 flex items-center justify-between gap-3">
-            <p class="text-xs text-slate-400">
-                Hanya 20 notifikasi terbaru ditampilkan
-            </p>
-            <button onclick="closeNotifModal()"
-                    class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Tutup
-            </button>
-        </div>
     </div>
 </div>
 
 <style>
-    @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(16px); }
-        to   { opacity: 1; transform: translateX(0); }
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
     #notif-list-scroll::-webkit-scrollbar { width: 4px; }
     #notif-list-scroll::-webkit-scrollbar-track { background: transparent; }
-    #notif-list-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
-    #notif-list-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    #notif-list-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    #notif-list-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 
 <script>
@@ -501,17 +464,18 @@
         const backdrop = document.getElementById('notif-backdrop');
         const drawer   = document.getElementById('notif-drawer');
 
-        // Tampilkan overlay
-        overlay.style.display  = 'block';
-        overlay.style.visibility = 'visible';
+        // Tampilkan overlay container
+        overlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
 
-        requestAnimationFrame(() => {
-            // Fade backdrop
-            backdrop.style.opacity = '1';
-            // Slide drawer masuk dari kanan
-            drawer.style.transform = 'translateX(0)';
-        });
+        // Trigger reflow agar transisi CSS berjalan
+        void overlay.offsetHeight;
+
+        // Animasikan backdrop
+        backdrop.classList.add('opacity-100');
+        
+        // Animasikan drawer masuk
+        drawer.classList.remove('translate-y-full', 'md:translate-x-full');
     }
 
     function closeNotifModal() {
@@ -519,23 +483,27 @@
         const backdrop = document.getElementById('notif-backdrop');
         const drawer   = document.getElementById('notif-drawer');
 
-        // Slide balik ke kanan
-        backdrop.style.opacity  = '0';
-        drawer.style.transform  = 'translateX(100%)';
+        // Animasikan backdrop keluar
+        backdrop.classList.remove('opacity-100');
+        
+        // Animasikan drawer keluar
+        drawer.classList.add('translate-y-full', 'md:translate-x-full');
         document.body.style.overflow = '';
 
+        // Sembunyikan container setelah transisi selesai
         setTimeout(() => {
-            overlay.style.display    = 'none';
-            overlay.style.visibility = 'hidden';
-        }, 420);
+            overlay.classList.add('hidden');
+        }, 400); // 400ms sesuai durasi transisi Tailwind
     }
 
     // Tutup dengan tombol Escape
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeNotifModal();
+        if (e.key === 'Escape' && !document.getElementById('notif-overlay').classList.contains('hidden')) {
+            closeNotifModal();
+        }
     });
 
-    // Backward compat
+    // Backward compatibilitas
     window.openModal  = id => { if (id === 'modal-notifikasi') openNotifModal(); };
     window.closeModal = id => { if (id === 'modal-notifikasi') closeNotifModal(); };
 </script>

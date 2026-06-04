@@ -35,7 +35,7 @@ class DashboardController extends Controller
         // Ambil notifikasi terbaru
         $notifikasi = Notifikasi::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
-            ->take(5)
+            ->take(20)
             ->get();
         $unreadNotifCount = $notifikasi->whereNull('read_at')->count();
 
