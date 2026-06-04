@@ -353,9 +353,22 @@
                     <div>
                         <p class="text-xs text-slate-500 mb-1">Status</p>
                         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Menunggu Pembayaran</span>
-                    </div>
                 </div>
             </div>
+
+            @if(empty(config('services.xendit.secret_key')))
+            <div class="bg-slate-800 rounded-2xl shadow-soft border border-slate-700 p-5">
+                <h3 class="text-sm font-bold text-white mb-2">Mode Simulasi Aktif</h3>
+                <p class="text-xs text-slate-300 mb-4">Karena API Key kosong, klik tombol di bawah untuk menyimulasikan pembayaran berhasil.</p>
+                <form action="{{ route('payment.simulate', $pembayaran->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Simulasikan Pembayaran Lunas
+                    </button>
+                </form>
+            </div>
+            @endif
 
             {{-- Tombol aksi --}}
             <a href="{{ route('user.tagihan.show', $tagihan->id) }}"

@@ -39,11 +39,27 @@ class PenyewaanController extends Controller
     public function store(PengajuanSewaRequest $request)
     {
         try {
+            $user = Auth::user();
+
+            // Simpan foto KTP jika diunggah
+            $ktpPath = $user->foto_ktp_url;
             if ($request->hasFile('foto_ktp')) {
-                $user = Auth::user();
-                $path = $request->file('foto_ktp')->store('ktp', 'public');
-                $user->update(['foto_ktp_url' => $path]);
+                $ktpPath = $request->file('foto_ktp')->store('ktp', 'public');
             }
+
+            // Update profil identitas pengguna
+            $user->update([
+                'nik'                  => $request->nik,
+                'tanggal_lahir'        => $request->tanggal_lahir,
+                'jenis_kelamin'        => $request->jenis_kelamin,
+                'alamat'               => $request->alamat,
+                'pekerjaan'            => $request->pekerjaan,
+                'asal_kota'            => $request->asal_kota,
+                'kontak_darurat_nama'  => $request->kontak_darurat_nama,
+                'kontak_darurat_hp'    => $request->kontak_darurat_hp,
+                'foto_ktp_url'         => $ktpPath,
+                'profil_lengkap'       => true,
+            ]);
 
             $dto = new PengajuanSewaDTO(
                 user_id: Auth::id(),

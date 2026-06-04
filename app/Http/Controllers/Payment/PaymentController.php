@@ -93,7 +93,7 @@ class PaymentController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if ($pembayaran->metode?->value === 'uji_coba') {
+        if ($pembayaran->metode?->value === 'uji_coba' || empty(config('services.xendit.secret_key'))) {
             $pembayaran->update([
                 'status' => \App\Enums\StatusPembayaran::Success,
                 'tanggal_bayar' => now()
