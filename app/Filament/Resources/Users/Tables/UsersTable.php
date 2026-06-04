@@ -21,7 +21,9 @@ class UsersTable
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('foto_ktp_url')
                     ->label('KTP')
-                    ->circular(),
+                    ->disk('public')
+                    ->circular()
+                    ->defaultImageUrl(fn () => 'https://ui-avatars.com/api/?name=No+KTP&background=f1f5f9&color=94a3b8'),
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
@@ -38,6 +40,13 @@ class UsersTable
                 TextColumn::make('nik')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('profil_lengkap')
+                    ->label('KTP ✓')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('warning'),
                 TextColumn::make('user_type')
                     ->label('Tipe')
                     ->badge()
