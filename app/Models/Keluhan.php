@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\StatusKeluhan;
 use App\Enums\PrioritasKeluhan;
 
@@ -38,5 +39,10 @@ class Keluhan extends Model
     public function kamar(): BelongsTo
     {
         return $this->belongsTo(Kamar::class);
+    }
+
+    public function komentars(): HasMany
+    {
+        return $this->hasMany(KeluhanKomentar::class)->oldest();
     }
 }

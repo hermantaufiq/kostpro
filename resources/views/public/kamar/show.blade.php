@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $room->nama . ' - KosPro')
+@section('title', $room->nama . ' - KostPro')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -12,34 +12,64 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
-            <!-- Gallery Section -->
-            <x-gallery-swiper :fotos="$room->fotoKamar" />
+
+            <!-- Lightbox Gallery Section -->
+            @php $fotos = $room->fotoKamar; @endphp
+            @if($fotos->isNotEmpty())
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
+                <!-- Main Photo -->
+                <div class="relative aspect-video overflow-hidden cursor-pointer" onclick="openLightbox(0)">
+                    <img id="main-photo" src="{{ $fotos->first()->foto_url }}" alt="{{ $room->nama }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <div class="absolute bottom-4 right-4 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                        🔍 Klik untuk perbesar
+                    </div>
+                </div>
+                <!-- Thumbnail Strip -->
+                @if($fotos->count() > 1)
+                <div class="p-4 flex gap-3 overflow-x-auto">
+                    @foreach($fotos as $i => $foto)
+                    <button onclick="openLightbox({{ $i }})" class="shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-all focus:outline-none focus:border-indigo-500">
+                        <img src="{{ $foto->foto_url }}" class="w-full h-full object-cover">
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            @else
+            <div class="bg-slate-100 rounded-2xl aspect-video flex items-center justify-center text-slate-400">
+                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            @endif
 
             <!-- Description & Facilities -->
-            <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-6 md:p-8">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 md:p-8">
                 <h2 class="text-2xl font-bold text-slate-900 mb-4">Deskripsi Kamar</h2>
                 <div class="prose prose-slate max-w-none mb-8">
                     <p>{{ $room->deskripsi ?? 'Belum ada deskripsi.' }}</p>
                 </div>
 
                 <h2 class="text-xl font-bold text-slate-900 mb-4">Fasilitas</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                @if($room->fasilitasMaster->isNotEmpty())
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     @foreach($room->fasilitasMaster as $fasilitas)
                         <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-indigo-600">
-                                <!-- Placeholder Icon -->
+                            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-indigo-600 shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             </div>
                             <span class="text-sm font-medium text-slate-700">{{ $fasilitas->nama }}</span>
                         </div>
                     @endforeach
                 </div>
+                @else
+                <p class="text-slate-400 text-sm">Informasi fasilitas belum tersedia.</p>
+                @endif
             </div>
         </div>
 
         <!-- Sidebar / Booking Card -->
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-card border border-slate-100 p-6 sticky top-24">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 sticky top-24">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-600">
                         Tipe {{ ucfirst($room->tipe->value) }}
@@ -77,4 +107,64 @@
         </div>
     </div>
 </div>
+
+<!-- Lightbox Modal -->
+@if($fotos->isNotEmpty())
+<div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox(event)">
+    <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white/70 hover:text-white z-10 bg-white/10 rounded-full p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+    <button onclick="prevPhoto()" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-white/10 rounded-full p-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+    <button onclick="nextPhoto()" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-white/10 rounded-full p-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </button>
+    <div id="lightbox-counter" class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium bg-black/40 px-4 py-1.5 rounded-full backdrop-blur-sm"></div>
+</div>
+
+<script>
+const photos = @json($fotos->pluck('foto_url'));
+let currentIndex = 0;
+
+function openLightbox(index) {
+    currentIndex = index;
+    document.getElementById('lightbox-img').src = photos[currentIndex];
+    document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + photos.length;
+    const lb = document.getElementById('lightbox');
+    lb.classList.remove('hidden');
+    lb.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(event) {
+    if (!event || event.target === document.getElementById('lightbox')) {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.getElementById('lightbox').classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+}
+
+function prevPhoto() {
+    currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+    document.getElementById('lightbox-img').src = photos[currentIndex];
+    document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + photos.length;
+}
+
+function nextPhoto() {
+    currentIndex = (currentIndex + 1) % photos.length;
+    document.getElementById('lightbox-img').src = photos[currentIndex];
+    document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + photos.length;
+}
+
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lightbox').classList.contains('flex')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') prevPhoto();
+        if (e.key === 'ArrowRight') nextPhoto();
+    }
+});
+</script>
+@endif
 @endsection

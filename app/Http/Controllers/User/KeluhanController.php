@@ -69,11 +69,30 @@ class KeluhanController extends Controller
 
     public function show(Keluhan $keluhan)
     {
-        // Pastikan user hanya bisa lihat keluhan miliknya
         if ($keluhan->user_id !== Auth::id()) {
             abort(403);
         }
 
+        $keluhan->load('komentars.user');
+
         return view('user.keluhan.show', compact('keluhan'));
+    }
+
+    public function addKomentar(Request $request, Keluhan $keluhan)
+    {
+        if ($keluhan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate(['isi' => 'required|string|max:1000']);
+
+        \App\Models\KeluhanKomentar::create([
+            'keluhan_id' => $keluhan->id,
+            'user_id'    => Auth::id(),
+            'isi'        => $request->isi,
+            'is_admin'   => false,
+        ]);
+
+        return back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 }

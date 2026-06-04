@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/keluhan/buat', [\App\Http\Controllers\User\KeluhanController::class, 'create'])->name('user.keluhan.create');
     Route::post('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'store'])->name('user.keluhan.store');
     Route::get('/keluhan/{keluhan}', [\App\Http\Controllers\User\KeluhanController::class, 'show'])->name('user.keluhan.show');
+    Route::post('/keluhan/{keluhan}/komentar', [\App\Http\Controllers\User\KeluhanController::class, 'addKomentar'])->name('user.keluhan.komentar');
 });
 
 Route::get('/payment/return', [\App\Http\Controllers\Payment\PaymentController::class, 'return'])->name('payment.return');
