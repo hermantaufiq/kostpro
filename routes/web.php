@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/profil/password', [\App\Http\Controllers\User\ProfilController::class, 'updatePassword'])->name('user.profil.password');
 
     // Keluhan
+    Route::get('/layanan-tambahan', [\App\Http\Controllers\User\LayananTambahanController::class, 'index'])->name('user.layanan.index');
+    Route::post('/layanan-tambahan', [\App\Http\Controllers\User\LayananTambahanController::class, 'store'])->name('user.layanan.store');
+
     Route::get('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'index'])->name('user.keluhan.index');
     Route::get('/keluhan/buat', [\App\Http\Controllers\User\KeluhanController::class, 'create'])->name('user.keluhan.create');
     Route::post('/keluhan', [\App\Http\Controllers\User\KeluhanController::class, 'store'])->name('user.keluhan.store');
@@ -52,4 +55,7 @@ Route::post('/webhook/xendit', [\App\Http\Controllers\Payment\WebhookController:
 
 require __DIR__.'/auth.php';
 
-Route::get('/invoice/{id}/print', [\App\Http\Controllers\User\TagihanController::class, 'print'])->name('invoice.print')->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/invoice/{id}/print', [\App\Http\Controllers\User\TagihanController::class, 'print'])->name('invoice.print');
+    Route::get('/invoice/{id}/download', [\App\Http\Controllers\User\TagihanController::class, 'downloadPdf'])->name('invoice.download');
+});

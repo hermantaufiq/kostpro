@@ -19,10 +19,10 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Cari penyewaan yang sedang aktif
+        // Cari penyewaan yang sedang aktif atau disetujui
         $activePenyewaan = Penyewaan::with('kamar')
             ->where('user_id', $userId)
-            ->where('status', StatusPenyewaan::Active)
+            ->whereIn('status', [StatusPenyewaan::Active, StatusPenyewaan::Approved, StatusPenyewaan::Pending])
             ->first();
 
         // Cari semua tagihan yang belum lunas
@@ -32,10 +32,12 @@ class DashboardController extends Controller
             ->orderBy('tanggal_jatuh_tempo', 'asc')
             ->get();
 
-        // Hitung notifikasi belum dibaca
-        $unreadNotifCount = Notifikasi::where('user_id', $userId)
-            ->whereNull('read_at')
-            ->count();
+        // Ambil notifikasi terbaru
+        $notifikasi = Notifikasi::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+        $unreadNotifCount = $notifikasi->whereNull('read_at')->count();
 
         // Hitung keluhan aktif
         $keluhanAktif = Keluhan::where('user_id', $userId)
@@ -49,6 +51,7 @@ class DashboardController extends Controller
             'activePenyewaan',
             'tagihanAktif',
             'unreadNotifCount',
+            'notifikasi',
             'keluhanAktif',
             'pengumuman'
         ));

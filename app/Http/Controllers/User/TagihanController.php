@@ -46,4 +46,15 @@ class TagihanController extends Controller
 
         return view('user.tagihan.print', compact('tagihan'));
     }
+
+    public function downloadPdf($id)
+    {
+        $tagihan = \App\Models\Tagihan::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->with(['penyewaan.kamar', 'pembayaran', 'items'])
+            ->firstOrFail();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice', compact('tagihan'));
+        return $pdf->download('Invoice_KostPro_' . $tagihan->kode_tagihan . '.pdf');
+    }
 }
