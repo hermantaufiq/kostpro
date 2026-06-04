@@ -31,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
         'alamat',
         'foto_ktp_url',
         'is_active',
+        'poin',
         'user_type',
         'staff_role',
         'assigned_department',

@@ -41,4 +41,12 @@
   .shadow-brand {
     box-shadow: 0 4px 14px 0 rgba(99,102,241,0.35);
   }
+  
+  .glassmorphism {
+    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-lg;
+  }
+  
+  .skeleton-loader {
+    @apply animate-pulse bg-slate-200 rounded;
+  }
 }

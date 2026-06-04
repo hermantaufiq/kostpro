@@ -10,12 +10,14 @@ Route::get('/kamar/{id}', [KamarController::class, 'show'])->name('kamar.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/panduan', function() { return view('user.panduan'); })->name('user.panduan');
 
     // Penyewaan
     Route::get('/kamar/{id}/sewa', [\App\Http\Controllers\User\PenyewaanController::class, 'create'])->name('user.penyewaan.create');
     Route::post('/kamar/{id}/sewa', [\App\Http\Controllers\User\PenyewaanController::class, 'store'])->name('user.penyewaan.store');
     Route::get('/penyewaan', [\App\Http\Controllers\User\PenyewaanController::class, 'index'])->name('user.penyewaan.index');
     Route::get('/penyewaan/{id}', [\App\Http\Controllers\User\PenyewaanController::class, 'show'])->name('user.penyewaan.show');
+    Route::post('/penyewaan/{id}/self-service', [\App\Http\Controllers\User\PenyewaanController::class, 'selfService'])->name('user.penyewaan.self_service');
 
     // Tagihan
     Route::get('/tagihan', [\App\Http\Controllers\User\TagihanController::class, 'index'])->name('user.tagihan.index');
@@ -43,4 +45,4 @@ Route::post('/webhook/xendit', [\App\Http\Controllers\Payment\WebhookController:
 
 require __DIR__.'/auth.php';
 
-Route::get('/invoice/{id}/print', function($id) { return "Fitur Cetak Invoice #$id sedang dikembangkan"; })->name('invoice.print');
+Route::get('/invoice/{id}/print', [\App\Http\Controllers\User\TagihanController::class, 'print'])->name('invoice.print')->middleware('auth');

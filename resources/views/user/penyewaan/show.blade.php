@@ -106,6 +106,25 @@
                 Lihat Tagihan
             </a>
         </div>
+        @elseif($penyewaan->status->value == 'active')
+        <div class="bg-slate-50 p-6 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h4 class="font-bold text-slate-900 text-lg">Layanan Mandiri</h4>
+                <p class="text-sm text-slate-500 mt-1">Ajukan permohonan ke admin terkait sewa kamar ini.</p>
+            </div>
+            <div class="flex gap-3">
+                <form action="{{ route('user.penyewaan.self_service', $penyewaan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin melaporkan pindah/berhenti sewa?')">
+                    @csrf
+                    <input type="hidden" name="jenis" value="pindah">
+                    <button type="submit" class="btn-secondary text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-400">Lapor Pindah</button>
+                </form>
+                <form action="{{ route('user.penyewaan.self_service', $penyewaan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengajukan perpanjangan sewa kamar ini?')">
+                    @csrf
+                    <input type="hidden" name="jenis" value="perpanjang">
+                    <button type="submit" class="btn-primary">Perpanjang Sewa</button>
+                </form>
+            </div>
+        </div>
         @endif
     </div>
 </div>

@@ -29,7 +29,7 @@
         </div>
 
         <div class="p-6 md:p-8">
-            <form action="{{ route('user.penyewaan.store', $kamar->id) }}" method="POST">
+            <form action="{{ route('user.penyewaan.store', $kamar->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="kamar_id" value="{{ $kamar->id }}">
                 
@@ -57,6 +57,20 @@
                         <textarea id="catatan" name="catatan" rows="3" class="form-input" placeholder="Misal: Saya bawa kendaraan mobil, apakah ada slot parkir?">{{ old('catatan') }}</textarea>
                         @error('catatan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
+
+                    @if(!Auth::user()->foto_ktp_url)
+                        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                            <h4 class="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                                Verifikasi Identitas (Wajib)
+                            </h4>
+                            <p class="text-sm text-amber-800 mb-3">Sebagai syarat keamanan kos, mohon unggah foto KTP asli Anda. Data ini akan disimpan aman dan hanya digunakan untuk verifikasi penghuni.</p>
+                            
+                            <label for="foto_ktp" class="block text-xs font-semibold text-slate-700 mb-1">Unggah Foto KTP</label>
+                            <input type="file" id="foto_ktp" name="foto_ktp" accept="image/*" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                            @error('foto_ktp') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    @endif
 
                     <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3">
                         <svg class="w-6 h-6 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

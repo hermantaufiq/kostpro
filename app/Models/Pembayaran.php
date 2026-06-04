@@ -61,6 +61,17 @@ class Pembayaran extends Model
         static::updated(function (Pembayaran $pembayaran) use ($sendReceipt) {
             if ($pembayaran->isDirty('status')) {
                 $sendReceipt($pembayaran);
+
+                // Gamifikasi: Tambah Poin jika bayar tepat waktu
+                if ($pembayaran->status === StatusPembayaran::Success) {
+                    $tagihan = $pembayaran->tagihan;
+                    if ($tagihan && $pembayaran->paid_at && $pembayaran->paid_at <= $tagihan->tanggal_jatuh_tempo) {
+                        $user = $tagihan->user;
+                        if ($user) {
+                            $user->increment('poin', 100);
+                        }
+                    }
+                }
             }
         });
     }

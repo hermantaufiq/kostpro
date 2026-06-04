@@ -36,4 +36,14 @@ class TagihanController extends Controller
 
         return view('user.tagihan.show', compact('tagihan'));
     }
+
+    public function print($id)
+    {
+        $tagihan = \App\Models\Tagihan::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->with(['penyewaan.kamar', 'pembayaran'])
+            ->firstOrFail();
+
+        return view('user.tagihan.print', compact('tagihan'));
+    }
 }

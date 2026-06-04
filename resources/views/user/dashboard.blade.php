@@ -3,9 +3,20 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-900">Halo, {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
-        <p class="text-slate-500 mt-2">Selamat datang di dashboard penyewa KosPro.</p>
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">Halo, {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
+            <p class="text-slate-500 mt-2">Selamat datang di dashboard penyewa KostPro.</p>
+        </div>
+        <div class="bg-gradient-to-r from-amber-400 to-amber-500 text-white px-5 py-3 rounded-2xl shadow-lg shadow-amber-500/30 flex items-center gap-3 w-fit">
+            <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-amber-50 uppercase tracking-wider">Poin KostPro</p>
+                <p class="text-xl font-bold">{{ number_format(Auth::user()->poin ?? 0, 0, ',', '.') }}</p>
+            </div>
+        </div>
     </div>
 
     <!-- Quick Stats -->
@@ -56,6 +67,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Papan Pengumuman -->
+    @if($pengumuman->isNotEmpty())
+    <div class="mb-8 space-y-4">
+        @foreach($pengumuman as $p)
+        <div class="rounded-2xl p-4 sm:p-5 flex gap-4 {{ $p->is_penting ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-slate-100 shadow-soft' }}">
+            <div class="shrink-0 mt-1">
+                @if($p->is_penting)
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                @else
+                <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                </div>
+                @endif
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 {{ $p->is_penting ? 'text-amber-900' : '' }}">{{ $p->judul }}</h3>
+                <p class="text-sm text-slate-600 mt-1 whitespace-pre-line">{{ $p->konten }}</p>
+                <p class="text-xs text-slate-400 mt-3">{{ $p->created_at->diffForHumans() }}</p>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
 
     @if(!$activePenyewaan)
     <!-- Empty State for Kamar -->
@@ -167,6 +204,18 @@
                             <div>
                                 <p class="font-medium text-slate-900 text-sm">Keluhan & Laporan</p>
                                 <p class="text-xs text-slate-500">Laporkan masalah fasilitas</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    <a href="{{ route('user.panduan') }}" class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors border border-slate-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900 text-sm">Buku Panduan & Aturan</p>
+                                <p class="text-xs text-slate-500">Tata tertib dan kontak darurat</p>
                             </div>
                         </div>
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>

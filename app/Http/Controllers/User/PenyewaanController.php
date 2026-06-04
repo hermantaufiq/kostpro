@@ -39,6 +39,12 @@ class PenyewaanController extends Controller
     public function store(PengajuanSewaRequest $request)
     {
         try {
+            if ($request->hasFile('foto_ktp')) {
+                $user = Auth::user();
+                $path = $request->file('foto_ktp')->store('ktp', 'public');
+                $user->update(['foto_ktp_url' => $path]);
+            }
+
             $dto = new PengajuanSewaDTO(
                 user_id: Auth::id(),
                 kamar_id: $request->kamar_id,
@@ -66,5 +72,37 @@ class PenyewaanController extends Controller
         }
 
         return view('user.penyewaan.show', compact('penyewaan'));
+    }
+
+    public function selfService(\Illuminate\Http\Request $request, $id)
+    {
+        $penyewaan = $this->penyewaanRepository->findById($id);
+        
+        if ($penyewaan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $jenis = $request->input('jenis');
+        
+        if ($jenis === 'pindah') {
+            $judul = '[LAPOR PINDAH] - Kamar ' . $penyewaan->kamar->nama;
+            $deskripsi = 'Penyewa melaporkan akan pindah/berhenti sewa dari kamar ini.';
+        } elseif ($jenis === 'perpanjang') {
+            $judul = '[REQUEST PERPANJANG] - Kamar ' . $penyewaan->kamar->nama;
+            $deskripsi = 'Penyewa mengajukan perpanjangan durasi sewa kamar ini.';
+        } else {
+            return back()->with('error', 'Aksi tidak valid.');
+        }
+
+        \App\Models\Keluhan::create([
+            'user_id' => Auth::id(),
+            'kamar_id' => $penyewaan->kamar_id,
+            'judul' => $judul,
+            'deskripsi' => $deskripsi,
+            'status' => 'menunggu',
+            'prioritas' => 'tinggi',
+        ]);
+
+        return back()->with('success', 'Permintaan Anda berhasil dikirim ke Admin. Silakan cek menu Keluhan untuk memantau status tiket.');
     }
 }

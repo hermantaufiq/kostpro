@@ -42,11 +42,15 @@ class DashboardController extends Controller
             ->whereIn('status', ['menunggu', 'diproses'])
             ->count();
 
+        // Ambil pengumuman terbaru
+        $pengumuman = \App\Models\Pengumuman::orderBy('created_at', 'desc')->take(3)->get();
+
         return view('user.dashboard', compact(
             'activePenyewaan',
             'tagihanAktif',
             'unreadNotifCount',
-            'keluhanAktif'
+            'keluhanAktif',
+            'pengumuman'
         ));
     }
 }

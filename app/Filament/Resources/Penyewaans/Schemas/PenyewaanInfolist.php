@@ -39,10 +39,13 @@ class PenyewaanInfolist
                 TextEntry::make('tanggal_approval')
                     ->dateTime()
                     ->placeholder('-'),
-                TextEntry::make('ktp_url')
-                    ->placeholder('-'),
-                TextEntry::make('ktp_path')
-                    ->placeholder('-'),
+                \Filament\Infolists\Components\ImageEntry::make('user.foto_ktp_url')
+                    ->label('Foto KTP (Dari Profil Penyewa)')
+                    ->columnSpanFull()
+                    ->defaultImageUrl(url('/images/no-ktp.png')),
+                \Filament\Infolists\Components\ImageEntry::make('ktp_path')
+                    ->label('Foto KTP (Lama)')
+                    ->visible(fn ($record) => !empty($record->ktp_path)),
                 TextEntry::make('kontrak_url')
                     ->placeholder('-'),
                 TextEntry::make('harga_bulanan_snapshot')
