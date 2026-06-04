@@ -9,6 +9,7 @@ enum MetodePembayaran: string
     case EWallet         = 'ewallet';
     case CreditCard      = 'credit_card';
     case Retail          = 'retail';
+    case UjiCoba         = 'uji_coba';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum MetodePembayaran: string
             self::EWallet        => 'E-Wallet',
             self::CreditCard     => 'Kartu Kredit',
             self::Retail         => 'Gerai Retail',
+            self::UjiCoba        => 'Uji Coba',
         };
     }
 
@@ -29,6 +31,7 @@ enum MetodePembayaran: string
             self::EWallet        => '💳',
             self::CreditCard     => '💳',
             self::Retail         => '🏪',
+            self::UjiCoba        => '🧪',
         };
     }
 }

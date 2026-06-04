@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     // Payment
     Route::post('/tagihan/{id}/pay', [\App\Http\Controllers\Payment\PaymentController::class, 'create'])->name('payment.create');
     Route::get('/payment/{id}/instruction', [\App\Http\Controllers\Payment\PaymentController::class, 'instruction'])->name('payment.instruction');
+    Route::post('/payment/{id}/simulate', [\App\Http\Controllers\Payment\PaymentController::class, 'simulateSuccess'])->name('payment.simulate');
 
     // Profil
     Route::get('/profil', [\App\Http\Controllers\User\ProfilController::class, 'edit'])->name('user.profil.edit');

@@ -13,8 +13,6 @@ class KamarObserver
 
     public function saved(Kamar $kamar): void
     {
-        $this->cacheService->invalidateTags(['kamar_list', "kamar_detail_{$kamar->id}"]);
-
         // Sync images array to foto_kamar table
         if (is_array($kamar->images)) {
             $newPaths = [];
@@ -29,6 +27,8 @@ class KamarObserver
             
             $kamar->fotoKamar()->whereNotIn('foto_path', $newPaths)->delete();
         }
+
+        $this->cacheService->invalidateTags(['kamar_list', "kamar_detail_{$kamar->id}"]);
     }
 
     public function deleted(Kamar $kamar): void

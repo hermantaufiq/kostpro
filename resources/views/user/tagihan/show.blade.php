@@ -138,6 +138,15 @@
                                     <p class="text-xs text-slate-500">OVO, DANA, GoPay, ShopeePay</p>
                                 </div>
                             </label>
+                            @if(auth()->user() && auth()->user()->is_active)
+                            <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-indigo-400 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                                <input type="radio" name="metode" value="uji_coba" class="text-indigo-600">
+                                <div>
+                                    <p class="font-semibold text-sm text-slate-800">Metode Uji Coba</p>
+                                    <p class="text-xs text-slate-500">Simulasi Pembayaran (Hanya user disetujui)</p>
+                                </div>
+                            </label>
+                            @endif
                         </div>
 
                         <button type="submit" id="pay-btn" class="btn-primary w-full justify-center" {{ $pendingPayment ? 'disabled' : '' }}

@@ -19,8 +19,8 @@ class KpiStatsWidget extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-home')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('success'),
-            Stat::make('Penyewa Aktif', Penyewaan::where('status', 'active')->count())
-                ->description('Total penyewa: ' . Penyewaan::count())
+            Stat::make('Penyewa Aktif', Penyewaan::whereIn('status', ['pending', 'approved', 'active'])->count())
+                ->description('Total pengajuan & sewa: ' . Penyewaan::count())
                 ->descriptionIcon('heroicon-m-user-group')
                 ->chart([2, 5, 4, 8, 5, 12, 10])
                 ->color('primary'),

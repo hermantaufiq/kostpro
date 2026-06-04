@@ -24,7 +24,7 @@ class PaymentController extends Controller
             ->firstOrFail();
 
         $request->validate([
-            'metode' => ['required', 'in:virtual_account,qris,ewallet,credit_card'],
+            'metode' => ['required', 'in:virtual_account,qris,ewallet,credit_card,uji_coba'],
         ]);
 
         try {
@@ -85,5 +85,31 @@ class PaymentController extends Controller
         return view('payment.return', [
             'status' => $request->query('status', 'pending'),
         ]);
+    }
+
+    public function simulateSuccess($pembayaranId)
+    {
+        $pembayaran = Pembayaran::where('id', $pembayaranId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if ($pembayaran->metode?->value === 'uji_coba') {
+            $pembayaran->update([
+                'status' => \App\Enums\StatusPembayaran::Success,
+                'tanggal_bayar' => now()
+            ]);
+            
+            if ($pembayaran->tagihan) {
+                $pembayaran->tagihan->update([
+                    'status' => \App\Enums\StatusTagihan::Paid,
+                    'tanggal_bayar' => now()
+                ]);
+            }
+
+            return redirect()->route('user.tagihan.show', $pembayaran->tagihan_id)
+                ->with('success', 'Pembayaran simulasi berhasil. Tagihan kini berstatus lunas.');
+        }
+
+        return back()->with('error', 'Simulasi hanya berlaku untuk metode uji coba.');
     }
 }
