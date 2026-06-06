@@ -22,8 +22,8 @@ class PengumumanResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->schema([
-                Forms\Components\Section::make('Detail Pengumuman')
+            ->components([
+                \Filament\Schemas\Components\Section::make('Detail Pengumuman')
                     ->schema([
                         Forms\Components\TextInput::make('judul')
                             ->required()
@@ -61,13 +61,13 @@ class PengumumanResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
