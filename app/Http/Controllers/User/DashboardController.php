@@ -25,6 +25,12 @@ class DashboardController extends Controller
             ->whereIn('status', [StatusPenyewaan::Active, StatusPenyewaan::Approved, StatusPenyewaan::Pending])
             ->first();
 
+        $sisaHariSewa = null;
+        if ($activePenyewaan && $activePenyewaan->tanggal_keluar) {
+            // diffInDays with false returns negative if date has passed
+            $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->startOfDay(), false));
+        }
+
         // Cari semua tagihan yang belum lunas
         $tagihanAktif = Tagihan::with('penyewaan.kamar')
             ->where('user_id', $userId)
@@ -49,12 +55,54 @@ class DashboardController extends Controller
 
         return view('user.dashboard', compact(
             'activePenyewaan',
+            'sisaHariSewa',
             'tagihanAktif',
             'unreadNotifCount',
             'notifikasi',
             'keluhanAktif',
             'pengumuman'
         ));
+    }
+
+    public function perpanjangSewa(Request $request, $id)
+    {
+        $request->validate([
+            'durasi_bulan' => 'required|integer|in:1,3,6,12',
+        ]);
+
+        $penyewaan = Penyewaan::where('user_id', Auth::id())->findOrFail($id);
+
+        // Pastikan penyewaan aktif
+        if ($penyewaan->status->value !== 'active') {
+            return redirect()->back()->with('error', 'Hanya penyewaan aktif yang dapat diperpanjang.');
+        }
+
+        $durasi = $request->durasi_bulan;
+        $hargaBulanan = $penyewaan->harga_bulanan_snapshot;
+        $totalTagihan = $hargaBulanan * $durasi;
+
+        // Tentukan periode mulai (lanjutan dari tanggal keluar atau bulan depan)
+        $tanggalMulai = \Carbon\Carbon::parse($penyewaan->tanggal_keluar ?? now());
+        $periodeBulan = $tanggalMulai->addMonth()->format('m');
+        $periodeTahun = $tanggalMulai->format('Y');
+
+        // Buat record Tagihan untuk perpanjangan
+        $tagihan = Tagihan::create([
+            'penyewaan_id' => $penyewaan->id,
+            'user_id' => Auth::id(),
+            'kode_tagihan' => 'EXT-' . date('Ym') . '-' . strtoupper(\Illuminate\Support\Str::random(5)),
+            'periode_bulan' => $periodeBulan,
+            'periode_tahun' => $periodeTahun,
+            'jumlah_tagihan' => $totalTagihan,
+            'jumlah_denda' => 0,
+            'status' => StatusTagihan::Unpaid,
+            'tanggal_tagihan' => now(),
+            'tanggal_jatuh_tempo' => now()->addDays(3),
+            'catatan' => "Perpanjangan kos untuk $durasi bulan",
+            'is_auto_generated' => false,
+        ]);
+
+        return redirect()->back()->with('success', "Berhasil mengajukan perpanjangan $durasi bulan. Silakan lakukan pembayaran tagihan.");
     }
 
     public function readAllNotifikasi()

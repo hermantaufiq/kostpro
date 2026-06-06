@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewaan/{id}', [\App\Http\Controllers\User\PenyewaanController::class, 'show'])->name('user.penyewaan.show');
     Route::post('/penyewaan/{id}/sign-contract', [\App\Http\Controllers\User\PenyewaanController::class, 'signContract'])->name('user.penyewaan.sign_contract');
     Route::post('/penyewaan/{id}/self-service', [\App\Http\Controllers\User\PenyewaanController::class, 'selfService'])->name('user.penyewaan.self_service');
+    Route::post('/sewa/{id}/perpanjang', [\App\Http\Controllers\User\DashboardController::class, 'perpanjangSewa'])->name('user.sewa.perpanjang');
 
     // Tagihan
     Route::get('/tagihan', [\App\Http\Controllers\User\TagihanController::class, 'index'])->name('user.tagihan.index');
