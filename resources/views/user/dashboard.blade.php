@@ -19,6 +19,71 @@
         </div>
     </div>
 
+    {{-- ============================================================
+         SMART ALERT BANNERS — Muncul otomatis jika ada peringatan
+         ============================================================ --}}
+    @if($activePenyewaan && $sisaHariSewa !== null && $sisaHariSewa <= 14 && $sisaHariSewa >= 0)
+    <div id="alert-sewa" class="mb-6 flex items-start gap-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm animate-[slideDown_0.4s_ease-out]">
+        <div class="shrink-0 w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-amber-900 text-sm">
+                ⚠️ Masa Sewa Hampir Berakhir!
+            </h4>
+            <p class="text-amber-700 text-sm mt-0.5">
+                Sewa kamar Anda akan berakhir dalam <strong>{{ $sisaHariSewa }} hari</strong>
+                ({{ \Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->format('d M Y') }}).
+                Segera perpanjang agar tidak kehilangan kamar!
+            </p>
+        </div>
+        <div class="flex gap-2 shrink-0">
+            <button onclick="openPerpanjangModal()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm hover:-translate-y-0.5">
+                Perpanjang
+            </button>
+            <button onclick="document.getElementById('alert-sewa').remove()" class="text-amber-500 hover:text-amber-700 p-2 rounded-lg hover:bg-amber-100 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </div>
+    @endif
+
+    @php $tagihanTerdekat = $tagihanAktif->first(); @endphp
+    @if($tagihanTerdekat)
+    @php $sisaHariTagihan = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($tagihanTerdekat->tanggal_jatuh_tempo)->startOfDay(), false)); @endphp
+    @if($sisaHariTagihan <= 3)
+    <div id="alert-tagihan" class="mb-6 flex items-start gap-4 bg-gradient-to-r from-rose-50 to-red-50 border border-rose-200 rounded-2xl p-5 shadow-sm animate-[slideDown_0.4s_ease-out_0.1s_both]">
+        <div class="shrink-0 w-11 h-11 bg-rose-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-rose-900 text-sm">
+                🔴 Tagihan Segera Jatuh Tempo!
+            </h4>
+            <p class="text-rose-700 text-sm mt-0.5">
+                @if($sisaHariTagihan <= 0)
+                    Tagihan <strong>Rp {{ number_format($tagihanTerdekat->total_tagihan, 0, ',', '.') }}</strong> sudah <strong>melewati jatuh tempo!</strong> Segera bayar sekarang.
+                @else
+                    Tagihan <strong>Rp {{ number_format($tagihanTerdekat->total_tagihan, 0, ',', '.') }}</strong> jatuh tempo dalam <strong>{{ $sisaHariTagihan }} hari</strong>. Bayar tepat waktu untuk menghindari denda.
+                @endif
+            </p>
+        </div>
+        <div class="flex gap-2 shrink-0">
+            <form action="{{ route('payment.create', $tagihanTerdekat->id) }}" method="POST">
+                @csrf
+                <input type="hidden" name="metode" value="virtual_account">
+                <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm hover:-translate-y-0.5">
+                    Bayar Kini
+                </button>
+            </form>
+            <button onclick="document.getElementById('alert-tagihan').remove()" class="text-rose-500 hover:text-rose-700 p-2 rounded-lg hover:bg-rose-100 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </div>
+    @endif
+    @endif
+
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex items-center justify-between">
@@ -145,7 +210,15 @@
             <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
                 <div class="border-b border-slate-100 p-6 flex justify-between items-center">
                     <h3 class="font-bold text-lg text-slate-900">Kamar Aktif</h3>
-                    <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Berjalan</span>
+                    <div class="flex items-center gap-2">
+                        @if($activePenyewaan->status->value === 'active')
+                        <button onclick="openPerpanjangModal()" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 shadow-md shadow-indigo-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Perpanjang Sewa
+                        </button>
+                        @endif
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Berjalan</span>
+                    </div>
                 </div>
                 <div class="p-6 grid sm:grid-cols-2 gap-6">
                     <div>
@@ -160,6 +233,17 @@
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Tanggal Masuk</p>
                         <p class="font-semibold text-slate-900">{{ \Carbon\Carbon::parse($activePenyewaan->tanggal_masuk)->format('d M Y') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500 mb-1">Tanggal Keluar</p>
+                        <p class="font-semibold text-slate-900">
+                            {{ $activePenyewaan->tanggal_keluar ? \Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->format('d M Y') : '-' }}
+                        </p>
+                        @if($sisaHariSewa !== null && $sisaHariSewa >= 0)
+                        <p class="text-xs font-bold mt-1 {{ $sisaHariSewa <= 7 ? 'text-rose-500' : ($sisaHariSewa <= 14 ? 'text-amber-500' : 'text-emerald-500') }}">
+                            Sisa {{ $sisaHariSewa }} hari
+                        </p>
+                        @endif
                     </div>
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Harga Bulanan</p>
@@ -272,6 +356,104 @@
     </div>
     @endif
 </div>
+
+{{-- ============================================================
+     MODAL PERPANJANG SEWA
+     ============================================================ --}}
+@if($activePenyewaan && $activePenyewaan->status->value === 'active')
+<div id="modal-perpanjang" class="fixed inset-0 z-[500] hidden" role="dialog" aria-modal="true">
+    {{-- Backdrop --}}
+    <div onclick="closePerpanjangModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="modal-perpanjang-backdrop"></div>
+
+    {{-- Panel --}}
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div id="modal-perpanjang-panel" class="bg-white rounded-3xl w-full max-w-md shadow-2xl scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+            {{-- Header --}}
+            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white">
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg leading-tight">Perpanjang Sewa</h3>
+                            <p class="text-indigo-200 text-xs">{{ $activePenyewaan->kamar->nama }}</p>
+                        </div>
+                    </div>
+                    <button onclick="closePerpanjangModal()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Body --}}
+            <form action="{{ route('user.sewa.perpanjang', $activePenyewaan->id) }}" method="POST" id="form-perpanjang">
+                @csrf
+                <div class="p-6">
+                    <p class="text-slate-600 text-sm mb-5">Pilih berapa bulan Anda ingin memperpanjang sewa. Tagihan akan dibuat otomatis dan masa sewa akan diperbarui setelah pembayaran dikonfirmasi.</p>
+
+                    <label class="block text-sm font-bold text-slate-700 mb-3">Durasi Perpanjangan</label>
+                    <div class="grid grid-cols-2 gap-3 mb-6" id="durasi-options">
+                        @php $harga = $activePenyewaan->harga_bulanan_snapshot; @endphp
+                        @foreach([1, 3, 6, 12] as $bln)
+                        <label class="cursor-pointer perpanjang-option">
+                            <input type="radio" name="durasi_bulan" value="{{ $bln }}" class="peer hidden" {{ $bln === 1 ? 'checked' : '' }}>
+                            <div class="p-4 rounded-2xl border-2 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50 border-slate-200 hover:border-slate-300">
+                                <p class="font-black text-slate-900 text-xl">{{ $bln }} Bulan</p>
+                                <p class="text-sm font-bold text-indigo-600 mt-1">Rp {{ number_format($harga * $bln, 0, ',', '.') }}</p>
+                                @if($bln >= 6)
+                                <span class="inline-block mt-1.5 text-[10px] font-black bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">HEMAT</span>
+                                @endif
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+
+                    {{-- Info Box --}}
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-3 mb-6">
+                        <svg class="w-5 h-5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-xs text-slate-500 leading-relaxed">Tagihan perpanjangan akan muncul di daftar tagihan Anda. Masa sewa akan otomatis diperpanjang setelah pembayaran lunas dikonfirmasi oleh admin.</p>
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closePerpanjangModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-2xl hover:bg-slate-200 transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
+                            Ajukan Perpanjangan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openPerpanjangModal() {
+    const modal = document.getElementById('modal-perpanjang');
+    const backdrop = document.getElementById('modal-perpanjang-backdrop');
+    const panel = document.getElementById('modal-perpanjang-panel');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    void modal.offsetWidth; // force reflow
+    backdrop.style.opacity = '1';
+    panel.style.opacity = '1';
+    panel.style.transform = 'scale(1)';
+}
+function closePerpanjangModal() {
+    const modal = document.getElementById('modal-perpanjang');
+    const backdrop = document.getElementById('modal-perpanjang-backdrop');
+    const panel = document.getElementById('modal-perpanjang-panel');
+    backdrop.style.opacity = '0';
+    panel.style.opacity = '0';
+    panel.style.transform = 'scale(0.95)';
+    document.body.style.overflow = '';
+    setTimeout(() => modal.classList.add('hidden'), 300);
+}
+</script>
+@endif
 
 {{-- ============================================================
      NOTIFIKASI DRAWER — Bottom Sheet (Mobile) / Side Drawer (Desktop)
