@@ -9,6 +9,10 @@ use App\Models\Pembayaran;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use BackedEnum;
+use App\Filament\Widgets\LaporanStatsWidget;
+use App\Filament\Widgets\PendapatanChartWidget;
+use App\Filament\Widgets\LaporanTunggakanWidget;
+use App\Filament\Widgets\LaporanPenyewaanAktifWidget;
 
 class LaporanPage extends Page
 {
@@ -17,9 +21,34 @@ class LaporanPage extends Page
     protected static ?string $title = 'Laporan Keuangan & Hunian';
     protected static ?int $navigationSort = 10;
 
-    protected string $view = 'filament.pages.laporan-page';
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            LaporanStatsWidget::class,
+            PendapatanChartWidget::class,
+            LaporanTunggakanWidget::class,
+            LaporanPenyewaanAktifWidget::class,
+        ];
+    }
 
-    public function getViewData(): array
+    protected function getHeaderActions(): array
+    {
+        return [
+            \Filament\Actions\Action::make('cetak_pdf')
+                ->label('Cetak PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('danger')
+                ->action(function () {
+                    $data = $this->getPdfData();
+                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan', $data);
+                    return response()->streamDownload(function () use ($pdf) {
+                        echo $pdf->output();
+                    }, 'Laporan_KostPro_' . now()->format('Y-m') . '.pdf');
+                }),
+        ];
+    }
+
+    private function getPdfData(): array
     {
         $tahunIni = now()->year;
         $bulanIni = now()->month;
