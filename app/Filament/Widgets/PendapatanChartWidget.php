@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class PendapatanChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Pendapatan Bulanan';
+    protected ?string $heading = 'Pendapatan Bulanan';
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 'full';
 
