@@ -17,6 +17,15 @@ class KamarInfolist
                 TextEntry::make('nama'),
                 TextEntry::make('tipe')
                     ->badge(),
+                TextEntry::make('gender')
+                    ->label('Target Penghuni')
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'putra'  => 'info',
+                        'putri'  => 'danger',
+                        'campur' => 'success',
+                        default  => 'gray',
+                    }),
                 TextEntry::make('lantai')
                     ->numeric(),
                 TextEntry::make('luas')

@@ -15,7 +15,7 @@ class KamarController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['tipe', 'min_harga', 'max_harga', 'fasilitas']);
+        $filters = $request->only(['gender', 'tipe', 'min_harga', 'max_harga', 'fasilitas']);
         $rooms = $this->kamarService->getListing($filters, 12);
         $allFasilitas = Fasilitas::where('is_active', true)->orderBy('nama')->get();
         

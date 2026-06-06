@@ -15,8 +15,14 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
 
     public function findAvailable(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        $query = $this->model->available()->with('thumbnail');
+        $query = $this->model->available()->with(['thumbnail', 'fasilitasMaster']);
 
+        // Filter by gender (putra/putri/campur)
+        if (!empty($filters['gender'])) {
+            $query->byGender($filters['gender']);
+        }
+
+        // Filter by tipe (standar/deluxe/vip/suite)
         if (!empty($filters['tipe'])) {
             $query->byTipe($filters['tipe']);
         }
@@ -25,6 +31,13 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
             $min = $filters['min_harga'] ?? 0;
             $max = $filters['max_harga'] ?? null;
             $query->byHarga($min, $max);
+        }
+
+        // Filter by fasilitas
+        if (!empty($filters['fasilitas'])) {
+            $query->whereHas('fasilitasMaster', function ($q) use ($filters) {
+                $q->whereIn('fasilitas.id', (array) $filters['fasilitas']);
+            });
         }
 
         return $query->paginate($perPage);

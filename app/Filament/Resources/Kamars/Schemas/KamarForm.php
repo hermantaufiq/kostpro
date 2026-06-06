@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Kamars\Schemas;
 
 use App\Enums\StatusKamar;
 use App\Enums\TipeKamar;
+use App\Enums\GenderKamar;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -27,6 +28,12 @@ class KamarForm
                             ->options(TipeKamar::class)
                             ->default('standar')
                             ->required(),
+                        Select::make('gender')
+                            ->label('Target Penghuni')
+                            ->options(GenderKamar::class)
+                            ->default('campur')
+                            ->required()
+                            ->helperText('Putra = khusus pria, Putri = khusus wanita, Campur = semua gender'),
                         Select::make('status')
                             ->options(StatusKamar::class)
                             ->default('tersedia')

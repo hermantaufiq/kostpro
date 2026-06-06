@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Enums\StatusKamar;
 use App\Enums\TipeKamar;
+use App\Enums\GenderKamar;
 
 class Kamar extends Model
 {
@@ -21,6 +22,7 @@ class Kamar extends Model
         'kode_kamar',
         'nama',
         'tipe',
+        'gender',
         'lantai',
         'luas',
         'harga_bulanan',
@@ -39,12 +41,13 @@ class Kamar extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'tipe' => TipeKamar::class,
-        'status' => StatusKamar::class,
-        'fasilitas' => 'array',
-        'meta' => 'array',
+        'tipe'        => TipeKamar::class,
+        'gender'      => GenderKamar::class,
+        'status'      => StatusKamar::class,
+        'fasilitas'   => 'array',
+        'meta'        => 'array',
         'is_featured' => 'boolean',
-        'images' => 'array',
+        'images'      => 'array',
     ];
 
     public function fotoKamar(): HasMany
@@ -75,6 +78,11 @@ class Kamar extends Model
     public function scopeAvailable($query)
     {
         return $query->where('status', StatusKamar::Tersedia);
+    }
+
+    public function scopeByGender($query, $gender)
+    {
+        return $query->where('gender', $gender);
     }
 
     public function scopeByTipe($query, $tipe)

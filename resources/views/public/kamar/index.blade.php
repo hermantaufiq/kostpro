@@ -29,33 +29,33 @@
                         <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                         Filter Pencarian
                     </h2>
-                    @if(request()->hasAny(['tipe', 'min_harga', 'max_harga', 'fasilitas']))
+                                    @if(request()->hasAny(['gender', 'tipe', 'min_harga', 'max_harga', 'fasilitas']))
                     <a href="{{ route('kamar.index') }}" class="text-xs font-semibold text-rose-500 hover:text-rose-700 transition-colors">Reset</a>
                     @endif
                 </div>
 
                 <form action="{{ route('kamar.index') }}" method="GET" id="filter-form-desktop">
                     
-                    {{-- Tipe Kamar --}}
+                    {{-- Gender / Target Penghuni --}}
                     <div class="mb-6">
-                        <label class="block text-sm font-bold text-slate-700 mb-3">Tipe Kamar</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-3">Target Penghuni</label>
                         <div class="flex flex-wrap gap-2">
-                            @php $reqTipe = request('tipe', ''); @endphp
+                            @php $reqGender = request('gender', ''); @endphp
                             <label class="cursor-pointer">
-                                <input type="radio" name="tipe" value="" class="peer hidden" onchange="this.form.submit()" {{ $reqTipe == '' ? 'checked' : '' }}>
-                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqTipe == '' ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Semua</div>
+                                <input type="radio" name="gender" value="" class="peer hidden" onchange="this.form.submit()" {{ $reqGender == '' ? 'checked' : '' }}>
+                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqGender == '' ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Semua</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="tipe" value="pria" class="peer hidden" onchange="this.form.submit()" {{ $reqTipe == 'pria' ? 'checked' : '' }}>
-                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqTipe == 'pria' ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Putra</div>
+                                <input type="radio" name="gender" value="putra" class="peer hidden" onchange="this.form.submit()" {{ $reqGender == 'putra' ? 'checked' : '' }}>
+                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqGender == 'putra' ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Putra</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="tipe" value="wanita" class="peer hidden" onchange="this.form.submit()" {{ $reqTipe == 'wanita' ? 'checked' : '' }}>
-                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqTipe == 'wanita' ? 'bg-rose-500 text-white border-rose-500 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Putri</div>
+                                <input type="radio" name="gender" value="putri" class="peer hidden" onchange="this.form.submit()" {{ $reqGender == 'putri' ? 'checked' : '' }}>
+                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqGender == 'putri' ? 'bg-rose-500 text-white border-rose-500 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Putri</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="tipe" value="campur" class="peer hidden" onchange="this.form.submit()" {{ $reqTipe == 'campur' ? 'checked' : '' }}>
-                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqTipe == 'campur' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Campur</div>
+                                <input type="radio" name="gender" value="campur" class="peer hidden" onchange="this.form.submit()" {{ $reqGender == 'campur' ? 'checked' : '' }}>
+                                <div class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border {{ $reqGender == 'campur' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300' }}">Campur</div>
                             </label>
                         </div>
                     </div>
@@ -132,16 +132,22 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
                     @foreach($rooms as $room)
-                        @php
-                            // Tipe badge styling
-                            $tipeColor = match($room->tipe->value) {
-                                'pria' => 'bg-indigo-500 text-white',
-                                'wanita' => 'bg-rose-500 text-white',
-                                'campur' => 'bg-emerald-500 text-white',
-                                default => 'bg-slate-800 text-white'
-                            };
-                            $isAvail = $room->status->isAvailable();
-                        @endphp
+                    @php
+                        $genderColor = match($room->gender?->value ?? 'campur') {
+                            'putra'  => 'bg-indigo-500 text-white',
+                            'putri'  => 'bg-rose-500 text-white',
+                            'campur' => 'bg-emerald-500 text-white',
+                            default  => 'bg-slate-800 text-white'
+                        };
+                        $tipeColor = match($room->tipe?->value ?? 'standar') {
+                            'standar' => 'bg-slate-700 text-white',
+                            'deluxe'  => 'bg-indigo-400 text-white',
+                            'vip'     => 'bg-amber-500 text-white',
+                            'suite'   => 'bg-purple-600 text-white',
+                            default   => 'bg-slate-700 text-white'
+                        };
+                        $isAvail = $room->status->isAvailable();
+                    @endphp
                         
                         <div class="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-400 group flex flex-col hover:-translate-y-1.5 relative">
                             {{-- Cover Image --}}
@@ -157,10 +163,12 @@
                                 {{-- Overlay gradient --}}
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-                                {{-- Badges --}}
                                 <div class="absolute top-3 left-3 flex flex-col gap-2">
-                                    <span class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-sm {{ $tipeColor }}">
-                                        {{ $room->tipe->value }}
+                                    <span class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-sm {{ $genderColor }}">
+                                        {{ $room->gender?->label() ?? 'Campur' }}
+                                    </span>
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm {{ $tipeColor }}">
+                                        {{ $room->tipe?->label() ?? 'Standar' }}
                                     </span>
                                 </div>
                                 
@@ -229,7 +237,7 @@
 <button onclick="toggleMobileFilter()" class="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] bg-slate-900 text-white px-6 py-3.5 rounded-full font-bold shadow-[0_10px_40px_rgba(0,0,0,0.3)] flex items-center gap-2 border border-slate-700 active:scale-95 transition-transform">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
     Filter Kamar
-    @if(request()->hasAny(['tipe', 'min_harga', 'max_harga', 'fasilitas']))
+        @if(request()->hasAny(['gender', 'tipe', 'min_harga', 'max_harga', 'fasilitas']))
     <span class="w-2.5 h-2.5 bg-rose-500 rounded-full absolute top-0 right-1 border-2 border-slate-900"></span>
     @endif
 </button>
@@ -255,25 +263,25 @@
             <form action="{{ route('kamar.index') }}" method="GET" id="filter-form-mobile">
                 {{-- Duplicate form fields for mobile (Simplified for demonstration, in a real app, bind these together or submit the desktop form via JS) --}}
                 
-                {{-- Tipe Kamar --}}
+                {{-- Target Penghuni (Gender) --}}
                 <div class="mb-6">
-                    <label class="block text-sm font-bold text-slate-700 mb-3">Tipe Kamar</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-3">Target Penghuni</label>
                     <div class="grid grid-cols-2 gap-2">
-                        @php $reqTipe = request('tipe', ''); @endphp
+                        @php $reqGender = request('gender', ''); @endphp
                         <label class="cursor-pointer">
-                            <input type="radio" name="tipe" value="" class="peer hidden" {{ $reqTipe == '' ? 'checked' : '' }}>
+                            <input type="radio" name="gender" value="" class="peer hidden" {{ $reqGender == '' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center rounded-xl text-sm font-bold transition-all border peer-checked:bg-slate-800 peer-checked:text-white peer-checked:border-slate-800 bg-white text-slate-500 border-slate-200">Semua</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="tipe" value="pria" class="peer hidden" {{ $reqTipe == 'pria' ? 'checked' : '' }}>
+                            <input type="radio" name="gender" value="putra" class="peer hidden" {{ $reqGender == 'putra' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center rounded-xl text-sm font-bold transition-all border peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 bg-white text-slate-500 border-slate-200">Putra</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="tipe" value="wanita" class="peer hidden" {{ $reqTipe == 'wanita' ? 'checked' : '' }}>
+                            <input type="radio" name="gender" value="putri" class="peer hidden" {{ $reqGender == 'putri' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center rounded-xl text-sm font-bold transition-all border peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 bg-white text-slate-500 border-slate-200">Putri</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="tipe" value="campur" class="peer hidden" {{ $reqTipe == 'campur' ? 'checked' : '' }}>
+                            <input type="radio" name="gender" value="campur" class="peer hidden" {{ $reqGender == 'campur' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center rounded-xl text-sm font-bold transition-all border peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 bg-white text-slate-500 border-slate-200">Campur</div>
                         </label>
                     </div>

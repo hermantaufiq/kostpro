@@ -42,6 +42,15 @@ class KamarsTable
                         'suite' => 'success',
                         default => 'gray',
                     }),
+                TextColumn::make('gender')
+                    ->label('Penghuni')
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'putra'  => 'info',
+                        'putri'  => 'danger',
+                        'campur' => 'success',
+                        default  => 'gray',
+                    }),
                 TextColumn::make('lantai')
                     ->numeric()
                     ->sortable(),
@@ -66,6 +75,9 @@ class KamarsTable
                     ->options(\App\Enums\StatusKamar::class),
                 \Filament\Tables\Filters\SelectFilter::make('tipe')
                     ->options(\App\Enums\TipeKamar::class),
+                \Filament\Tables\Filters\SelectFilter::make('gender')
+                    ->label('Target Penghuni')
+                    ->options(\App\Enums\GenderKamar::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([
