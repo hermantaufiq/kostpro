@@ -146,7 +146,7 @@
                             'suite'   => 'bg-purple-600 text-white',
                             default   => 'bg-slate-700 text-white'
                         };
-                        $isAvail = $room->status->isAvailable();
+                        $isAvail = $room->sisa_slot > 0;
                     @endphp
                         
                         <div class="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-400 group flex flex-col hover:-translate-y-1.5 relative">
@@ -172,9 +172,17 @@
                                     </span>
                                 </div>
                                 
+                                <div class="absolute top-3 right-3 flex flex-col gap-2">
+                                    @if($isAvail)
+                                        <span class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-sm bg-emerald-500/90 text-white border border-white/20">
+                                            Sisa {{ $room->sisa_slot }} Slot
+                                        </span>
+                                    @endif
+                                </div>
+                                
                                 @if(!$isAvail)
-                                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                                    <span class="bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg border border-white/20">KAMAR PENUH</span>
+                                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] flex items-center justify-center z-10">
+                                    <span class="bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(225,29,72,0.4)] border border-rose-400">KAMAR PENUH</span>
                                 </div>
                                 @endif
                             </div>

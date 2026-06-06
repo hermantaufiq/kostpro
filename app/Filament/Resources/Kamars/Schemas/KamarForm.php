@@ -38,6 +38,12 @@ class KamarForm
                             ->options(StatusKamar::class)
                             ->default('tersedia')
                             ->required(),
+                        TextInput::make('kapasitas')
+                            ->label('Kapasitas Kamar (Orang)')
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(1)
+                            ->required(),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Detail Ruangan & Fasilitas')

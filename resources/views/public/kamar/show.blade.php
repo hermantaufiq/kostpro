@@ -9,6 +9,10 @@
         <span class="text-slate-900 font-medium">{{ $room->nama }}</span>
     </div>
 
+    @php
+        $isAvail = $room->sisa_slot > 0;
+    @endphp
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
@@ -71,11 +75,14 @@
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 sticky top-24">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-600">
-                        Tipe {{ ucfirst($room->tipe->value) }}
+                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-600 uppercase tracking-wider">
+                        {{ $room->gender?->label() ?? 'Campur' }}
                     </span>
-                    <span class="px-3 py-1 rounded-lg text-xs font-bold {{ $room->status->isAvailable() ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }}">
-                        {{ $room->status->isAvailable() ? 'Tersedia' : 'Tidak Tersedia' }}
+                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
+                        Tipe {{ $room->tipe?->label() ?? 'Standar' }}
+                    </span>
+                    <span class="px-3 py-1 rounded-lg text-xs font-bold {{ $isAvail ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} uppercase tracking-wider">
+                        {{ $isAvail ? 'Sisa ' . $room->sisa_slot . ' Slot' : 'Kamar Penuh' }}
                     </span>
                 </div>
 
@@ -93,14 +100,14 @@
                     </div>
                 </div>
 
-                @if($room->status->isAvailable())
+                @if($isAvail)
                     <a href="{{ route('user.penyewaan.create', $room->id) }}" class="btn-primary w-full justify-center text-center">
                         Ajukan Sewa
                     </a>
                     <p class="text-center text-xs text-slate-400 mt-4">Anda belum ditagih saat pengajuan.</p>
                 @else
                     <button class="w-full bg-slate-100 text-slate-400 rounded-xl px-6 py-3 font-semibold text-sm cursor-not-allowed" disabled>
-                        Kamar Tidak Tersedia
+                        Kamar Penuh
                     </button>
                 @endif
             </div>

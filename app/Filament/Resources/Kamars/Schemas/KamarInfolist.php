@@ -28,6 +28,12 @@ class KamarInfolist
                     }),
                 TextEntry::make('lantai')
                     ->numeric(),
+                TextEntry::make('kapasitas')
+                    ->numeric(),
+                TextEntry::make('sisa_slot')
+                    ->label('Sisa Slot')
+                    ->badge()
+                    ->color(fn ($state) => $state > 0 ? 'success' : 'danger'),
                 TextEntry::make('luas')
                     ->placeholder('-'),
                 TextEntry::make('harga_bulanan')

@@ -23,6 +23,7 @@ class Kamar extends Model
         'nama',
         'tipe',
         'gender',
+        'kapasitas',
         'lantai',
         'luas',
         'harga_bulanan',
@@ -43,6 +44,7 @@ class Kamar extends Model
     protected $casts = [
         'tipe'        => TipeKamar::class,
         'gender'      => GenderKamar::class,
+        'kapasitas'   => 'integer',
         'status'      => StatusKamar::class,
         'fasilitas'   => 'array',
         'meta'        => 'array',
@@ -73,6 +75,23 @@ class Kamar extends Model
     public function penyewaan(): HasMany
     {
         return $this->hasMany(Penyewaan::class);
+    }
+
+    public function getPenghuniAktifCountAttribute(): int
+    {
+        if (array_key_exists('penghuni_aktif_count', $this->attributes)) {
+            return (int) $this->attributes['penghuni_aktif_count'];
+        }
+
+        return $this->penyewaan()
+            ->whereIn('status', ['approved', 'active'])
+            ->count();
+    }
+
+    public function getSisaSlotAttribute(): int
+    {
+        $sisa = $this->kapasitas - $this->penghuni_aktif_count;
+        return max(0, $sisa);
     }
 
     public function scopeAvailable($query)

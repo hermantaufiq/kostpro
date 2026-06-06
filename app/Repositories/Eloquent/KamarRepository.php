@@ -15,7 +15,10 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
 
     public function findAvailable(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        $query = $this->model->available()->with(['thumbnail', 'fasilitasMaster']);
+        $query = $this->model->available()->with(['thumbnail', 'fasilitasMaster'])
+            ->withCount(['penyewaan as penghuni_aktif_count' => function ($query) {
+                $query->whereIn('status', ['approved', 'active']);
+            }]);
 
         // Filter by gender (putra/putri/campur)
         if (!empty($filters['gender'])) {
@@ -45,6 +48,10 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
 
     public function findWithGallery($id)
     {
-        return $this->model->with(['fotoKamar', 'fasilitasMaster'])->findOrFail($id);
+        return $this->model->with(['fotoKamar', 'fasilitasMaster'])
+            ->withCount(['penyewaan as penghuni_aktif_count' => function ($query) {
+                $query->whereIn('status', ['approved', 'active']);
+            }])
+            ->findOrFail($id);
     }
 }

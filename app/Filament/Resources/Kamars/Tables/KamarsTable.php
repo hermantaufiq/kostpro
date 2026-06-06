@@ -53,6 +53,16 @@ class KamarsTable
                     }),
                 TextColumn::make('lantai')
                     ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('kapasitas')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('sisa_slot')
+                    ->label('Sisa Slot')
+                    ->badge()
+                    ->color(fn ($state) => $state > 0 ? 'success' : 'danger')
                     ->sortable(),
                 TextColumn::make('harga_bulanan')
                     ->money('IDR')
