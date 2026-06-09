@@ -37,7 +37,8 @@ class KamarForm
                         Select::make('status')
                             ->options(StatusKamar::class)
                             ->default('tersedia')
-                            ->required(),
+                            ->required()
+                            ->live(),
                         TextInput::make('kapasitas')
                             ->label('Kapasitas Kamar (Orang)')
                             ->numeric()
@@ -73,6 +74,20 @@ class KamarForm
                             ->prefix('Rp'),
                     ])->columns(2),
 
+                \Filament\Schemas\Components\Section::make('Visibilitas & Publikasi')
+                    ->description('Atur apakah kamar ini ditampilkan kepada calon penghuni.')
+                    ->schema([
+                        Toggle::make('show_to_public')
+                            ->label('Tampilkan kamar ini kepada pengguna')
+                            ->helperText('Jika dinonaktifkan, kamar tidak akan muncul di halaman pencarian maupun daftar kamar untuk pengguna. Berguna saat kamar sedang maintenance dan tidak ingin ditampilkan.')
+                            ->default(true)
+                            ->onColor('success')
+                            ->offColor('danger'),
+                        Toggle::make('is_featured')
+                            ->label('Tampilkan di halaman utama')
+                            ->default(false),
+                    ])->columns(2),
+
                 \Filament\Schemas\Components\Section::make('Media & Deskripsi')
                     ->schema([
                         \Filament\Forms\Components\RichEditor::make('deskripsi')
@@ -83,9 +98,6 @@ class KamarForm
                             ->maxFiles(5)
                             ->directory('kamar-images')
                             ->columnSpanFull(),
-                        Toggle::make('is_featured')
-                            ->label('Tampilkan di halaman utama')
-                            ->default(false),
                     ]),
             ]);
     }

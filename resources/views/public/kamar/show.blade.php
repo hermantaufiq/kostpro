@@ -10,8 +10,21 @@
     </div>
 
     @php
-        $isAvail = $room->sisa_slot > 0;
+        $isMaintenance = $room->status?->value === 'maintenance';
+        $isAvail = !$isMaintenance && $room->sisa_slot > 0;
     @endphp
+
+    @if($isMaintenance)
+    <div class="mb-6 flex items-start gap-4 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <div>
+            <p class="font-bold text-amber-800 text-sm">Kamar Sedang Dalam Perbaikan (Maintenance)</p>
+            <p class="text-amber-700 text-sm mt-0.5">Kamar ini sementara tidak dapat disewa. Tim kami sedang melakukan perawatan agar kamar kembali dalam kondisi terbaik untuk Anda. Silakan pantau terus atau hubungi kami untuk info lebih lanjut.</p>
+        </div>
+    </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
@@ -81,9 +94,16 @@
                     <span class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
                         Tipe {{ $room->tipe?->label() ?? 'Standar' }}
                     </span>
+                    @if($isMaintenance)
+                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Maintenance
+                    </span>
+                    @else
                     <span class="px-3 py-1 rounded-lg text-xs font-bold {{ $isAvail ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} uppercase tracking-wider">
                         {{ $isAvail ? 'Sisa ' . $room->sisa_slot . ' Slot' : 'Kamar Penuh' }}
                     </span>
+                    @endif
                 </div>
 
                 <h1 class="text-2xl font-bold text-slate-900 mb-2">{{ $room->nama }}</h1>
@@ -100,7 +120,15 @@
                     </div>
                 </div>
 
-                @if($isAvail)
+                @if($isMaintenance)
+                    <div class="w-full bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-center gap-3">
+                        <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <div>
+                            <p class="text-sm font-bold text-amber-800">Sedang Maintenance</p>
+                            <p class="text-xs text-amber-600 mt-0.5">Kamar tidak dapat dipesan saat ini</p>
+                        </div>
+                    </div>
+                @elseif($isAvail)
                     <a href="{{ route('user.penyewaan.create', $room->id) }}" class="btn-primary w-full justify-center text-center">
                         Ajukan Sewa
                     </a>

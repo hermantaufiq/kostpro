@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Contracts\Repositories\KamarRepositoryInterface;
+use App\Enums\StatusKamar;
 use App\Models\Kamar;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -15,7 +16,18 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
 
     public function findAvailable(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        $query = $this->model->available()->with(['thumbnail', 'fasilitasMaster'])
+        // Tampilkan tersedia, maintenance, dan reserved — hanya sembunyikan yang benar-benar terisi
+        // Tambahan: hanya kamar yang diizinkan admin untuk tampil ke publik (show_to_public = true)
+        $visibleStatuses = [
+            StatusKamar::Tersedia->value,
+            StatusKamar::Maintenance->value,
+            StatusKamar::Reserved->value,
+        ];
+
+        $query = $this->model
+            ->whereIn('status', $visibleStatuses)
+            ->where('show_to_public', true)
+            ->with(['thumbnail', 'fasilitasMaster'])
             ->withCount(['penyewaan as penghuni_aktif_count' => function ($query) {
                 $query->whereIn('status', ['approved', 'active']);
             }]);
@@ -49,6 +61,7 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
     public function findWithGallery($id)
     {
         return $this->model->with(['fotoKamar', 'fasilitasMaster'])
+            ->where('show_to_public', true)
             ->withCount(['penyewaan as penghuni_aktif_count' => function ($query) {
                 $query->whereIn('status', ['approved', 'active']);
             }])

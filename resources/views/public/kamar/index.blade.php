@@ -146,7 +146,8 @@
                             'suite'   => 'bg-purple-600 text-white',
                             default   => 'bg-slate-700 text-white'
                         };
-                        $isAvail = $room->sisa_slot > 0;
+                        $isMaintenance = $room->status?->value === 'maintenance';
+                        $isAvail = !$isMaintenance && $room->sisa_slot > 0;
                     @endphp
                         
                         <div class="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-400 group flex flex-col hover:-translate-y-1.5 relative">
@@ -180,7 +181,17 @@
                                     @endif
                                 </div>
                                 
-                                @if(!$isAvail)
+                                @if($isMaintenance)
+                                <div class="absolute inset-0 bg-amber-900/50 backdrop-blur-[2px] flex items-center justify-center z-10">
+                                    <div class="flex flex-col items-center gap-1.5">
+                                        <span class="bg-amber-500 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(245,158,11,0.4)] border border-amber-300 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            SEDANG MAINTENANCE
+                                        </span>
+                                        <span class="text-white/80 text-[10px] font-semibold">Segera tersedia kembali</span>
+                                    </div>
+                                </div>
+                                @elseif(!$isAvail)
                                 <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] flex items-center justify-center z-10">
                                     <span class="bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(225,29,72,0.4)] border border-rose-400">KAMAR PENUH</span>
                                 </div>

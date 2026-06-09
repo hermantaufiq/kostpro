@@ -79,6 +79,13 @@ class KamarsTable
                 IconColumn::make('is_featured')
                     ->boolean()
                     ->label('Featured'),
+                IconColumn::make('show_to_public')
+                    ->boolean()
+                    ->label('Tampil Publik')
+                    ->trueIcon('heroicon-o-eye')
+                    ->falseIcon('heroicon-o-eye-slash')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
             ])
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('status')
@@ -88,6 +95,10 @@ class KamarsTable
                 \Filament\Tables\Filters\SelectFilter::make('gender')
                     ->label('Target Penghuni')
                     ->options(\App\Enums\GenderKamar::class),
+                \Filament\Tables\Filters\TernaryFilter::make('show_to_public')
+                    ->label('Tampil ke Pengguna')
+                    ->trueLabel('Ya — Ditampilkan')
+                    ->falseLabel('Tidak — Disembunyikan'),
                 TrashedFilter::make(),
             ])
             ->recordActions([

@@ -33,6 +33,7 @@ class Kamar extends Model
         'status',
         'meta',
         'is_featured',
+        'show_to_public',
         'images',
     ];
 
@@ -42,14 +43,15 @@ class Kamar extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'tipe'        => TipeKamar::class,
-        'gender'      => GenderKamar::class,
-        'kapasitas'   => 'integer',
-        'status'      => StatusKamar::class,
-        'fasilitas'   => 'array',
-        'meta'        => 'array',
-        'is_featured' => 'boolean',
-        'images'      => 'array',
+        'tipe'           => TipeKamar::class,
+        'gender'         => GenderKamar::class,
+        'kapasitas'      => 'integer',
+        'status'         => StatusKamar::class,
+        'fasilitas'      => 'array',
+        'meta'           => 'array',
+        'is_featured'    => 'boolean',
+        'show_to_public' => 'boolean',
+        'images'         => 'array',
     ];
 
     public function fotoKamar(): HasMany
