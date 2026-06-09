@@ -16,3 +16,6 @@ Schedule::job(new ProcessOverdueInvoicesJob())->dailyAt('07:00');
 
 // Send invoice reminders — setiap hari jam 08:00
 Schedule::job(new SendInvoiceReminderJob())->dailyAt('08:00');
+
+// Send kontrak reminders — setiap hari jam 09:00
+Schedule::command('kostpro:send-kontrak-reminder')->dailyAt('09:00');

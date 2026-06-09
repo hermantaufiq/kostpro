@@ -78,6 +78,28 @@ class PenyewaansTable
                     ->action(function (\App\Models\Penyewaan $record) {
                         app(\App\Contracts\Services\PenyewaanServiceInterface::class)->rejectSewa($record->id, auth()->id());
                     }),
+                \Filament\Actions\Action::make('perpanjang')
+                    ->label('Perpanjang')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('warning')
+                    ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'active')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('tambahan_bulan')
+                            ->label('Tambahan Durasi (Bulan)')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(12)
+                            ->required(),
+                    ])
+                    ->action(function (\App\Models\Penyewaan $record, array $data) {
+                        try {
+                            app(\App\Contracts\Services\PenyewaanServiceInterface::class)
+                                ->perpanjangKontrak($record->id, (int) $data['tambahan_bulan'], auth()->id());
+                            \Filament\Notifications\Notification::make()->title('Kontrak berhasil diperpanjang!')->success()->send();
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()->title($e->getMessage())->danger()->send();
+                        }
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
             ])

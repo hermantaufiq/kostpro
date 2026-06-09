@@ -69,6 +69,7 @@ class User extends Authenticatable implements FilamentUser
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
             'login_count' => 'integer',
+            'tanggal_lahir' => 'date',
         ];
     }
 

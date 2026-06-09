@@ -56,12 +56,21 @@ class InvoiceService
      */
     public static function createMonthlyInvoices(Penyewaan $penyewaan): array
     {
-        $invoices = [];
         $startDate = Carbon::parse($penyewaan->tanggal_masuk);
         $monthCount = $penyewaan->durasi_bulan ?? 1;
 
+        return self::createInvoicesFromPeriode($penyewaan, $startDate, $monthCount);
+    }
+
+    /**
+     * Create invoices starting from a specific period (used for renewal and initial creation)
+     */
+    public static function createInvoicesFromPeriode(Penyewaan $penyewaan, Carbon $startPeriode, int $monthCount): array
+    {
+        $invoices = [];
+
         for ($i = 0; $i < $monthCount; $i++) {
-            $periodeDate = $startDate->copy()->addMonths($i);
+            $periodeDate = $startPeriode->copy()->addMonths($i);
             $dueDate     = $periodeDate->copy()->endOfMonth();
             $invoiceDate = $periodeDate->copy()->startOfMonth();
 
