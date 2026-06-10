@@ -12,7 +12,8 @@ class PembayaranObserver
      */
     public function updated(Pembayaran $pembayaran): void
     {
-        if ($pembayaran->wasChanged('status') && in_array($pembayaran->status, ['success', 'paid'])) {
+        if ($pembayaran->wasChanged('status') && in_array($pembayaran->status?->value ?? $pembayaran->status, ['success', 'paid'])) {
+
             $tagihan = $pembayaran->tagihan;
             
             if ($tagihan && $tagihan->status !== 'paid') {
@@ -44,6 +45,8 @@ class PembayaranObserver
                         'tanggal_keluar'  => $tanggalKeluarBaru,
                         'perpanjangan_ke' => $penyewaan->perpanjangan_ke + ($isFirstPayment ? 0 : 1),
                         'checkin_at'      => $isFirstPayment ? now() : $penyewaan->checkin_at,
+                        'deposit_paid'    => $isFirstPayment ? true : $penyewaan->deposit_paid,
+                        'deposit_paid_at' => $isFirstPayment ? now() : $penyewaan->deposit_paid_at,
                     ]);
 
                     // Jika ini pembayaran pertama, pastikan kamar juga terupdate jadi Terisi

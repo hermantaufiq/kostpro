@@ -19,17 +19,13 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Cari penyewaan yang sedang aktif atau disetujui
-        $activePenyewaan = Penyewaan::with('kamar')
+        // Cari semua penyewaan yang sedang aktif atau disetujui (dukung multi-kamar)
+        $activePenyewaans = Penyewaan::with('kamar')
             ->where('user_id', $userId)
             ->whereIn('status', [StatusPenyewaan::Active, StatusPenyewaan::Approved, StatusPenyewaan::Pending])
-            ->first();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $sisaHariSewa = null;
-        if ($activePenyewaan && $activePenyewaan->tanggal_keluar) {
-            // diffInDays with false returns negative if date has passed
-            $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->startOfDay(), false));
-        }
 
         // Cari semua tagihan yang belum lunas
         $tagihanAktif = Tagihan::with('penyewaan.kamar')
@@ -54,10 +50,10 @@ class DashboardController extends Controller
         $pengumuman = \App\Models\Pengumuman::orderBy('created_at', 'desc')->take(3)->get();
 
         return view('user.dashboard', compact(
-            'activePenyewaan',
-            'sisaHariSewa',
+            'activePenyewaans',
             'tagihanAktif',
             'unreadNotifCount',
+
             'notifikasi',
             'keluhanAktif',
             'pengumuman'

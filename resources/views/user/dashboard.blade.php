@@ -22,31 +22,40 @@
     {{-- ============================================================
          SMART ALERT BANNERS — Muncul otomatis jika ada peringatan
          ============================================================ --}}
-    @if($activePenyewaan && $sisaHariSewa !== null && $sisaHariSewa <= 14 && $sisaHariSewa >= 0)
-    <div id="alert-sewa" class="mb-6 flex items-start gap-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm animate-[slideDown_0.4s_ease-out]">
-        <div class="shrink-0 w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    @foreach($activePenyewaans as $ap)
+        @php
+            $sisaHariSewa = null;
+            if ($ap->tanggal_keluar) {
+                $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($ap->tanggal_keluar)->startOfDay(), false));
+            }
+        @endphp
+        @if($sisaHariSewa !== null && $sisaHariSewa <= 14 && $sisaHariSewa >= 0)
+        <div id="alert-sewa-{{ $ap->id }}" class="mb-6 flex items-start gap-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm animate-[slideDown_0.4s_ease-out]">
+            <div class="shrink-0 w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-amber-900 text-sm">
+                    ⚠️ Masa Sewa Hampir Berakhir! ({{ $ap->kamar->nama }})
+                </h4>
+                <p class="text-amber-700 text-sm mt-0.5">
+                    Sewa kamar Anda akan berakhir dalam <strong>{{ $sisaHariSewa }} hari</strong>
+                    ({{ \Carbon\Carbon::parse($ap->tanggal_keluar)->format('d M Y') }}).
+                    Segera perpanjang agar tidak kehilangan kamar!
+                </p>
+            </div>
+            <div class="flex gap-2 shrink-0">
+                <button onclick="openPerpanjangModal({{ $ap->id }})" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm hover:-translate-y-0.5">
+                    Perpanjang
+                </button>
+                <button onclick="document.getElementById('alert-sewa-{{ $ap->id }}').remove()" class="text-amber-500 hover:text-amber-700 p-2 rounded-lg hover:bg-amber-100 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
         </div>
-        <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-amber-900 text-sm">
-                ⚠️ Masa Sewa Hampir Berakhir!
-            </h4>
-            <p class="text-amber-700 text-sm mt-0.5">
-                Sewa kamar Anda akan berakhir dalam <strong>{{ $sisaHariSewa }} hari</strong>
-                ({{ \Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->format('d M Y') }}).
-                Segera perpanjang agar tidak kehilangan kamar!
-            </p>
-        </div>
-        <div class="flex gap-2 shrink-0">
-            <button onclick="openPerpanjangModal()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm hover:-translate-y-0.5">
-                Perpanjang
-            </button>
-            <button onclick="document.getElementById('alert-sewa').remove()" class="text-amber-500 hover:text-amber-700 p-2 rounded-lg hover:bg-amber-100 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-    </div>
-    @endif
+        @endif
+    @endforeach
+
 
     @php $tagihanTerdekat = $tagihanAktif->first(); @endphp
     @if($tagihanTerdekat)
@@ -90,12 +99,13 @@
             <div>
                 <p class="text-sm font-semibold text-slate-500 mb-1">Status Sewa</p>
                 <p class="text-2xl font-bold text-slate-900">
-                    @if($activePenyewaan)
-                        Aktif
+                    @if($activePenyewaans->isNotEmpty())
+                        {{ $activePenyewaans->count() }} Kamar Aktif
                     @else
                         Belum Ada
                     @endif
                 </p>
+
             </div>
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -169,9 +179,10 @@
     </div>
     @endif
 
-    @if(!$activePenyewaan)
+    @if($activePenyewaans->isEmpty())
     <!-- Empty State for Kamar dengan Animasi -->
     <div class="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 rounded-3xl p-8 sm:p-12 shadow-2xl border border-indigo-700/50 text-center">
+
         <!-- Dekorasi Background -->
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse-soft"></div>
@@ -207,37 +218,51 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Detail Kamar Tersedia -->
         <div class="lg:col-span-2 space-y-8">
+            @foreach($activePenyewaans as $ap)
+            @php
+                $sisaHariSewa = null;
+                if ($ap->tanggal_keluar) {
+                    $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($ap->tanggal_keluar)->startOfDay(), false));
+                }
+            @endphp
             <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
                 <div class="border-b border-slate-100 p-6 flex justify-between items-center">
-                    <h3 class="font-bold text-lg text-slate-900">Kamar Aktif</h3>
+                    <h3 class="font-bold text-lg text-slate-900">Kamar {{ $loop->count > 1 ? '#' . $loop->iteration : '' }} Aktif</h3>
                     <div class="flex items-center gap-2">
-                        @if($activePenyewaan->status->value === 'active')
-                        <button onclick="openPerpanjangModal()" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 shadow-md shadow-indigo-200">
+                        @if($ap->status->value === 'active')
+                        <button onclick="openPerpanjangModal({{ $ap->id }})" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 shadow-md shadow-indigo-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             Perpanjang Sewa
                         </button>
                         @endif
-                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Berjalan</span>
+
+                        @if($ap->status->value === 'active')
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Berjalan</span>
+                        @elseif($ap->status->value === 'approved')
+                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">Belum Bayar (Approved)</span>
+                        @else
+                            <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full">Menunggu ACC (Pending)</span>
+                        @endif
                     </div>
                 </div>
                 <div class="p-6 grid sm:grid-cols-2 gap-6">
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Nama Kamar</p>
-                        <p class="font-bold text-slate-900 text-lg">{{ $activePenyewaan->kamar->nama }}</p>
-                        <p class="text-sm text-indigo-600 font-medium">{{ ucfirst($activePenyewaan->kamar->tipe->value ?? 'Campur') }}</p>
+                        <p class="font-bold text-slate-900 text-lg">{{ $ap->kamar->nama }}</p>
+                        <p class="text-sm text-indigo-600 font-medium">{{ ucfirst($ap->kamar->tipe->value ?? 'Campur') }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Kode Booking</p>
-                        <p class="font-mono text-slate-900 font-semibold">{{ $activePenyewaan->kode_penyewaan }}</p>
+                        <p class="font-mono text-slate-900 font-semibold">{{ $ap->kode_penyewaan }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Tanggal Masuk</p>
-                        <p class="font-semibold text-slate-900">{{ \Carbon\Carbon::parse($activePenyewaan->tanggal_masuk)->format('d M Y') }}</p>
+                        <p class="font-semibold text-slate-900">{{ \Carbon\Carbon::parse($ap->tanggal_masuk)->format('d M Y') }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Tanggal Keluar</p>
                         <p class="font-semibold text-slate-900">
-                            {{ $activePenyewaan->tanggal_keluar ? \Carbon\Carbon::parse($activePenyewaan->tanggal_keluar)->format('d M Y') : '-' }}
+                            {{ $ap->tanggal_keluar ? \Carbon\Carbon::parse($ap->tanggal_keluar)->format('d M Y') : '-' }}
                         </p>
                         @if($sisaHariSewa !== null && $sisaHariSewa >= 0)
                         <p class="text-xs font-bold mt-1 {{ $sisaHariSewa <= 7 ? 'text-rose-500' : ($sisaHariSewa <= 14 ? 'text-amber-500' : 'text-emerald-500') }}">
@@ -247,10 +272,12 @@
                     </div>
                     <div>
                         <p class="text-sm text-slate-500 mb-1">Harga Bulanan</p>
-                        <p class="font-bold text-slate-900">Rp {{ number_format($activePenyewaan->harga_bulanan_snapshot, 0, ',', '.') }}</p>
+                        <p class="font-bold text-slate-900">Rp {{ number_format($ap->harga_bulanan_snapshot, 0, ',', '.') }}</p>
                     </div>
                 </div>
             </div>
+            @endforeach
+
 
             <!-- Tagihan Section -->
             <div>
@@ -358,16 +385,17 @@
 </div>
 
 {{-- ============================================================
-     MODAL PERPANJANG SEWA
+     MODAL PERPANJANG SEWA (Multi-Kamar)
      ============================================================ --}}
-@if($activePenyewaan && $activePenyewaan->status->value === 'active')
-<div id="modal-perpanjang" class="fixed inset-0 z-[500] hidden" role="dialog" aria-modal="true">
+@foreach($activePenyewaans->where('status->value', 'active') as $ap)
+@php $harga = $ap->harga_bulanan_snapshot; @endphp
+<div id="modal-perpanjang-{{ $ap->id }}" class="fixed inset-0 z-[500] hidden" role="dialog" aria-modal="true">
     {{-- Backdrop --}}
-    <div onclick="closePerpanjangModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="modal-perpanjang-backdrop"></div>
+    <div onclick="closePerpanjangModal({{ $ap->id }})" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="modal-perpanjang-backdrop-{{ $ap->id }}"></div>
 
     {{-- Panel --}}
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div id="modal-perpanjang-panel" class="bg-white rounded-3xl w-full max-w-md shadow-2xl scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+        <div id="modal-perpanjang-panel-{{ $ap->id }}" class="bg-white rounded-3xl w-full max-w-md shadow-2xl scale-95 opacity-0 transition-all duration-300 overflow-hidden">
             {{-- Header --}}
             <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white">
                 <div class="flex items-center justify-between mb-1">
@@ -377,24 +405,23 @@
                         </div>
                         <div>
                             <h3 class="font-black text-lg leading-tight">Perpanjang Sewa</h3>
-                            <p class="text-indigo-200 text-xs">{{ $activePenyewaan->kamar->nama }}</p>
+                            <p class="text-indigo-200 text-xs">{{ $ap->kamar->nama }}</p>
                         </div>
                     </div>
-                    <button onclick="closePerpanjangModal()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                    <button onclick="closePerpanjangModal({{ $ap->id }})" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
             </div>
 
             {{-- Body --}}
-            <form action="{{ route('user.sewa.perpanjang', $activePenyewaan->id) }}" method="POST" id="form-perpanjang">
+            <form action="{{ route('user.sewa.perpanjang', $ap->id) }}" method="POST">
                 @csrf
                 <div class="p-6">
                     <p class="text-slate-600 text-sm mb-5">Pilih berapa bulan Anda ingin memperpanjang sewa. Tagihan akan dibuat otomatis dan masa sewa akan diperbarui setelah pembayaran dikonfirmasi.</p>
 
                     <label class="block text-sm font-bold text-slate-700 mb-3">Durasi Perpanjangan</label>
-                    <div class="grid grid-cols-2 gap-3 mb-6" id="durasi-options">
-                        @php $harga = $activePenyewaan->harga_bulanan_snapshot; @endphp
+                    <div class="grid grid-cols-2 gap-3 mb-6">
                         @foreach([1, 3, 6, 12] as $bln)
                         @php
                             $diskon = $bln >= 12 ? 10 : ($bln >= 6 ? 5 : 0);
@@ -402,7 +429,7 @@
                             $totalDiskon = (int) round($totalNormal * (1 - $diskon / 100));
                             $hemat = $totalNormal - $totalDiskon;
                         @endphp
-                        <label class="cursor-pointer perpanjang-option">
+                        <label class="cursor-pointer">
                             <input type="radio" name="durasi_bulan" value="{{ $bln }}" class="peer hidden" {{ $bln === 1 ? 'checked' : '' }}>
                             <div class="relative p-4 rounded-2xl border-2 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50 border-slate-200 hover:border-slate-300">
                                 @if($diskon > 0)
@@ -424,12 +451,12 @@
                     {{-- Info Box --}}
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-3 mb-6">
                         <svg class="w-5 h-5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <p class="text-xs text-slate-500 leading-relaxed">Tagihan perpanjangan akan muncul di daftar tagihan Anda. Masa sewa akan otomatis diperpanjang setelah pembayaran lunas dikonfirmasi oleh admin.</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Tagihan perpanjangan akan muncul di daftar tagihan Anda. Masa sewa akan otomatis diperpanjang setelah pembayaran lunas dikonfirmasi.</p>
                     </div>
 
                     {{-- Actions --}}
                     <div class="flex gap-3">
-                        <button type="button" onclick="closePerpanjangModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-2xl hover:bg-slate-200 transition-colors">
+                        <button type="button" onclick="closePerpanjangModal({{ $ap->id }})" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3.5 px-4 rounded-2xl hover:bg-slate-200 transition-colors">
                             Batal
                         </button>
                         <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
@@ -441,23 +468,26 @@
         </div>
     </div>
 </div>
+@endforeach
 
 <script>
-function openPerpanjangModal() {
-    const modal = document.getElementById('modal-perpanjang');
-    const backdrop = document.getElementById('modal-perpanjang-backdrop');
-    const panel = document.getElementById('modal-perpanjang-panel');
+function openPerpanjangModal(id) {
+    const modal = document.getElementById('modal-perpanjang-' + id);
+    const backdrop = document.getElementById('modal-perpanjang-backdrop-' + id);
+    const panel = document.getElementById('modal-perpanjang-panel-' + id);
+    if (!modal) return;
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    void modal.offsetWidth; // force reflow
+    void modal.offsetWidth;
     backdrop.style.opacity = '1';
     panel.style.opacity = '1';
     panel.style.transform = 'scale(1)';
 }
-function closePerpanjangModal() {
-    const modal = document.getElementById('modal-perpanjang');
-    const backdrop = document.getElementById('modal-perpanjang-backdrop');
-    const panel = document.getElementById('modal-perpanjang-panel');
+function closePerpanjangModal(id) {
+    const modal = document.getElementById('modal-perpanjang-' + id);
+    const backdrop = document.getElementById('modal-perpanjang-backdrop-' + id);
+    const panel = document.getElementById('modal-perpanjang-panel-' + id);
+    if (!modal) return;
     backdrop.style.opacity = '0';
     panel.style.opacity = '0';
     panel.style.transform = 'scale(0.95)';
@@ -465,7 +495,7 @@ function closePerpanjangModal() {
     setTimeout(() => modal.classList.add('hidden'), 300);
 }
 </script>
-@endif
+
 
 {{-- ============================================================
      NOTIFIKASI DRAWER — Bottom Sheet (Mobile) / Side Drawer (Desktop)
