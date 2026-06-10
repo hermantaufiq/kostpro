@@ -34,6 +34,9 @@ class Tagihan extends Model
         'last_reminder_at',
         'catatan',
         'is_auto_generated',
+        'untuk_durasi_bulan',
+        'diskon_persen',
+        'jumlah_diskon',
     ];
 
     protected $casts = [

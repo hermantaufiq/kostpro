@@ -30,7 +30,8 @@ class InvoiceEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Tagihan Kos - ' . $this->tagihan->no_tagihan,
+            subject: 'Tagihan Kos - ' . $this->tagihan->kode_tagihan .
+                     (($this->tagihan->diskon_persen ?? 0) > 0 ? ' 🎉 Diskon ' . $this->tagihan->diskon_persen . '%!' : ''),
         );
     }
 

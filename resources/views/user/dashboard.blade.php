@@ -396,13 +396,25 @@
                     <div class="grid grid-cols-2 gap-3 mb-6" id="durasi-options">
                         @php $harga = $activePenyewaan->harga_bulanan_snapshot; @endphp
                         @foreach([1, 3, 6, 12] as $bln)
+                        @php
+                            $diskon = $bln >= 12 ? 10 : ($bln >= 6 ? 5 : 0);
+                            $totalNormal = $harga * $bln;
+                            $totalDiskon = (int) round($totalNormal * (1 - $diskon / 100));
+                            $hemat = $totalNormal - $totalDiskon;
+                        @endphp
                         <label class="cursor-pointer perpanjang-option">
                             <input type="radio" name="durasi_bulan" value="{{ $bln }}" class="peer hidden" {{ $bln === 1 ? 'checked' : '' }}>
-                            <div class="p-4 rounded-2xl border-2 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50 border-slate-200 hover:border-slate-300">
+                            <div class="relative p-4 rounded-2xl border-2 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50 border-slate-200 hover:border-slate-300">
+                                @if($diskon > 0)
+                                <span class="absolute -top-2.5 -right-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">HEMAT {{ $diskon }}%</span>
+                                @endif
                                 <p class="font-black text-slate-900 text-xl">{{ $bln }} Bulan</p>
-                                <p class="text-sm font-bold text-indigo-600 mt-1">Rp {{ number_format($harga * $bln, 0, ',', '.') }}</p>
-                                @if($bln >= 6)
-                                <span class="inline-block mt-1.5 text-[10px] font-black bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">HEMAT</span>
+                                @if($diskon > 0)
+                                    <p class="text-xs text-slate-400 line-through mt-0.5">Rp {{ number_format($totalNormal, 0, ',', '.') }}</p>
+                                    <p class="text-sm font-bold text-indigo-600">Rp {{ number_format($totalDiskon, 0, ',', '.') }}</p>
+                                    <p class="text-[11px] font-semibold text-emerald-600 mt-1">Hemat Rp {{ number_format($hemat, 0, ',', '.') }}</p>
+                                @else
+                                    <p class="text-sm font-bold text-indigo-600 mt-1">Rp {{ number_format($totalNormal, 0, ',', '.') }}</p>
                                 @endif
                             </div>
                         </label>

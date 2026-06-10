@@ -37,6 +37,7 @@ class Penyewaan extends Model
         'checkout_at',
         'is_contract_signed',
         'signed_at',
+        'is_auto_renewal',
     ];
 
     protected $casts = [

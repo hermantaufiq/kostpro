@@ -78,15 +78,16 @@ class PenyewaansTable
                     ->action(function (\App\Models\Penyewaan $record) {
                         app(\App\Contracts\Services\PenyewaanServiceInterface::class)->rejectSewa($record->id, auth()->id());
                     }),
-                \Filament\Actions\Action::make('perpanjang')
-                    ->label('Perpanjang')
-                    ->icon('heroicon-m-arrow-path')
+                \Filament\Actions\Action::make('terbitkan_tagihan')
+                    ->label('Terbitkan Tagihan')
+                    ->icon('heroicon-m-document-plus')
                     ->color('warning')
                     ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'active')
                     ->form([
                         \Filament\Forms\Components\TextInput::make('tambahan_bulan')
-                            ->label('Tambahan Durasi (Bulan)')
+                            ->label('Untuk Durasi Berapa Bulan?')
                             ->numeric()
+                            ->default(1)
                             ->minValue(1)
                             ->maxValue(12)
                             ->required(),
@@ -94,11 +95,33 @@ class PenyewaansTable
                     ->action(function (\App\Models\Penyewaan $record, array $data) {
                         try {
                             app(\App\Contracts\Services\PenyewaanServiceInterface::class)
-                                ->perpanjangKontrak($record->id, (int) $data['tambahan_bulan'], auth()->id());
-                            \Filament\Notifications\Notification::make()->title('Kontrak berhasil diperpanjang!')->success()->send();
+                                ->terbitkanTagihanBerikutnya($record->id, (int) $data['tambahan_bulan']);
+                            \Filament\Notifications\Notification::make()->title('Tagihan perpanjangan berhasil diterbitkan!')->success()->send();
                         } catch (\Exception $e) {
                             \Filament\Notifications\Notification::make()->title($e->getMessage())->danger()->send();
                         }
+                    }),
+                \Filament\Actions\Action::make('berhenti_sewa')
+                    ->label('Berhenti Sewa')
+                    ->icon('heroicon-m-no-symbol')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Berhenti Sewa')
+                    ->modalDescription('Apakah Anda yakin ingin mematikan perpanjangan otomatis untuk penyewaan ini? Tagihan bulan depan tidak akan dibuat.')
+                    ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'active' && $record->is_auto_renewal)
+                    ->action(function (\App\Models\Penyewaan $record) {
+                        $record->update(['is_auto_renewal' => false]);
+                        \Filament\Notifications\Notification::make()->title('Perpanjangan otomatis dinonaktifkan')->success()->send();
+                    }),
+                \Filament\Actions\Action::make('aktifkan_auto_renewal')
+                    ->label('Auto-Renewal On')
+                    ->icon('heroicon-m-check')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (\App\Models\Penyewaan $record) => $record->status->value === 'active' && !$record->is_auto_renewal)
+                    ->action(function (\App\Models\Penyewaan $record) {
+                        $record->update(['is_auto_renewal' => true]);
+                        \Filament\Notifications\Notification::make()->title('Perpanjangan otomatis diaktifkan kembali')->success()->send();
                     }),
                 ViewAction::make(),
                 EditAction::make(),

@@ -123,14 +123,23 @@ class PenyewaanService implements PenyewaanServiceInterface
         });
     }
 
-    public function perpanjangKontrak($penyewaanId, int $tambahanBulan, $adminId = null)
+    /**
+     * Terbitkan tagihan berikutnya untuk perpanjangan.
+     * Jika tambahanBulan >= 6 bulan, diberikan diskon otomatis.
+     * 1 bulan = diskon 0%
+     * 3 bulan = diskon 0%
+     * 6 bulan = diskon 5%
+     * 12 bulan = diskon 10%
+     * Akan membuat 1 tagihan gabungan (bukan per bulan) agar diskon tidak bisa dicurangi.
+     */
+    public function terbitkanTagihanBerikutnya($penyewaanId, int $tambahanBulan = 1)
     {
-        return DB::transaction(function () use ($penyewaanId, $tambahanBulan, $adminId) {
+        return DB::transaction(function () use ($penyewaanId, $tambahanBulan) {
             $penyewaan = \App\Models\Penyewaan::with('tagihan')->findOrFail($penyewaanId);
 
             // 1. Validasi: harus status Active
             if ($penyewaan->status !== StatusPenyewaan::Active) {
-                throw new \Exception('Hanya kontrak aktif yang dapat diperpanjang.');
+                throw new \Exception('Hanya kontrak aktif yang dapat menerbitkan tagihan perpanjangan.');
             }
 
             // 2. Validasi: tidak ada tunggakan
@@ -139,7 +148,7 @@ class PenyewaanService implements PenyewaanServiceInterface
                 ->count();
 
             if ($tunggakan > 0) {
-                throw new \Exception("Tidak dapat memperpanjang kontrak. Terdapat {$tunggakan} tagihan yang belum lunas.");
+                throw new \Exception("Tidak dapat menerbitkan tagihan. Terdapat {$tunggakan} tagihan yang belum lunas.");
             }
 
             // 3. Hitung tanggal mulai tagihan baru
@@ -152,41 +161,65 @@ class PenyewaanService implements PenyewaanServiceInterface
                 ? \Carbon\Carbon::create($tagihanTerakhir->periode_tahun, $tagihanTerakhir->periode_bulan)->addMonth()->startOfMonth()
                 : \Carbon\Carbon::parse($penyewaan->tanggal_masuk)->startOfMonth();
 
-            // 4. Update penyewaan
-            $tanggalKeluarBaru = \Carbon\Carbon::parse($penyewaan->tanggal_keluar ?? $penyewaan->tanggal_masuk->addMonths($penyewaan->durasi_bulan))
-                ->addMonths($tambahanBulan);
-                
-            $penyewaan->update([
-                'durasi_bulan'    => $penyewaan->durasi_bulan + $tambahanBulan,
-                'tanggal_keluar'  => $tanggalKeluarBaru,
-                'perpanjangan_ke' => ($penyewaan->perpanjangan_ke ?? 0) + 1,
+            // Cek apakah tagihan untuk periode berikutnya ini sudah pernah dibuat
+            $exists = \App\Models\Tagihan::where('penyewaan_id', $penyewaan->id)
+                ->where('periode_bulan', $startPeriode->month)
+                ->where('periode_tahun', $startPeriode->year)
+                ->exists();
+
+            if ($exists) {
+                throw new \Exception("Tagihan untuk periode {$startPeriode->format('F Y')} sudah diterbitkan sebelumnya.");
+            }
+
+            // 4. Hitung Diskon Grosir Otomatis
+            $diskonPersen = match(true) {
+                $tambahanBulan >= 12 => 10,
+                $tambahanBulan >= 6  => 5,
+                default              => 0,
+            };
+
+            $hargaBulanan    = $penyewaan->harga_bulanan_snapshot;
+            $totalSebelumDiskon = $hargaBulanan * $tambahanBulan;
+            $jumlahDiskon    = (int) round($totalSebelumDiskon * $diskonPersen / 100);
+            $totalTagihan    = $totalSebelumDiskon - $jumlahDiskon;
+            $dueDate         = $startPeriode->copy()->endOfMonth();
+            $kodeTagihan     = \App\Services\CodeGeneratorService::generateTagihan();
+
+            // 5. Buat 1 tagihan gabungan (consolidated invoice) — bukan per bulan
+            $tagihan = \App\Models\Tagihan::create([
+                'penyewaan_id'        => $penyewaan->id,
+                'user_id'             => $penyewaan->user_id,
+                'kode_tagihan'        => $kodeTagihan,
+                'periode_bulan'       => $startPeriode->month,
+                'periode_tahun'       => $startPeriode->year,
+                'jumlah_tagihan'      => $totalTagihan,
+                'jumlah_denda'        => 0,
+                'status'              => \App\Enums\StatusTagihan::Unpaid,
+                'tanggal_tagihan'     => now()->toDateString(),
+                'tanggal_jatuh_tempo' => $dueDate->toDateString(),
+                'is_auto_generated'   => false,
+                'untuk_durasi_bulan'  => $tambahanBulan,
+                'diskon_persen'       => $diskonPersen,
+                'jumlah_diskon'       => $jumlahDiskon,
+                'catatan'             => $tambahanBulan > 1
+                    ? "Tagihan gabungan {$tambahanBulan} bulan" . ($diskonPersen > 0 ? " (diskon {$diskonPersen}%)" : "")
+                    : null,
             ]);
 
-            // 5. Generate tagihan baru untuk bulan tambahan
-            \App\Services\InvoiceService::createInvoicesFromPeriode($penyewaan->fresh(), $startPeriode, $tambahanBulan);
-
-            // 6. Kirim notifikasi ke penyewa
+            // 6. Kirim notifikasi in-app ke penyewa
             \App\Models\Notifikasi::create([
                 'user_id' => $penyewaan->user_id,
-                'tipe' => \App\Enums\TipeNotifikasi::KontrakDiperpanjang,
-                'judul' => 'Kontrak Kos Diperpanjang',
-                'pesan' => "Kontrak Anda untuk kamar {$penyewaan->kamar->nama} telah diperpanjang selama {$tambahanBulan} bulan. Tagihan baru telah dibuat.",
+                'tipe'    => \App\Enums\TipeNotifikasi::PenyewaanApproved,
+                'judul'   => 'Tagihan Perpanjangan Terbit' . ($diskonPersen > 0 ? " 🎉 Diskon {$diskonPersen}%!" : ""),
+                'pesan'   => "Tagihan perpanjangan {$tambahanBulan} bulan untuk kamar {$penyewaan->kamar->nama} telah terbit" .
+                             ($diskonPersen > 0 ? " dengan diskon {$diskonPersen}% (hemat Rp " . number_format($jumlahDiskon, 0, ',', '.') . ")" : "") .
+                             ". Silakan lakukan pembayaran.",
                 'read_at' => null,
             ]);
 
-            // Kirim notifikasi ke admin (semua admin/staff)
-            $admins = \App\Models\User::role(['admin', 'staff'])->get();
-            foreach ($admins as $admin) {
-                \App\Models\Notifikasi::create([
-                    'user_id' => $admin->id,
-                    'tipe' => \App\Enums\TipeNotifikasi::KontrakDiperpanjangAdmin,
-                    'judul' => 'Perpanjangan Kontrak Baru',
-                    'pesan' => "Penyewa {$penyewaan->user->name} memperpanjang kontrak kamar {$penyewaan->kamar->nama} selama {$tambahanBulan} bulan.",
-                    'read_at' => null,
-                ]);
-            }
+            // 7. Email dikirim otomatis oleh Tagihan::booted() saat record dibuat (InvoiceEmail)
 
-            return $penyewaan->fresh();
+            return $tagihan;
         });
     }
 }

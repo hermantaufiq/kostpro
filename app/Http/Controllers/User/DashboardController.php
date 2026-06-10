@@ -72,9 +72,10 @@ class DashboardController extends Controller
 
         try {
             app(\App\Contracts\Services\PenyewaanServiceInterface::class)
-                ->perpanjangKontrak($id, (int) $request->durasi_bulan, Auth::id());
+                ->terbitkanTagihanBerikutnya($id, (int) $request->durasi_bulan);
                 
-            return redirect()->back()->with('success', "Berhasil memperpanjang kontrak selama {$request->durasi_bulan} bulan. Tagihan baru telah dibuat.");
+            return redirect()->route('user.tagihan.index')
+                ->with('success', "Berhasil menerbitkan tagihan perpanjangan. Silakan lakukan pembayaran agar masa sewa Anda bertambah.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

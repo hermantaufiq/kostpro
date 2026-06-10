@@ -29,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \App\Models\Kamar::observe(\App\Observers\KamarObserver::class);
+        \App\Models\Pembayaran::observe(\App\Observers\PembayaranObserver::class);
     }
 }

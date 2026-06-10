@@ -10,5 +10,5 @@ interface PenyewaanServiceInterface
     public function approveSewa($id, $adminId);
     public function rejectSewa($id, $adminId, $catatan = null);
     public function activateSewa($id);
-    public function perpanjangKontrak($penyewaanId, int $tambahanBulan, $adminId = null);
+    public function terbitkanTagihanBerikutnya($penyewaanId, int $tambahanBulan = 1);
 }

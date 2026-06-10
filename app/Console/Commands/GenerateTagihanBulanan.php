@@ -18,50 +18,54 @@ class GenerateTagihanBulanan extends Command
 
     public function handle(): int
     {
-        $targetBulan = $this->option('bulan')
-            ? Carbon::createFromFormat('Y-m', $this->option('bulan'))
-            : now();
-
         $isDryRun = $this->option('dry-run');
 
-        $this->info("Generating tagihan untuk: {$targetBulan->format('F Y')}");
+        $this->info("Menjalankan pengecekan auto-renewal tagihan...");
         if ($isDryRun) {
             $this->warn("DRY RUN MODE — tidak ada data yang disimpan.");
         }
 
         $penyewaanAktif = Penyewaan::where('status', StatusPenyewaan::Active)
+            ->where('is_auto_renewal', true)
+            ->whereNotNull('tanggal_keluar')
+            ->whereDate('tanggal_keluar', '<=', now()->addDays(7))
             ->with(['user', 'kamar'])
             ->get();
 
-        $this->info("Ditemukan {$penyewaanAktif->count()} penyewaan aktif.");
+        $this->info("Ditemukan {$penyewaanAktif->count()} penyewaan yang mendekati jatuh tempo (H-7).");
 
         $generated = 0;
         $skipped = 0;
 
         foreach ($penyewaanAktif as $penyewaan) {
-            // Cek apakah tagihan untuk bulan ini sudah ada
+            // Periode tagihan berikutnya (misal sewa 1 bulan, maka tagihan untuk bulan depannya)
+            $durasi = $penyewaan->durasi_bulan ?: 1;
+            $nextPeriod = Carbon::parse($penyewaan->tanggal_keluar)->addMonths($durasi);
+
+            // Cek apakah tagihan untuk periode berikutnya sudah ada
             $exists = Tagihan::where('penyewaan_id', $penyewaan->id)
-                ->where('periode_bulan', $targetBulan->month)
-                ->where('periode_tahun', $targetBulan->year)
+                ->where('periode_bulan', $nextPeriod->month)
+                ->where('periode_tahun', $nextPeriod->year)
                 ->exists();
 
             if ($exists) {
-                $this->line("  [SKIP] Penyewaan #{$penyewaan->kode_penyewaan} — tagihan sudah ada.");
+                $this->line("  [SKIP] Penyewaan #{$penyewaan->kode_penyewaan} — tagihan periode {$nextPeriod->format('m/Y')} sudah ada.");
                 $skipped++;
                 continue;
             }
 
             if (!$isDryRun) {
-                DB::transaction(function () use ($penyewaan, $targetBulan) {
-                    $kode = 'INV-' . $targetBulan->format('Ym') . '-' . strtoupper(Str::random(6));
-                    $jatuhTempo = $targetBulan->copy()->day(config('app.kostpro_tanggal_jatuh_tempo', 10));
+                DB::transaction(function () use ($penyewaan, $nextPeriod) {
+                    $kode = 'INV-' . $nextPeriod->format('Ym') . '-' . strtoupper(Str::random(6));
+                    // Jatuh tempo diset sama dengan tanggal_keluar bulan ini
+                    $jatuhTempo = Carbon::parse($penyewaan->tanggal_keluar);
 
                     Tagihan::create([
                         'penyewaan_id' => $penyewaan->id,
                         'user_id' => $penyewaan->user_id,
                         'kode_tagihan' => $kode,
-                        'periode_bulan' => $targetBulan->month,
-                        'periode_tahun' => $targetBulan->year,
+                        'periode_bulan' => $nextPeriod->month,
+                        'periode_tahun' => $nextPeriod->year,
                         'jumlah_tagihan' => $penyewaan->harga_bulanan_snapshot,
                         'jumlah_denda' => 0,
                         'total_tagihan' => $penyewaan->harga_bulanan_snapshot,
@@ -73,7 +77,7 @@ class GenerateTagihanBulanan extends Command
                 });
             }
 
-            $this->info("  [OK] Penyewaan #{$penyewaan->kode_penyewaan} — tagihan dibuat.");
+            $this->info("  [OK] Penyewaan #{$penyewaan->kode_penyewaan} — tagihan periode {$nextPeriod->format('m/Y')} dibuat.");
             $generated++;
         }
 
