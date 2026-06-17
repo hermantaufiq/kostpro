@@ -115,17 +115,17 @@
 
         {{-- Kartu 2: Tagihan --}}
         <a href="{{ route('user.tagihan.index') }}"
-           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 hover:border-orange-300 transition-all duration-200 group">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-200">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 transition-all duration-200 group" style="border-color: #e2e8f0;">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: 0 4px 12px rgba(234,88,12,0.3);">
+                <svg class="w-6 h-6" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
             </div>
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Tagihan Aktif</p>
-                <p class="text-xl font-bold {{ $tagihanAktif->count() > 0 ? 'text-orange-600' : 'text-slate-900' }} mt-0.5">
+                <p class="text-xl font-bold mt-0.5" style="color: {{ $tagihanAktif->count() > 0 ? '#ea580c' : '#0f172a' }};">
                     {{ $tagihanAktif->count() }}
                 </p>
                 @if($tagihanAktif->count() > 0)
-                <p class="text-[10px] text-orange-400 font-medium group-hover:underline">Lihat →</p>
+                <p class="text-[10px] font-medium" style="color: #fb923c;">Lihat →</p>
                 @endif
             </div>
         </a>
@@ -148,15 +148,15 @@
 
         {{-- Kartu 4: Keluhan --}}
         <a href="{{ route('user.keluhan.index') }}"
-           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 hover:border-rose-300 transition-all duration-200 group">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-200">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 transition-all duration-200 group" style="border-color: #e2e8f0;">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: 0 4px 12px rgba(225,29,72,0.3);">
+                <svg class="w-6 h-6" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Keluhan Aktif</p>
-                <p class="text-xl font-bold {{ $keluhanAktif > 0 ? 'text-rose-600' : 'text-slate-900' }} mt-0.5">{{ $keluhanAktif }}</p>
+                <p class="text-xl font-bold mt-0.5" style="color: {{ $keluhanAktif > 0 ? '#e11d48' : '#0f172a' }};">{{ $keluhanAktif }}</p>
                 @if($keluhanAktif > 0)
-                <p class="text-[10px] text-rose-400 font-medium group-hover:underline">Lihat →</p>
+                <p class="text-[10px] font-medium" style="color: #fb7185;">Lihat →</p>
                 @endif
             </div>
         </a>

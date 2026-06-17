@@ -1,0 +1,18 @@
+﻿
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:121:                
+\Filament\Actions\Action::make('approve')
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:130:                
+\Filament\Actions\Action::make('reject')
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:139:                
+\Filament\Actions\Action::make('terbitkan_tagihan')
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:162:                
+\Filament\Actions\Action::make('berhenti_sewa')
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:174:                
+\Filament\Actions\Action::make('aktifkan_auto_renewal')
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:184:                ViewAction::make(),
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:185:                EditAction::make(),
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:189:                    DeleteBulkAction::make(),
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:190:                    ForceDeleteBulkAction::make(),
+app\Filament\Resources\Penyewaans\Tables\PenyewaansTable.php:191:                    RestoreBulkAction::make(),
+
+
