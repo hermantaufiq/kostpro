@@ -93,67 +93,78 @@
     @endif
     @endif
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm font-semibold text-slate-500 mb-1">Status Sewa</p>
-                <p class="text-2xl font-bold text-slate-900">
-                    @if($activePenyewaans->isNotEmpty())
-                        {{ $activePenyewaans->count() }} Kamar Aktif
-                    @else
-                        Belum Ada
-                    @endif
-                </p>
+    <!-- Quick Stats — 4 kolom konsisten -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        {{-- Kartu 1: Status Sewa --}}
+        <div class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 transition-all duration-200">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             </div>
-        </div>
-        
-        <div class="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm font-semibold text-slate-500 mb-1">Tagihan Aktif</p>
-                <p class="text-2xl font-bold text-slate-900">{{ $tagihanAktif->count() }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-            </div>
-        </div>
-        
-        <div onclick="openNotifModal()"
-             class="group bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex items-center justify-between cursor-pointer hover:border-indigo-300 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-            <div>
-                <p class="text-sm font-semibold text-slate-500 mb-1">Notifikasi</p>
-                <div class="flex items-center gap-2">
-                    <p class="text-2xl font-bold text-slate-900">{{ $unreadNotifCount }}</p>
-                    @if($unreadNotifCount > 0)
-                        <span class="relative flex h-3 w-3">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                        </span>
+            <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Status Sewa</p>
+                <p class="text-xl font-bold text-slate-900 mt-0.5 truncate">
+                    @if($activePenyewaans->isNotEmpty())
+                        {{ $activePenyewaans->count() }} Aktif
+                    @else
+                        <span class="text-slate-400 text-base">Belum Ada</span>
                     @endif
-                </div>
-                <p class="text-xs text-indigo-500 mt-1 font-medium group-hover:underline">Klik untuk lihat →</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </p>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex items-center justify-between">
-            <div>
-                <p class="text-sm font-semibold text-slate-500 mb-1">Keluhan Aktif</p>
-                <p class="text-2xl font-bold text-slate-900">{{ $keluhanAktif }}</p>
+        {{-- Kartu 2: Tagihan --}}
+        <a href="{{ route('user.tagihan.index') }}"
+           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 hover:border-orange-300 transition-all duration-200 group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Tagihan Aktif</p>
+                <p class="text-xl font-bold {{ $tagihanAktif->count() > 0 ? 'text-orange-600' : 'text-slate-900' }} mt-0.5">
+                    {{ $tagihanAktif->count() }}
+                </p>
+                @if($tagihanAktif->count() > 0)
+                <p class="text-[10px] text-orange-400 font-medium group-hover:underline">Lihat →</p>
+                @endif
+            </div>
+        </a>
+
+        {{-- Kartu 3: Notifikasi --}}
+        <div onclick="openNotifModal()"
+             class="group bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 cursor-pointer hover:-translate-y-0.5 hover:border-indigo-300 transition-all duration-200">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-violet-200 relative">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                @if($unreadNotifCount > 0)
+                <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $unreadNotifCount }}</span>
+                @endif
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Notifikasi</p>
+                <p class="text-xl font-bold text-slate-900 mt-0.5">{{ $unreadNotifCount }}</p>
+                <p class="text-[10px] text-indigo-400 font-medium group-hover:underline">Klik lihat →</p>
             </div>
         </div>
+
+        {{-- Kartu 4: Keluhan --}}
+        <a href="{{ route('user.keluhan.index') }}"
+           class="bg-white rounded-2xl p-5 shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-0.5 hover:border-rose-300 transition-all duration-200 group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Keluhan Aktif</p>
+                <p class="text-xl font-bold {{ $keluhanAktif > 0 ? 'text-rose-600' : 'text-slate-900' }} mt-0.5">{{ $keluhanAktif }}</p>
+                @if($keluhanAktif > 0)
+                <p class="text-[10px] text-rose-400 font-medium group-hover:underline">Lihat →</p>
+                @endif
+            </div>
+        </a>
+
     </div>
 
     @if($voucherAktif->isNotEmpty())
+
     <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold text-slate-900">Voucher Diskon Saya</h2>
@@ -242,153 +253,184 @@
     @else
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <!-- ========================================== -->
-        <!-- JADWAL & SIKLUS PEMBAYARAN (CALENDAR WIDGET) -->
-        <!-- ========================================== -->
+        {{-- ============================================================
+             JADWAL & SIKLUS PEMBAYARAN — Modern Countdown Design
+             ============================================================ --}}
         <div class="lg:col-span-3">
             <h3 class="font-bold text-xl text-slate-900 mb-4 flex items-center gap-2">
                 <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                Jadwal & Siklus Pembayaran
+                Jadwal Pembayaran
             </h3>
-            
-            <div class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden flex flex-col md:flex-row">
-                
-                <!-- Kiri: Mini Kalender Bulan Ini -->
-                <div class="w-full md:w-1/3 bg-slate-50 border-r border-slate-100 p-6 flex flex-col justify-center">
-                    @php
-                        $today = now();
-                        $daysInMonth = $today->daysInMonth;
-                        $firstDayOfMonth = $today->copy()->startOfMonth()->dayOfWeekIso; // 1 (Mon) - 7 (Sun)
-                        
-                        // Map tanggal jatuh tempo
-                        $dueDates = [];
-                        foreach ($paymentSchedules as $ps) {
-                            $psDate = \Carbon\Carbon::parse($ps['date']);
-                            if ($psDate->month === $today->month && $psDate->year === $today->year) {
-                                $dueDates[$psDate->day] = $ps;
-                            }
-                        }
-                    @endphp
-                    
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="font-bold text-slate-900">{{ $today->translatedFormat('F Y') }}</p>
-                        <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg">Bulan Ini</span>
-                    </div>
 
-                    <!-- Hari dalam Seminggu -->
-                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
-                    </div>
+            @php
+                $nearestSchedule = $paymentSchedules->first();
+                $sisaHariNearest = $nearestSchedule
+                    ? (int) ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($nearestSchedule['date'])->startOfDay(), false))
+                    : null;
+            @endphp
 
-                    <!-- Grid Tanggal -->
-                    <div class="grid grid-cols-7 gap-1 text-sm">
-                        <!-- Kotak kosong sebelum hari pertama bulan ini -->
-                        @for($i = 1; $i < $firstDayOfMonth; $i++)
-                            <div class="aspect-square"></div>
-                        @endfor
+            @if($nearestSchedule)
+            {{-- Layout: Countdown Card (kiri) + Daftar Jadwal (kanan) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-                        <!-- Kotak Tanggal -->
-                        @for($day = 1; $day <= $daysInMonth; $day++)
-                            @php
-                                $isToday = $day === $today->day;
-                                $isDue = isset($dueDates[$day]);
-                                $dueInfo = $isDue ? $dueDates[$day] : null;
-                                
-                                $classes = "relative flex items-center justify-center aspect-square rounded-lg text-sm transition-all ";
-                                
-                                if ($isDue) {
-                                    if ($dueInfo['is_overdue']) {
-                                        $classes .= "bg-rose-500 text-white font-bold shadow-md shadow-rose-200 ring-2 ring-rose-200 z-10";
-                                    } else {
-                                        $classes .= "bg-amber-400 text-amber-900 font-bold shadow-md shadow-amber-200 ring-2 ring-amber-100 z-10";
-                                    }
-                                } elseif ($isToday) {
-                                    $classes .= "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-200 z-10";
-                                } else {
-                                    $classes .= "text-slate-600 hover:bg-slate-200 font-medium";
-                                }
-                            @endphp
-                            
-                            <div class="{{ $classes }} group cursor-default">
-                                {{ $day }}
-                                
-                                @if($isDue)
-                                <!-- Tooltip -->
-                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] bg-slate-800 text-white text-[10px] p-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 shadow-xl pointer-events-none">
-                                    <p class="font-bold">{{ $dueInfo['title'] }}</p>
-                                    @if($dueInfo['amount'])
-                                    <p class="text-indigo-300">Rp {{ number_format($dueInfo['amount'], 0, ',', '.') }}</p>
-                                    @endif
-                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-                                </div>
-                                @endif
+                {{-- KARTU COUNTDOWN UTAMA --}}
+                @php
+                    $isLate = $nearestSchedule['is_overdue'];
+                    $isClose = !$isLate && $sisaHariNearest !== null && $sisaHariNearest <= 7;
+
+                    if ($isLate) {
+                        $gradFrom = 'from-rose-500'; $gradTo = 'to-red-600';
+                        $badgeBg = 'bg-white/20'; $badgeText = 'text-white';
+                        $labelText = 'Sudah Melewati Jatuh Tempo!';
+                        $icon = 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
+                    } elseif ($isClose) {
+                        $gradFrom = 'from-amber-400'; $gradTo = 'to-orange-500';
+                        $badgeBg = 'bg-white/20'; $badgeText = 'text-white';
+                        $labelText = 'Segera Bayar!';
+                        $icon = 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z';
+                    } else {
+                        $gradFrom = 'from-indigo-500'; $gradTo = 'to-violet-600';
+                        $badgeBg = 'bg-white/20'; $badgeText = 'text-white';
+                        $labelText = 'Tagihan Mendatang';
+                        $icon = 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z';
+                    }
+                @endphp
+
+                <div class="md:col-span-1 bg-gradient-to-br {{ $gradFrom }} {{ $gradTo }} rounded-3xl p-6 text-white relative overflow-hidden shadow-lg">
+                    {{-- Background dekorasi --}}
+                    <div class="absolute -bottom-8 -right-8 w-36 h-36 bg-white/10 rounded-full"></div>
+                    <div class="absolute -top-8 -left-8 w-24 h-24 bg-white/5 rounded-full"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="{{ $badgeBg }} backdrop-blur-sm rounded-lg p-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
                             </div>
-                        @endfor
-                    </div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-white/80">{{ $labelText }}</span>
+                        </div>
 
-                    <div class="mt-5 flex items-center justify-center gap-3 text-[10px] font-semibold text-slate-500">
-                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-indigo-600"></div> Hari Ini</div>
-                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div> Jatuh Tempo</div>
-                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Terlambat</div>
+                        {{-- Angka hitung mundur besar --}}
+                        <div class="mb-4">
+                            @if($isLate)
+                                <p class="text-7xl font-black leading-none tracking-tighter">{{ abs($sisaHariNearest) }}</p>
+                                <p class="text-white/80 text-sm font-semibold mt-1">hari terlambat</p>
+                            @elseif($sisaHariNearest === 0)
+                                <p class="text-5xl font-black leading-none tracking-tighter">Hari Ini!</p>
+                            @else
+                                <p class="text-7xl font-black leading-none tracking-tighter">{{ $sisaHariNearest }}</p>
+                                <p class="text-white/80 text-sm font-semibold mt-1">hari lagi</p>
+                            @endif
+                        </div>
+
+                        {{-- Info Tagihan --}}
+                        <div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 mt-2">
+                            <p class="text-xs text-white/70 mb-0.5">{{ $nearestSchedule['type'] === 'tagihan' ? 'Tagihan Jatuh Tempo' : 'Batas Masa Sewa' }}</p>
+                            <p class="font-bold text-sm leading-tight">{{ $nearestSchedule['title'] }}</p>
+                            @if($nearestSchedule['amount'])
+                            <p class="text-lg font-black mt-1">Rp {{ number_format($nearestSchedule['amount'], 0, ',', '.') }}</p>
+                            @endif
+                            <p class="text-xs text-white/70 mt-1">
+                                📅 {{ \Carbon\Carbon::parse($nearestSchedule['date'])->translatedFormat('d F Y') }}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Kanan: Timeline Masa Sewa & Tagihan Mendatang -->
-                <div class="w-full md:w-2/3 p-6 sm:p-8 flex flex-col justify-center relative overflow-hidden">
-                    <h4 class="font-bold text-slate-900 mb-5">Jadwal Terdekat Anda</h4>
-                    
-                    @if(count($paymentSchedules) > 0)
-                        <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:ml-[2.25rem] md:before:-translate-x-px md:before:translate-y-2 before:w-0.5 before:h-full before:bg-slate-100">
-                            @foreach($paymentSchedules->take(3) as $ps)
-                                @php
-                                    $isOverdue = $ps['is_overdue'];
-                                    $isUrgent = \Carbon\Carbon::parse($ps['date'])->diffInDays(now()) <= 7 && !$isOverdue;
-                                    
-                                    $iconBg = $isOverdue ? 'bg-rose-100 text-rose-500' : ($isUrgent ? 'bg-amber-100 text-amber-500' : 'bg-indigo-100 text-indigo-500');
-                                    $ringColor = $isOverdue ? 'ring-rose-50' : ($isUrgent ? 'ring-amber-50' : 'ring-white');
-                                @endphp
-                                
-                                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 {{ $ringColor }} bg-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
-                                        <div class="w-full h-full rounded-full {{ $iconBg }} flex items-center justify-center">
-                                            @if($ps['type'] === 'tagihan')
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                            @else
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">{{ \Carbon\Carbon::parse($ps['date'])->format('d M Y') }}</span>
-                                            @if($isOverdue)
-                                                <span class="text-[10px] font-bold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md">Terlambat</span>
-                                            @elseif($isUrgent)
-                                                <span class="text-[10px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md">Segera</span>
-                                            @endif
-                                        </div>
-                                        <h5 class="font-bold text-slate-800 text-sm mb-1 leading-tight">{{ $ps['title'] }}</h5>
-                                        @if($ps['amount'])
-                                            <p class="font-semibold text-indigo-600 text-sm">Rp {{ number_format($ps['amount'], 0, ',', '.') }}</p>
-                                        @else
-                                            <p class="text-slate-500 text-xs mt-1">Harap bayar perpanjangan agar masa sewa bertambah.</p>
-                                        @endif
-                                    </div>
+                {{-- DAFTAR JADWAL BERIKUTNYA --}}
+                <div class="md:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-soft p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-5">
+                        <h4 class="font-bold text-slate-900">Semua Jadwal Terdekat</h4>
+                        <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{{ $paymentSchedules->count() }} jadwal</span>
+                    </div>
+
+                    <div class="space-y-3 flex-1">
+                        @foreach($paymentSchedules->take(4) as $i => $ps)
+                            @php
+                                $psDate = \Carbon\Carbon::parse($ps['date']);
+                                $psSisaHari = (int) ceil(now()->startOfDay()->diffInDays($psDate->copy()->startOfDay(), false));
+                                $psIsOverdue = $ps['is_overdue'];
+                                $psIsUrgent = !$psIsOverdue && $psSisaHari <= 7;
+                                $psIsFirst = $i === 0;
+
+                                if ($psIsOverdue) {
+                                    $dotColor = 'bg-rose-500';
+                                    $cardBg = 'bg-rose-50 border-rose-200';
+                                    $titleColor = 'text-rose-800';
+                                    $badge = '<span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">Terlambat</span>';
+                                } elseif ($psIsUrgent) {
+                                    $dotColor = 'bg-amber-400';
+                                    $cardBg = 'bg-amber-50 border-amber-200';
+                                    $titleColor = 'text-amber-900';
+                                    $badge = '<span class="text-[10px] font-bold bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">Segera</span>';
+                                } else {
+                                    $dotColor = 'bg-indigo-400';
+                                    $cardBg = 'bg-slate-50 border-slate-100';
+                                    $titleColor = 'text-slate-800';
+                                    $badge = '';
+                                }
+                            @endphp
+
+                            <div class="flex items-center gap-4 p-3.5 rounded-2xl border {{ $cardBg }} transition-all hover:-translate-y-0.5 hover:shadow-sm">
+                                {{-- Dot indikator --}}
+                                <div class="shrink-0 flex flex-col items-center gap-1">
+                                    <div class="w-3 h-3 rounded-full {{ $dotColor }} {{ $psIsFirst ? 'ring-4 ring-offset-1 ring-current opacity-60' : '' }}"></div>
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-50/50 rounded-2xl border border-slate-100 border-dashed">
-                            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+
+                                {{-- Info Tanggal --}}
+                                <div class="shrink-0 text-center w-12">
+                                    <p class="text-lg font-black text-slate-800 leading-none">{{ $psDate->format('d') }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $psDate->format('M') }}</p>
+                                </div>
+
+                                <div class="w-px h-8 bg-slate-200 shrink-0"></div>
+
+                                {{-- Deskripsi --}}
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-sm {{ $titleColor }} truncate">{{ $ps['title'] }}</p>
+                                    @if($ps['amount'])
+                                    <p class="text-xs text-slate-500 font-semibold mt-0.5">Rp {{ number_format($ps['amount'], 0, ',', '.') }}</p>
+                                    @else
+                                    <p class="text-xs text-slate-400 mt-0.5">Batas masa sewa</p>
+                                    @endif
+                                </div>
+
+                                {{-- Sisa Hari / Badge --}}
+                                <div class="shrink-0 text-right">
+                                    {!! $badge !!}
+                                    @if(!$psIsOverdue)
+                                    <p class="text-xs text-slate-400 mt-1 font-medium">
+                                        {{ $psSisaHari === 0 ? 'Hari ini' : $psSisaHari . ' hari lagi' }}
+                                    </p>
+                                    @endif
+                                </div>
                             </div>
-                            <p class="font-bold text-slate-900">Tidak Ada Jadwal Dekat</p>
-                            <p class="text-sm text-slate-500 mt-1">Semua tagihan lunas dan masa sewa Anda masih panjang. Nikmati kos Anda!</p>
+                        @endforeach
+                    </div>
+
+                    @if($paymentSchedules->count() === 0)
+                    <div class="flex-1 flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-3">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         </div>
+                        <p class="font-bold text-slate-800">Semua Beres! 🎉</p>
+                        <p class="text-sm text-slate-400 mt-1">Tidak ada tagihan atau jadwal mendatang.</p>
+                    </div>
                     @endif
                 </div>
             </div>
+
+            @else
+            {{-- Empty state jika tidak ada jadwal sama sekali --}}
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-8 flex items-center gap-6">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <p class="font-bold text-emerald-900 text-lg">Semua Tagihan Lunas! 🎉</p>
+                    <p class="text-emerald-700 text-sm mt-1">Tidak ada tagihan mendatang. Nikmati masa kos Anda dengan tenang!</p>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Detail Kamar Tersedia -->
