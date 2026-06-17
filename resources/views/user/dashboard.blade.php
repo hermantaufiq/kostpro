@@ -241,6 +241,156 @@
     </div>
     @else
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- ========================================== -->
+        <!-- JADWAL & SIKLUS PEMBAYARAN (CALENDAR WIDGET) -->
+        <!-- ========================================== -->
+        <div class="lg:col-span-3">
+            <h3 class="font-bold text-xl text-slate-900 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Jadwal & Siklus Pembayaran
+            </h3>
+            
+            <div class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden flex flex-col md:flex-row">
+                
+                <!-- Kiri: Mini Kalender Bulan Ini -->
+                <div class="w-full md:w-1/3 bg-slate-50 border-r border-slate-100 p-6 flex flex-col justify-center">
+                    @php
+                        $today = now();
+                        $daysInMonth = $today->daysInMonth;
+                        $firstDayOfMonth = $today->copy()->startOfMonth()->dayOfWeekIso; // 1 (Mon) - 7 (Sun)
+                        
+                        // Map tanggal jatuh tempo
+                        $dueDates = [];
+                        foreach ($paymentSchedules as $ps) {
+                            $psDate = \Carbon\Carbon::parse($ps['date']);
+                            if ($psDate->month === $today->month && $psDate->year === $today->year) {
+                                $dueDates[$psDate->day] = $ps;
+                            }
+                        }
+                    @endphp
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="font-bold text-slate-900">{{ $today->translatedFormat('F Y') }}</p>
+                        <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg">Bulan Ini</span>
+                    </div>
+
+                    <!-- Hari dalam Seminggu -->
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                    </div>
+
+                    <!-- Grid Tanggal -->
+                    <div class="grid grid-cols-7 gap-1 text-sm">
+                        <!-- Kotak kosong sebelum hari pertama bulan ini -->
+                        @for($i = 1; $i < $firstDayOfMonth; $i++)
+                            <div class="aspect-square"></div>
+                        @endfor
+
+                        <!-- Kotak Tanggal -->
+                        @for($day = 1; $day <= $daysInMonth; $day++)
+                            @php
+                                $isToday = $day === $today->day;
+                                $isDue = isset($dueDates[$day]);
+                                $dueInfo = $isDue ? $dueDates[$day] : null;
+                                
+                                $classes = "relative flex items-center justify-center aspect-square rounded-lg text-sm transition-all ";
+                                
+                                if ($isDue) {
+                                    if ($dueInfo['is_overdue']) {
+                                        $classes .= "bg-rose-500 text-white font-bold shadow-md shadow-rose-200 ring-2 ring-rose-200 z-10";
+                                    } else {
+                                        $classes .= "bg-amber-400 text-amber-900 font-bold shadow-md shadow-amber-200 ring-2 ring-amber-100 z-10";
+                                    }
+                                } elseif ($isToday) {
+                                    $classes .= "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-200 z-10";
+                                } else {
+                                    $classes .= "text-slate-600 hover:bg-slate-200 font-medium";
+                                }
+                            @endphp
+                            
+                            <div class="{{ $classes }} group cursor-default">
+                                {{ $day }}
+                                
+                                @if($isDue)
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] bg-slate-800 text-white text-[10px] p-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 shadow-xl pointer-events-none">
+                                    <p class="font-bold">{{ $dueInfo['title'] }}</p>
+                                    @if($dueInfo['amount'])
+                                    <p class="text-indigo-300">Rp {{ number_format($dueInfo['amount'], 0, ',', '.') }}</p>
+                                    @endif
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                                </div>
+                                @endif
+                            </div>
+                        @endfor
+                    </div>
+
+                    <div class="mt-5 flex items-center justify-center gap-3 text-[10px] font-semibold text-slate-500">
+                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-indigo-600"></div> Hari Ini</div>
+                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div> Jatuh Tempo</div>
+                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Terlambat</div>
+                    </div>
+                </div>
+
+                <!-- Kanan: Timeline Masa Sewa & Tagihan Mendatang -->
+                <div class="w-full md:w-2/3 p-6 sm:p-8 flex flex-col justify-center relative overflow-hidden">
+                    <h4 class="font-bold text-slate-900 mb-5">Jadwal Terdekat Anda</h4>
+                    
+                    @if(count($paymentSchedules) > 0)
+                        <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:ml-[2.25rem] md:before:-translate-x-px md:before:translate-y-2 before:w-0.5 before:h-full before:bg-slate-100">
+                            @foreach($paymentSchedules->take(3) as $ps)
+                                @php
+                                    $isOverdue = $ps['is_overdue'];
+                                    $isUrgent = \Carbon\Carbon::parse($ps['date'])->diffInDays(now()) <= 7 && !$isOverdue;
+                                    
+                                    $iconBg = $isOverdue ? 'bg-rose-100 text-rose-500' : ($isUrgent ? 'bg-amber-100 text-amber-500' : 'bg-indigo-100 text-indigo-500');
+                                    $ringColor = $isOverdue ? 'ring-rose-50' : ($isUrgent ? 'ring-amber-50' : 'ring-white');
+                                @endphp
+                                
+                                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 {{ $ringColor }} bg-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+                                        <div class="w-full h-full rounded-full {{ $iconBg }} flex items-center justify-center">
+                                            @if($ps['type'] === 'tagihan')
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                            @else
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">{{ \Carbon\Carbon::parse($ps['date'])->format('d M Y') }}</span>
+                                            @if($isOverdue)
+                                                <span class="text-[10px] font-bold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md">Terlambat</span>
+                                            @elseif($isUrgent)
+                                                <span class="text-[10px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md">Segera</span>
+                                            @endif
+                                        </div>
+                                        <h5 class="font-bold text-slate-800 text-sm mb-1 leading-tight">{{ $ps['title'] }}</h5>
+                                        @if($ps['amount'])
+                                            <p class="font-semibold text-indigo-600 text-sm">Rp {{ number_format($ps['amount'], 0, ',', '.') }}</p>
+                                        @else
+                                            <p class="text-slate-500 text-xs mt-1">Harap bayar perpanjangan agar masa sewa bertambah.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-50/50 rounded-2xl border border-slate-100 border-dashed">
+                            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <p class="font-bold text-slate-900">Tidak Ada Jadwal Dekat</p>
+                            <p class="text-sm text-slate-500 mt-1">Semua tagihan lunas dan masa sewa Anda masih panjang. Nikmati kos Anda!</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <!-- Detail Kamar Tersedia -->
         <div class="lg:col-span-2 space-y-8">
             @foreach($activePenyewaans as $ap)

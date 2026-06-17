@@ -52,15 +52,56 @@ class DashboardController extends Controller
         $voucherAktif = app(\App\Services\Voucher\VoucherService::class)
             ->getActiveVouchersForUser($userId);
 
+        // Siapkan data Kalender & Jadwal Pembayaran
+        $paymentSchedules = collect();
+        
+        // 1. Masukkan Tagihan Belum Lunas (Jatuh Tempo)
+        foreach ($tagihanAktif as $tagihan) {
+            $paymentSchedules->push([
+                'id' => 'tagihan_' . $tagihan->id,
+                'type' => 'tagihan',
+                'title' => 'Jatuh Tempo: Tagihan ' . $tagihan->kamar->nama,
+                'date' => \Carbon\Carbon::parse($tagihan->tanggal_jatuh_tempo),
+                'amount' => $tagihan->total_tagihan,
+                'status' => $tagihan->status->value,
+                'is_overdue' => $tagihan->status->value === 'overdue' || now()->startOfDay()->gt(\Carbon\Carbon::parse($tagihan->tanggal_jatuh_tempo)->startOfDay()),
+            ]);
+        }
+
+        // 2. Masukkan Batas Sewa dari Penyewaan (Pengingat Perpanjangan)
+        foreach ($activePenyewaans as $sewa) {
+            if ($sewa->tanggal_keluar) {
+                // Cek apakah sudah ada tagihan untuk penyewaan ini
+                $hasTagihan = $tagihanAktif->where('penyewaan_id', $sewa->id)->isNotEmpty();
+                if (!$hasTagihan) {
+                    $paymentSchedules->push([
+                        'id' => 'sewa_' . $sewa->id,
+                        'type' => 'perpanjang',
+                        'title' => 'Batas Masa Sewa: ' . $sewa->kamar->nama,
+                        'date' => \Carbon\Carbon::parse($sewa->tanggal_keluar),
+                        'amount' => null,
+                        'status' => 'active',
+                        'is_overdue' => now()->startOfDay()->gt(\Carbon\Carbon::parse($sewa->tanggal_keluar)->startOfDay()),
+                        'penyewaan_id' => $sewa->id
+                    ]);
+                }
+            }
+        }
+
+        // Urutkan jadwal berdasarkan tanggal paling dekat
+        $paymentSchedules = $paymentSchedules->sortBy(function($item) {
+            return $item['date']->timestamp;
+        })->values();
+
         return view('user.dashboard', compact(
             'activePenyewaans',
             'tagihanAktif',
             'unreadNotifCount',
-
             'notifikasi',
             'keluhanAktif',
             'pengumuman',
-            'voucherAktif'
+            'voucherAktif',
+            'paymentSchedules'
         ));
     }
 
