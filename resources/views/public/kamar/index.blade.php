@@ -292,7 +292,8 @@
                             default   => 'bg-slate-700 text-white'
                         };
                         $isMaintenance = $room->status?->value === 'maintenance';
-                        $isAvail = !$isMaintenance && $room->sisa_slot > 0;
+                        $isFullStatus  = in_array($room->status?->value, ['terisi', 'reserved']);
+                        $isAvail = !$isMaintenance && !$isFullStatus && $room->sisa_slot > 0;
                     @endphp
                         
                         <div class="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-400 group flex flex-col hover:-translate-y-1.5 relative">
@@ -342,14 +343,20 @@
                                     </div>
                                 </div>
                                 @elseif(!$isAvail)
-                                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] flex items-center justify-center z-10">
-                                    <div class="text-center">
-                                        <span class="bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(225,29,72,0.4)] border border-rose-400 block mb-1.5">KAMAR PENUH</span>
+                                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all duration-300 group-hover:bg-slate-900/70">
+                                    <div class="text-center flex flex-col items-center p-4">
+                                        <span class="bg-rose-600 text-white text-xs font-black px-4 py-2 rounded-xl shadow-lg border border-rose-400 block mb-3">KAMAR PENUH</span>
+                                        
                                         @if($room->tanggal_tersedia_kembali)
-                                        <span class="text-white text-[10px] font-bold bg-black/50 px-2.5 py-1 rounded-lg backdrop-blur-sm block">
+                                        <span class="text-white text-[10px] font-bold bg-black/50 px-3 py-1.5 rounded-lg backdrop-blur-sm block mb-3">
                                             Tersedia: {{ $room->tanggal_tersedia_kembali->format('d M Y') }}
                                         </span>
                                         @endif
+                                        
+                                        <a href="{{ route('kamar.show', $room->id) }}" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[11px] font-bold py-2 px-4 rounded-xl shadow-lg shadow-amber-500/30 flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                            Daftar Tunggu
+                                        </a>
                                     </div>
                                 </div>
                                 @endif
