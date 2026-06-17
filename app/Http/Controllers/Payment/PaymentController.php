@@ -25,10 +25,17 @@ class PaymentController extends Controller
 
         $request->validate([
             'metode' => ['required', 'in:virtual_account,qris,ewallet,credit_card,uji_coba'],
+            'voucher_id' => ['nullable', 'integer', 'exists:vouchers,id'],
         ]);
 
+        $voucher = null;
+        if ($request->filled('voucher_id')) {
+            $voucher = app(\App\Services\Voucher\VoucherService::class)
+                ->resolveForPayment((int) $request->voucher_id, Auth::id(), $tagihan);
+        }
+
         try {
-            $result = $this->paymentService->createInvoice($tagihan);
+            $result = $this->paymentService->createInvoice($tagihan, $voucher);
             
             // Jika Xendit sudah dikonfigurasi, redirect ke Xendit checkout
             if (!empty($result['xendit_payment_url'])) {
@@ -96,7 +103,7 @@ class PaymentController extends Controller
         if ($pembayaran->metode?->value === 'uji_coba' || empty(config('services.xendit.secret_key'))) {
             $pembayaran->update([
                 'status' => \App\Enums\StatusPembayaran::Success,
-                'tanggal_bayar' => now()
+                'paid_at' => now(),
             ]);
             
             if ($pembayaran->tagihan) {

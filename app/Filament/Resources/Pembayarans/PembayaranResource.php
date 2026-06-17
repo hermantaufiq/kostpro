@@ -13,6 +13,7 @@ use App\Models\Pembayaran;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PembayaranResource extends Resource
 {
@@ -29,6 +30,12 @@ class PembayaranResource extends Resource
     public static function table(Table $table): Table { return PembayaransTable::configure($table); }
 
     public static function getRelations(): array { return []; }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['tagihan.penyewaan.user', 'user']);
+    }
 
     public static function getPages(): array
     {

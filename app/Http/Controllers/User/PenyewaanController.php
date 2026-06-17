@@ -28,9 +28,12 @@ class PenyewaanController extends Controller
     {
         $kamar = $this->kamarService->getDetail($kamarId);
         
-        if (!$kamar->status->isAvailable()) {
+        $isMaintenance = $kamar->status->value === 'maintenance';
+        $isAllow = !$isMaintenance && ($kamar->sisa_slot > 0 || $kamar->tanggal_tersedia_kembali !== null);
+
+        if (!$isAllow) {
             return redirect()->route('kamar.show', $kamarId)
-                ->with('error', 'Kamar ini tidak tersedia untuk disewa.');
+                ->with('error', 'Kamar ini sedang maintenance atau tidak tersedia untuk disewa.');
         }
 
         return view('user.penyewaan.create', compact('kamar'));

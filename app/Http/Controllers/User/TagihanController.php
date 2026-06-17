@@ -31,10 +31,13 @@ class TagihanController extends Controller
     {
         $tagihan = \App\Models\Tagihan::where('id', $id)
             ->where('user_id', Auth::id())
-            ->with(['penyewaan.kamar', 'pembayaran', 'items'])
+            ->with(['penyewaan.kamar', 'pembayaran.voucher', 'items'])
             ->firstOrFail();
 
-        return view('user.tagihan.show', compact('tagihan'));
+        $voucherAktif = app(\App\Services\Voucher\VoucherService::class)
+            ->getActiveVouchersForUser(Auth::id());
+
+        return view('user.tagihan.show', compact('tagihan', 'voucherAktif'));
     }
 
     public function print($id)

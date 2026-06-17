@@ -49,6 +49,9 @@ class DashboardController extends Controller
         // Ambil pengumuman terbaru
         $pengumuman = \App\Models\Pengumuman::orderBy('created_at', 'desc')->take(3)->get();
 
+        $voucherAktif = app(\App\Services\Voucher\VoucherService::class)
+            ->getActiveVouchersForUser($userId);
+
         return view('user.dashboard', compact(
             'activePenyewaans',
             'tagihanAktif',
@@ -56,7 +59,8 @@ class DashboardController extends Controller
 
             'notifikasi',
             'keluhanAktif',
-            'pengumuman'
+            'pengumuman',
+            'voucherAktif'
         ));
     }
 

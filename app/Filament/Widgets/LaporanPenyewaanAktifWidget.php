@@ -9,12 +9,12 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LaporanPenyewaanAktifWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Penyewaan Aktif Terbaru';
     protected static ?int $sort = 4;
 
     public function table(Table $table): Table
     {
         return $table
+            ->heading('Penyewaan Aktif Terbaru')
             ->query(
                 Penyewaan::with(['user', 'kamar'])
                     ->where('status', 'active')

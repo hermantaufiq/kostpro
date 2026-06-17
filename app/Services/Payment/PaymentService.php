@@ -7,8 +7,10 @@ use App\Contracts\Repositories\PembayaranRepositoryInterface;
 use App\Contracts\Services\TagihanServiceInterface;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
+use App\Models\Voucher;
 use App\Enums\StatusPembayaran;
 use App\Enums\StatusTagihan;
+use App\Services\Voucher\VoucherService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -21,20 +23,23 @@ class PaymentService implements PaymentServiceInterface
 
     public function __construct(
         private PembayaranRepositoryInterface $pembayaranRepository,
-        private TagihanServiceInterface $tagihanService
+        private TagihanServiceInterface $tagihanService,
+        private VoucherService $voucherService
     ) {
         $this->baseUrl = config('services.xendit.base_url', 'https://api.xendit.co');
         $this->secretKey = config('services.xendit.secret_key', '');
     }
 
-    public function createInvoice(Tagihan $tagihan): array
+    public function createInvoice(Tagihan $tagihan, ?Voucher $voucher = null): array
     {
         $externalId = 'KOS-' . $tagihan->kode_tagihan . '-' . time();
         $expiredAt = now()->addHours(24)->toIso8601String();
+        $amounts = $this->voucherService->calculatePaymentAmount($tagihan, $voucher);
+        $jumlahBayar = $amounts['jumlah'];
 
         $payload = [
             'external_id' => $externalId,
-            'amount' => $tagihan->total_tagihan,
+            'amount' => $jumlahBayar,
             'description' => "Tagihan Kos — {$tagihan->penyewaan->kamar->nama} Periode " . 
                 \Carbon\Carbon::createFromDate($tagihan->periode_tahun, $tagihan->periode_bulan, 1)->format('F Y'),
             'invoice_duration' => 86400, // 24 jam
@@ -64,13 +69,15 @@ class PaymentService implements PaymentServiceInterface
         // Buat record Pembayaran dulu dengan status pending
         $kodePembayaran = 'PAY-' . date('Ymd') . '-' . strtoupper(Str::random(5));
 
-        $pembayaran = DB::transaction(function () use ($tagihan, $kodePembayaran, $externalId, $payload, $expiredAt) {
+        $pembayaran = DB::transaction(function () use ($tagihan, $kodePembayaran, $externalId, $payload, $expiredAt, $voucher, $amounts) {
             return $this->pembayaranRepository->create([
                 'tagihan_id' => $tagihan->id,
+                'voucher_id' => $voucher?->id,
                 'user_id' => $tagihan->user_id,
                 'kode_pembayaran' => $kodePembayaran,
                 'xendit_external_id' => $externalId,
-                'jumlah' => $tagihan->total_tagihan,
+                'jumlah' => $amounts['jumlah'],
+                'diskon_voucher' => $amounts['diskon_voucher'],
                 'biaya_admin' => 0,
                 'status' => StatusPembayaran::Pending,
                 'payload_request' => $payload,

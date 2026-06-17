@@ -65,8 +65,17 @@ class KamarsTable
                     ->color(fn ($state) => $state > 0 ? 'success' : 'danger')
                     ->sortable(),
                 TextColumn::make('harga_bulanan')
+                    ->label('Harga Normal')
                     ->money('IDR')
                     ->sortable(),
+                TextColumn::make('harga_efektif')
+                    ->label('Harga Tampil')
+                    ->money('IDR')
+                    ->description(fn ($record) => $record->isPromoAktif()
+                        ? 'Promo: Rp ' . number_format($record->harga_promo, 0, ',', '.')
+                        : null)
+                    ->color(fn ($record) => $record->isPromoAktif() ? 'success' : null)
+                    ->badge(fn ($record) => $record->isPromoAktif()),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
@@ -95,6 +104,10 @@ class KamarsTable
                 \Filament\Tables\Filters\SelectFilter::make('gender')
                     ->label('Target Penghuni')
                     ->options(\App\Enums\GenderKamar::class),
+                \Filament\Tables\Filters\TernaryFilter::make('promo_aktif')
+                    ->label('Sedang Promo')
+                    ->trueLabel('Ya — Ada promo aktif')
+                    ->falseLabel('Tidak — Harga normal'),
                 \Filament\Tables\Filters\TernaryFilter::make('show_to_public')
                     ->label('Tampil ke Pengguna')
                     ->trueLabel('Ya — Ditampilkan')

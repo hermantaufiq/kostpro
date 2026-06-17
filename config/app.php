@@ -123,4 +123,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | KostPro — Pengaturan Bisnis
+    |--------------------------------------------------------------------------
+    */
+    'kostpro_denda_persen' => env('KOSTPRO_DENDA_PERSEN', 5),
+    'kostpro_voucher_nominal' => env('KOSTPRO_VOUCHER_NOMINAL', 10000),
+    'kostpro_voucher_berlaku_hari' => env('KOSTPRO_VOUCHER_BERLAKU_HARI', 30),
+    'kostpro_voucher_streak_nominal' => env('KOSTPRO_VOUCHER_STREAK_NOMINAL', 25000),
+    'kostpro_voucher_streak_min' => env('KOSTPRO_VOUCHER_STREAK_MIN', 3),
+
 ];

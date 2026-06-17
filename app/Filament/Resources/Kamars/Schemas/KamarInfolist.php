@@ -37,9 +37,33 @@ class KamarInfolist
                 TextEntry::make('luas')
                     ->placeholder('-'),
                 TextEntry::make('harga_bulanan')
-                    ->numeric(),
+                    ->label('Harga Normal')
+                    ->money('IDR'),
+                TextEntry::make('harga_efektif')
+                    ->label('Harga Efektif (Tampil Publik)')
+                    ->money('IDR')
+                    ->color(fn (Kamar $record) => $record->isPromoAktif() ? 'success' : null),
+                TextEntry::make('harga_promo')
+                    ->label('Harga Promo')
+                    ->money('IDR')
+                    ->placeholder('-')
+                    ->visible(fn (Kamar $record) => $record->promo_aktif),
+                TextEntry::make('label_promo')
+                    ->label('Label Promo')
+                    ->placeholder('-')
+                    ->visible(fn (Kamar $record) => $record->promo_aktif),
+                TextEntry::make('promo_mulai')
+                    ->label('Promo Mulai')
+                    ->date('d M Y')
+                    ->placeholder('Langsung aktif')
+                    ->visible(fn (Kamar $record) => $record->promo_aktif),
+                TextEntry::make('promo_selesai')
+                    ->label('Promo Selesai')
+                    ->date('d M Y')
+                    ->placeholder('Tanpa batas')
+                    ->visible(fn (Kamar $record) => $record->promo_aktif),
                 TextEntry::make('harga_deposit')
-                    ->numeric(),
+                    ->money('IDR'),
                 TextEntry::make('deskripsi')
                     ->placeholder('-')
                     ->columnSpanFull(),

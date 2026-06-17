@@ -13,6 +13,7 @@ class Pembayaran extends Model
 
     protected $fillable = [
         'tagihan_id',
+        'voucher_id',
         'user_id',
         'kode_pembayaran',
         'xendit_invoice_id',
@@ -21,6 +22,7 @@ class Pembayaran extends Model
         'metode',
         'channel_code',
         'jumlah',
+        'diskon_voucher',
         'biaya_admin',
         'jumlah_diterima',
         'status',
@@ -62,15 +64,17 @@ class Pembayaran extends Model
             if ($pembayaran->isDirty('status')) {
                 $sendReceipt($pembayaran);
 
-                // Gamifikasi: Tambah Poin jika bayar tepat waktu
                 if ($pembayaran->status === StatusPembayaran::Success) {
-                    $tagihan = $pembayaran->tagihan;
-                    if ($tagihan && $pembayaran->paid_at && $pembayaran->paid_at <= $tagihan->tanggal_jatuh_tempo) {
-                        $user = $tagihan->user;
-                        if ($user) {
-                            $user->increment('poin', 100);
+                    $voucherService = app(\App\Services\Voucher\VoucherService::class);
+
+                    if ($pembayaran->voucher_id) {
+                        $voucher = \App\Models\Voucher::find($pembayaran->voucher_id);
+                        if ($voucher) {
+                            $voucherService->markAsUsed($voucher, $pembayaran);
                         }
                     }
+
+                    $voucherService->generateForOnTimePayment($pembayaran);
                 }
             }
         });
@@ -84,5 +88,10 @@ class Pembayaran extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
     }
 }

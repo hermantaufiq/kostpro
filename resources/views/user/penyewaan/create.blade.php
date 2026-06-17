@@ -49,7 +49,10 @@
             </div>
             <div>
                 <h3 class="font-bold text-slate-900 text-lg">{{ $kamar->nama }}</h3>
-                <p class="text-slate-500 text-sm">Rp {{ number_format($kamar->harga_bulanan, 0, ',', '.') }} / bulan</p>
+                <x-harga-kamar :kamar="$kamar" size="sm" />
+                @if($kamar->isPromoAktif())
+                <p class="text-xs text-emerald-600 font-medium mt-1">Harga promo akan dikunci saat pengajuan disetujui</p>
+                @endif
             </div>
         </div>
 
@@ -72,9 +75,16 @@
                             <div>
                                 <label for="tanggal_masuk" class="form-label">Tanggal Masuk <span class="text-red-500">*</span></label>
                                 <input type="date" id="tanggal_masuk" name="tanggal_masuk"
-                                    value="{{ old('tanggal_masuk', now()->format('Y-m-d')) }}"
+                                    value="{{ old('tanggal_masuk', $kamar->tanggal_tersedia_kembali ? $kamar->tanggal_tersedia_kembali->format('Y-m-d') : now()->format('Y-m-d')) }}"
+                                    min="{{ $kamar->tanggal_tersedia_kembali ? $kamar->tanggal_tersedia_kembali->format('Y-m-d') : now()->format('Y-m-d') }}"
                                     required class="form-input">
                                 @error('tanggal_masuk') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @if($kamar->tanggal_tersedia_kembali)
+                                <p class="text-xs text-indigo-600 font-semibold mt-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Ketersediaan: mulai {{ $kamar->tanggal_tersedia_kembali->format('d M Y') }} (Sewa inden)
+                                </p>
+                                @endif
                             </div>
 
                             <div>

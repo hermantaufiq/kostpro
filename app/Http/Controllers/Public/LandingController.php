@@ -16,6 +16,7 @@ class LandingController extends Controller
     {
         // Get featured rooms for landing page
         $featuredRooms = $this->kamarService->getListing([], 6);
-        return view('welcome', compact('featuredRooms'));
+        $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
+        return view('welcome', compact('featuredRooms', 'settings'));
     }
 }

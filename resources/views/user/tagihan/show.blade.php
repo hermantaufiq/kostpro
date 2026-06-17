@@ -88,11 +88,19 @@
                             <td class="py-4 text-red-600 font-semibold text-right">Rp {{ number_format($tagihan->jumlah_denda, 0, ',', '.') }}</td>
                         </tr>
                         @endif
+                        @if($tagihan->pembayaran && $tagihan->pembayaran->diskon_voucher > 0)
+                        <tr>
+                            <td class="py-4 text-emerald-600 font-medium">Diskon Voucher ({{ $tagihan->pembayaran->voucher?->kode_voucher ?? '-' }})</td>
+                            <td class="py-4 text-emerald-600 font-semibold text-right">- Rp {{ number_format($tagihan->pembayaran->diskon_voucher, 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
                     </tbody>
                     <tfoot>
                         <tr class="border-t-2 border-slate-200">
                             <td class="pt-4 text-base font-bold text-slate-900">Total Pembayaran</td>
-                            <td class="pt-4 text-xl font-extrabold text-indigo-600 text-right">Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</td>
+                            <td class="pt-4 text-xl font-extrabold text-indigo-600 text-right">
+                                Rp {{ number_format($tagihan->pembayaran?->jumlah ?? $tagihan->total_tagihan, 0, ',', '.') }}
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
@@ -135,6 +143,38 @@
 
                     <form action="{{ route('payment.create', $tagihan->id) }}" method="POST" id="payment-form">
                         @csrf
+
+                        @if($voucherAktif->isNotEmpty())
+                        <div class="mb-6">
+                            <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
+                                Gunakan Voucher Diskon
+                            </h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-emerald-400 transition-colors has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+                                    <input type="radio" name="voucher_id" value="" class="text-emerald-600" checked onchange="updateTotal()">
+                                    <div>
+                                        <p class="font-semibold text-sm text-slate-800">Tanpa Voucher</p>
+                                        <p class="text-xs text-slate-500">Bayar penuh Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</p>
+                                    </div>
+                                </label>
+                                @foreach($voucherAktif as $voucher)
+                                <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-emerald-400 transition-colors has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+                                    <input type="radio" name="voucher_id" value="{{ $voucher->id }}" class="text-emerald-600" onchange="updateTotal()"
+                                           data-diskon="{{ min($voucher->nominal_diskon, $tagihan->total_tagihan) }}">
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-sm text-emerald-800">{{ $voucher->kode_voucher }}</p>
+                                        <p class="text-xs text-emerald-600">Diskon Rp {{ number_format($voucher->nominal_diskon, 0, ',', '.') }} · Berlaku {{ $voucher->berlaku_sampai->format('d M Y') }}</p>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                            <p id="total-bayar-info" class="mt-3 text-sm font-bold text-indigo-600 text-right">
+                                Total bayar: Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}
+                            </p>
+                        </div>
+                        @endif
+
                         <div class="space-y-3 mb-6">
                             <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-indigo-400 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                                 <input type="radio" name="metode" value="virtual_account" class="text-indigo-600" checked>
@@ -213,4 +253,19 @@
         </div>
     </div>
 </div>
+
+@if(isset($voucherAktif) && $voucherAktif->isNotEmpty() && in_array($tagihan->status->value, ['unpaid', 'overdue']))
+@push('scripts')
+<script>
+    const totalTagihan = {{ $tagihan->total_tagihan }};
+    function updateTotal() {
+        const selected = document.querySelector('input[name="voucher_id"]:checked');
+        const diskon = selected && selected.dataset.diskon ? parseInt(selected.dataset.diskon) : 0;
+        const total = Math.max(0, totalTagihan - diskon);
+        document.getElementById('total-bayar-info').textContent =
+            'Total bayar: Rp ' + total.toLocaleString('id-ID');
+    }
+</script>
+@endpush
+@endif
 @endsection

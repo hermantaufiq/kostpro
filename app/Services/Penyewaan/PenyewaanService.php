@@ -22,8 +22,15 @@ class PenyewaanService implements PenyewaanServiceInterface
         return DB::transaction(function () use ($dto) {
             $kamar = $this->kamarRepository->findById($dto->kamar_id);
             
-            if (!$kamar->status->isAvailable()) {
+            $isMaintenance = $kamar->status->value === 'maintenance';
+            $isAllow = !$isMaintenance && ($kamar->sisa_slot > 0 || $kamar->tanggal_tersedia_kembali !== null);
+
+            if (!$isAllow) {
                 throw new \Exception('Kamar tidak tersedia untuk disewa.');
+            }
+
+            if ($kamar->tanggal_tersedia_kembali && \Carbon\Carbon::parse($dto->tanggal_masuk)->lt($kamar->tanggal_tersedia_kembali->startOfDay())) {
+                throw new \Exception('Tanggal masuk tidak boleh kurang dari tanggal ketersediaan kamar kembali (' . $kamar->tanggal_tersedia_kembali->format('d M Y') . ').');
             }
 
             $kode = 'PSW-' . date('Ym') . '-' . rand(10000, 99999);
@@ -36,7 +43,7 @@ class PenyewaanService implements PenyewaanServiceInterface
                 'durasi_bulan' => $dto->durasi_bulan,
                 'status' => StatusPenyewaan::Pending,
                 'catatan_penyewa' => $dto->catatan,
-                'harga_bulanan_snapshot' => $kamar->harga_bulanan,
+                'harga_bulanan_snapshot' => $kamar->harga_efektif,
                 'deposit_amount' => $kamar->harga_deposit,
             ]);
 

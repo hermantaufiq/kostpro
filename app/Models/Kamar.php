@@ -28,6 +28,11 @@ class Kamar extends Model
         'luas',
         'harga_bulanan',
         'harga_deposit',
+        'promo_aktif',
+        'harga_promo',
+        'promo_mulai',
+        'promo_selesai',
+        'label_promo',
         'deskripsi',
         'fasilitas',
         'status',
@@ -35,6 +40,10 @@ class Kamar extends Model
         'is_featured',
         'show_to_public',
         'images',
+        'foto_360',
+        'warna_dinding',
+        'warna_lantai',
+        'warna_kasur',
     ];
 
     /**
@@ -51,6 +60,9 @@ class Kamar extends Model
         'meta'           => 'array',
         'is_featured'    => 'boolean',
         'show_to_public' => 'boolean',
+        'promo_aktif'    => 'boolean',
+        'promo_mulai'    => 'date',
+        'promo_selesai'  => 'date',
         'images'         => 'array',
     ];
 
@@ -77,6 +89,29 @@ class Kamar extends Model
     public function penyewaan(): HasMany
     {
         return $this->hasMany(Penyewaan::class);
+    }
+
+    public function activePenyewaan(): HasOne
+    {
+        return $this->hasOne(Penyewaan::class)->whereIn('status', ['approved', 'active']);
+    }
+
+    public function getTanggalTersediaKembaliAttribute(): ?\Carbon\Carbon
+    {
+        $activeSewa = $this->penyewaan()
+            ->whereIn('status', ['approved', 'active'])
+            ->orderByDesc('tanggal_keluar')
+            ->orderByDesc('tanggal_masuk')
+            ->first();
+
+        if ($activeSewa) {
+            if ($activeSewa->tanggal_keluar) {
+                return \Carbon\Carbon::parse($activeSewa->tanggal_keluar)->addDay();
+            }
+            return \Carbon\Carbon::parse($activeSewa->tanggal_masuk)->addMonths($activeSewa->durasi_bulan)->addDay();
+        }
+
+        return null;
     }
 
     public function getPenghuniAktifCountAttribute(): int
@@ -113,10 +148,86 @@ class Kamar extends Model
 
     public function scopeByHarga($query, $min, $max = null)
     {
-        $query->where('harga_bulanan', '>=', $min);
-        if ($max) {
-            $query->where('harga_bulanan', '<=', $max);
+        return $query->byHargaEfektif($min, $max);
+    }
+
+    public function scopeByHargaEfektif($query, $min, $max = null)
+    {
+        $today = now()->toDateString();
+
+        return $query->where(function ($q) use ($min, $max, $today) {
+            $q->where(function ($promo) use ($min, $max, $today) {
+                $promo->where('promo_aktif', true)
+                    ->whereNotNull('harga_promo')
+                    ->whereColumn('harga_promo', '<', 'harga_bulanan')
+                    ->where(function ($dates) use ($today) {
+                        $dates->whereNull('promo_mulai')->orWhere('promo_mulai', '<=', $today);
+                    })
+                    ->where(function ($dates) use ($today) {
+                        $dates->whereNull('promo_selesai')->orWhere('promo_selesai', '>=', $today);
+                    })
+                    ->where('harga_promo', '>=', $min);
+
+                if ($max) {
+                    $promo->where('harga_promo', '<=', $max);
+                }
+            })->orWhere(function ($normal) use ($min, $max, $today) {
+                $normal->where(function ($noPromo) use ($today) {
+                    $noPromo->where('promo_aktif', false)
+                        ->orWhereNull('harga_promo')
+                        ->orWhereColumn('harga_promo', '>=', 'harga_bulanan')
+                        ->orWhere(function ($exp) use ($today) {
+                            $exp->whereNotNull('promo_selesai')->where('promo_selesai', '<', $today);
+                        })
+                        ->orWhere(function ($exp) use ($today) {
+                            $exp->whereNotNull('promo_mulai')->where('promo_mulai', '>', $today);
+                        });
+                })->where('harga_bulanan', '>=', $min);
+
+                if ($max) {
+                    $normal->where('harga_bulanan', '<=', $max);
+                }
+            });
+        });
+    }
+
+    public function isPromoAktif(): bool
+    {
+        if (!$this->promo_aktif || !$this->harga_promo || $this->harga_promo >= $this->harga_bulanan) {
+            return false;
         }
-        return $query;
+
+        $today = now()->startOfDay();
+
+        if ($this->promo_mulai && $today->lt($this->promo_mulai)) {
+            return false;
+        }
+
+        if ($this->promo_selesai && $today->gt($this->promo_selesai)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getHargaEfektifAttribute(): int
+    {
+        return $this->isPromoAktif() ? (int) $this->harga_promo : (int) $this->harga_bulanan;
+    }
+
+    public function getPotonganPromoAttribute(): int
+    {
+        return $this->isPromoAktif()
+            ? (int) ($this->harga_bulanan - $this->harga_promo)
+            : 0;
+    }
+
+    public function getPersenDiskonPromoAttribute(): ?int
+    {
+        if (!$this->isPromoAktif() || $this->harga_bulanan <= 0) {
+            return null;
+        }
+
+        return (int) round(($this->potongan_promo / $this->harga_bulanan) * 100);
     }
 }

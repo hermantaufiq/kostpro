@@ -83,6 +83,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Tagihan::class);
     }
 
+    public function vouchers(): HasMany
+    {
+        return $this->hasMany(Voucher::class);
+    }
+
     public function pembayaran(): HasMany
     {
         return $this->hasMany(Pembayaran::class);

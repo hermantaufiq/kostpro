@@ -9,12 +9,12 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LaporanTunggakanWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Tagihan Belum Dibayar (Tunggakan)';
     protected static ?int $sort = 3;
 
     public function table(Table $table): Table
     {
         return $table
+            ->heading('Tagihan Belum Dibayar (Tunggakan)')
             ->query(
                 Tagihan::with(['user', 'penyewaan.kamar'])
                     ->whereIn('status', ['unpaid', 'overdue'])

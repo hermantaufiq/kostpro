@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Penyewaans\Tables;
 
+use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,8 +11,10 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PenyewaansTable
 {
@@ -57,8 +60,63 @@ class PenyewaansTable
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('status')
                     ->options(\App\Enums\StatusPenyewaan::class),
+
+                \Filament\Tables\Filters\SelectFilter::make('periode_terbaru')
+                    ->label('Data Terbaru')
+                    ->placeholder('Semua Periode')
+                    ->options([
+                        'today'    => 'Hari Ini',
+                        'week'     => 'Minggu Ini',
+                        'month'    => 'Bulan Ini',
+                        '3months'  => '3 Bulan Terakhir',
+                        '6months'  => '6 Bulan Terakhir',
+                        'year'     => 'Tahun Ini',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
+                        return match ($value) {
+                            'today'   => $query->whereDate('created_at', Carbon::today()),
+                            'week'    => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]),
+                            'month'   => $query->whereMonth('created_at', Carbon::now()->month)
+                                              ->whereYear('created_at', Carbon::now()->year),
+                            '3months' => $query->where('created_at', '>=', Carbon::now()->subMonths(3)),
+                            '6months' => $query->where('created_at', '>=', Carbon::now()->subMonths(6)),
+                            'year'    => $query->whereYear('created_at', Carbon::now()->year),
+                            default   => $query,
+                        };
+                    }),
+
+                Filter::make('tanggal_masuk')
+                    ->label('Tanggal Masuk')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('dari')
+                            ->label('Dari Tanggal')
+                            ->native(false)
+                            ->displayFormat('d M Y'),
+                        \Filament\Forms\Components\DatePicker::make('sampai')
+                            ->label('Sampai Tanggal')
+                            ->native(false)
+                            ->displayFormat('d M Y'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['dari'], fn (Builder $q, $date) => $q->whereDate('tanggal_masuk', '>=', $date))
+                            ->when($data['sampai'], fn (Builder $q, $date) => $q->whereDate('tanggal_masuk', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['dari'] ?? null) {
+                            $indicators['dari'] = 'Tanggal Masuk dari ' . Carbon::parse($data['dari'])->translatedFormat('d M Y');
+                        }
+                        if ($data['sampai'] ?? null) {
+                            $indicators['sampai'] = 'Tanggal Masuk sampai ' . Carbon::parse($data['sampai'])->translatedFormat('d M Y');
+                        }
+                        return $indicators;
+                    }),
+
                 TrashedFilter::make(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 \Filament\Actions\Action::make('approve')
                     ->label('Approve')

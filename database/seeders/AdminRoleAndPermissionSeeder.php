@@ -21,6 +21,7 @@ class AdminRoleAndPermissionSeeder extends Seeder
             'penyewaan',
             'tagihan',
             'pembayaran',
+            'voucher',
             'notifikasi',
             'laporan',
             'pengeluaran',
@@ -96,6 +97,7 @@ class AdminRoleAndPermissionSeeder extends Seeder
         $adminKeuPermissions = [
             'view_any_tagihan', 'view_tagihan', 'create_tagihan', 'update_tagihan', 'generate_tagihan', 'send_reminder_tagihan', 'export_tagihan',
             'view_any_pembayaran', 'view_pembayaran', 'mark_pembayaran', 'refund_pembayaran', 'export_pembayaran',
+            'view_any_voucher', 'view_voucher', 'create_voucher', 'update_voucher',
             'view_any_pengeluaran', 'view_pengeluaran', 'create_pengeluaran', 'update_pengeluaran',
             'view_any_laporan', 'view_laporan', 'export_laporan_pdf', 'export_laporan_excel',
             'view_any_penyewa', 'view_penyewa', 'export_penyewa',

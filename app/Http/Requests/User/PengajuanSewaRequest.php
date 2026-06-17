@@ -18,9 +18,16 @@ class PengajuanSewaRequest extends FormRequest
             ? ['nullable', 'image', 'max:2048']
             : ['required', 'image', 'max:2048'];
 
+        $kamarId = $this->input('kamar_id');
+        $kamar = \App\Models\Kamar::find($kamarId);
+        $tanggalTersediaMin = 'today';
+        if ($kamar && $kamar->tanggal_tersedia_kembali) {
+            $tanggalTersediaMin = $kamar->tanggal_tersedia_kembali->toDateString();
+        }
+
         return [
             'kamar_id'             => ['required', 'exists:kamar,id'],
-            'tanggal_masuk'        => ['required', 'date', 'after_or_equal:today'],
+            'tanggal_masuk'        => ['required', 'date', 'after_or_equal:' . $tanggalTersediaMin],
             'durasi_bulan'         => ['required', 'integer', 'min:1', 'max:12'],
             'catatan'              => ['nullable', 'string', 'max:500'],
             'foto_ktp'             => $ktpRule,

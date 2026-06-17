@@ -51,6 +51,7 @@ class SettingsPage extends Page
         $this->form->fill([
             'nama_kos' => $settings['nama_kos'] ?? 'KosPro',
             'alamat_kos' => $settings['alamat_kos'] ?? '',
+            'map_iframe' => $settings['map_iframe'] ?? '',
             'rekening_pembayaran' => $settings['rekening_pembayaran'] ?? '',
             'kontak_admin' => $settings['kontak_admin'] ?? '',
             'nominal_denda' => $settings['nominal_denda'] ?? '0',
@@ -69,6 +70,11 @@ class SettingsPage extends Page
                         Textarea::make('alamat_kos')
                             ->label('Alamat Lengkap Kos')
                             ->rows(3),
+                        Textarea::make('map_iframe')
+                            ->label('Google Maps (Embed Iframe)')
+                            ->placeholder('<iframe src="..."></iframe>')
+                            ->rows(3)
+                            ->columnSpanFull(),
                         TextInput::make('kontak_admin')
                             ->label('Kontak Admin (WhatsApp)')
                             ->placeholder('081234567890'),

@@ -70,7 +70,8 @@
                 <ul class="list-disc pl-5 space-y-1">
                     <li>Tagihan akan muncul pada tanggal 1 setiap bulannya.</li>
                     <li>Jatuh tempo pembayaran adalah tanggal 10. Jika terlambat, akan dikenakan denda sesuai kontrak.</li>
-                    <li>Pembayaran tepat waktu akan memberikan Anda <strong class="text-amber-600">Poin KostPro</strong> yang bisa ditukar dengan diskon.</li>
+                    <li>Pembayaran tepat waktu akan memberikan Anda <strong class="text-emerald-600">Voucher Apresiasi</strong> senilai <strong>Rp 10.000</strong> yang dapat digunakan pada tagihan bulan berikutnya.</li>
+                    <li>Bayar tepat waktu 3 bulan berturut-turut untuk mendapat voucher apresiasi lebih besar (<strong>Rp 25.000</strong>).</li>
                 </ul>
             </section>
         </div>

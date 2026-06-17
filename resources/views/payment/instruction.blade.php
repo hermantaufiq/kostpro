@@ -2,6 +2,7 @@
 @section('title', 'Instruksi Pembayaran - KosPro')
 
 @section('content')
+@php $jumlahBayar = $pembayaran->jumlah ?? $tagihan->total_tagihan; @endphp
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Breadcrumb --}}
@@ -84,9 +85,9 @@
                                 <p class="text-xs text-slate-500 mb-1">Jumlah Transfer (harus tepat)</p>
                                 <div class="flex items-center gap-3">
                                     <p class="text-xl font-extrabold text-indigo-600" id="jumlah-transfer">
-                                        Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}
+                                        Rp {{ number_format($jumlahBayar, 0, ',', '.') }}
                                     </p>
-                                    <button onclick="copyToClipboard('{{ $tagihan->total_tagihan }}', this)"
+                                    <button onclick="copyToClipboard('{{ $jumlahBayar }}', this)"
                                         class="flex items-center gap-1 text-xs text-indigo-600 font-semibold hover:text-indigo-700 border border-indigo-200 rounded-lg px-2 py-1 transition-all hover:bg-indigo-50">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                         Salin
@@ -103,25 +104,25 @@
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Masukkan kartu ATM dan PIN Anda</li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih menu <strong>Transfer → Virtual Account</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Masukkan nomor VA: <strong class="font-mono">{{ $bank['va'] }}</strong></li>
-                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Pastikan nominal transfer <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong></li>
+                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Pastikan nominal transfer <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">5</span>Konfirmasi dan selesaikan transaksi</li>
                                 @elseif($bank['kode'] === 'BNI')
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Masukkan kartu ATM dan PIN Anda</li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih menu <strong>Transfer → Rekening Tabungan</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Masukkan nomor VA: <strong class="font-mono">{{ $bank['va'] }}</strong></li>
-                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Transfer sejumlah <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong></li>
+                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Transfer sejumlah <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">5</span>Konfirmasi dan selesaikan transaksi</li>
                                 @elseif($bank['kode'] === 'BRI')
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Masukkan kartu ATM dan PIN Anda</li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih menu <strong>Transaksi Lain → Pembayaran → BRIVA</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Masukkan nomor BRIVA: <strong class="font-mono">{{ $bank['va'] }}</strong></li>
-                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong></li>
+                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">5</span>Konfirmasi dan selesaikan transaksi</li>
                                 @else
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Masukkan kartu ATM dan PIN Anda</li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih <strong>Bayar/Beli → Multi Payment → Kode Perusahaan: 88608</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Masukkan nomor VA: <strong class="font-mono">{{ $bank['va'] }}</strong></li>
-                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong></li>
+                                <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong></li>
                                 <li class="flex gap-3 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">5</span>Konfirmasi dan selesaikan transaksi</li>
                                 @endif
                             </ol>
@@ -134,7 +135,7 @@
             @elseif($metode === 'qris')
             {{-- ===== QRIS ===== --}}
             @php
-                $qrisData = 'KOSPRO|' . $pembayaran->kode_pembayaran . '|IDR|' . $tagihan->total_tagihan . '|KosPro Kost Payment';
+                $qrisData = 'KOSPRO|' . $pembayaran->kode_pembayaran . '|IDR|' . $jumlahBayar . '|KosPro Kost Payment';
                 $qrisUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data=' . urlencode($qrisData);
             @endphp
             <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
@@ -182,9 +183,9 @@
                     <div class="bg-indigo-50 rounded-xl p-4 flex items-center justify-between mb-5">
                         <div>
                             <p class="text-xs text-slate-500">Total yang dibayar</p>
-                            <p class="text-2xl font-extrabold text-indigo-600">Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</p>
+                            <p class="text-2xl font-extrabold text-indigo-600">Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</p>
                         </div>
-                        <button onclick="copyToClipboard('{{ $tagihan->total_tagihan }}', this)"
+                        <button onclick="copyToClipboard('{{ $jumlahBayar }}', this)"
                             class="flex items-center gap-1 text-xs text-indigo-600 font-semibold border border-indigo-200 rounded-lg px-2 py-1.5 hover:bg-indigo-50 transition-all">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             Salin
@@ -196,7 +197,7 @@
                         <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Buka aplikasi GoPay, OVO, DANA, atau dompet digital lainnya</p>
                         <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih menu <strong>Scan QR / Pay QR</strong></p>
                         <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Arahkan kamera ke QR Code di atas hingga terbaca</p>
-                        <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Pastikan nominal <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong> sudah benar</p>
+                        <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Pastikan nominal <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong> sudah benar</p>
                         <p class="flex gap-2 text-sm text-slate-600"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">5</span>Konfirmasi dengan PIN / biometrik dan transaksi selesai</p>
                     </div>
                 </div>
@@ -263,7 +264,7 @@
                     {{-- Content per Wallet --}}
                     @foreach($wallets as $wi => $w)
                     @php
-                        $ewData = $w['nama'] . '|KOSPRO|' . $pembayaran->kode_pembayaran . '|IDR' . $tagihan->total_tagihan;
+                        $ewData = $w['nama'] . '|KOSPRO|' . $pembayaran->kode_pembayaran . '|IDR' . $jumlahBayar;
                         $ewQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=' . urlencode($ewData);
                     @endphp
                     <div id="wcontent-{{ $wi }}" class="wallet-content {{ $wi !== 0 ? 'hidden' : '' }}">
@@ -283,9 +284,9 @@
                         <div class="bg-slate-50 rounded-xl p-4 flex items-center justify-between mb-4">
                             <div>
                                 <p class="text-xs text-slate-500">Total Pembayaran</p>
-                                <p class="text-xl font-extrabold text-indigo-600">Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</p>
+                                <p class="text-xl font-extrabold text-indigo-600">Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</p>
                             </div>
-                            <button onclick="copyToClipboard('{{ $tagihan->total_tagihan }}', this)"
+                            <button onclick="copyToClipboard('{{ $jumlahBayar }}', this)"
                                 class="flex items-center gap-1 text-xs text-indigo-600 font-semibold border border-indigo-200 rounded-lg px-2 py-1.5 hover:bg-indigo-50">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                 Salin
@@ -296,7 +297,7 @@
                             <p class="flex gap-2 text-slate-600"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>Buka aplikasi <strong>{{ $w['nama'] }}</strong> di HP Anda</p>
                             <p class="flex gap-2 text-slate-600"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>Pilih <strong>Scan QR / Pay</strong> di halaman utama</p>
                             <p class="flex gap-2 text-slate-600"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>Arahkan kamera ke QR di atas</p>
-                            <p class="flex gap-2 text-slate-600"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong> lalu bayar</p>
+                            <p class="flex gap-2 text-slate-600"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>Konfirmasi nominal <strong>Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</strong> lalu bayar</p>
                         </div>
                     </div>
                     @endforeach
@@ -337,7 +338,7 @@
                     @endif
                     <div class="border-t border-slate-100 pt-3 flex justify-between">
                         <span class="font-bold text-slate-900">Total</span>
-                        <span class="font-extrabold text-indigo-600">Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</span>
+                        <span class="font-extrabold text-indigo-600">Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>

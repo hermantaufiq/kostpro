@@ -16,6 +16,151 @@
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 pb-24">
+
+{{-- ==========================================
+     BANNER PROMO SECTION (Dinamis dari DB)
+     ========================================== --}}
+@if(isset($promoRooms) && $promoRooms->isNotEmpty())
+<div class="mb-8" id="promo-banner-section">
+
+    {{-- Running Text Marquee (Ticker Promo Berjalan) --}}
+    <div class="relative w-full overflow-hidden bg-slate-900/95 text-white py-2.5 px-4 text-xs rounded-2xl mb-5 border border-slate-800 flex items-center shadow-lg">
+        <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-rose-500 to-orange-500 text-white px-4 flex items-center font-black rounded-l-2xl z-10 text-[10px] tracking-wider uppercase flex-none shadow-md">
+            INFO EVENT
+        </div>
+        <div class="w-full overflow-hidden relative pl-28">
+            <div class="animate-marquee whitespace-nowrap flex gap-12 font-bold text-rose-100">
+                <span>⚡ RAMADAN & LEBARAN BIG SALE: NIKMATI DISKON SEWA HINGGA 25% UNTUK KAMAR PILIHAN! &bull; SLOT TERBATAS! ⚡</span>
+                <span>🔥 UPDATE TERBARU: FITUR SEWA INDEN SEKARANG AKTIF! BOOKING KAMAR FAVORITMU UNTUK BULAN DEPAN SEBELUM PENUH! 🔥</span>
+                <span>🎁 DAPATKAN CASHBACK LANGSUNG DAN BEBAS BIAYA DEPOSIT KHUSUS TRANSAKSI MINGGU INI! 🎁</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Header Banner --}}
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white px-4 py-2 rounded-2xl shadow-lg shadow-rose-200">
+                <svg class="w-5 h-5 animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span class="font-black text-sm uppercase tracking-widest">Promo Spesial</span>
+            </div>
+            <p class="text-slate-500 text-sm font-medium hidden sm:block">Penawaran terbatas, jangan sampai kehabisan!</p>
+        </div>
+        {{-- Dots Navigation --}}
+        @if($promoRooms->count() > 1)
+        <div class="flex items-center gap-1.5" id="promo-dots">
+            @foreach($promoRooms as $i => $pr)
+            <button onclick="goToPromoSlide({{ $i }})" class="promo-dot w-2 h-2 rounded-full transition-all duration-300 {{ $i === 0 ? 'bg-rose-500 w-6' : 'bg-slate-300' }}"></button>
+            @endforeach
+        </div>
+        @endif
+    </div>
+
+    {{-- Carousel Track --}}
+    <div class="relative overflow-hidden rounded-3xl" id="promo-carousel-wrapper">
+        <div class="flex gap-4 transition-transform duration-500 ease-in-out" id="promo-carousel-track" style="will-change: transform;">
+            @foreach($promoRooms as $promo)
+            @php
+                $diskon = $promo->persen_diskon_promo;
+                $hemat = number_format($promo->potongan_promo, 0, ',', '.');
+                $gradients = [
+                    'from-violet-600 via-purple-600 to-indigo-700',
+                    'from-rose-500 via-pink-600 to-red-700',
+                    'from-amber-500 via-orange-500 to-rose-600',
+                    'from-emerald-500 via-teal-600 to-cyan-700',
+                    'from-blue-600 via-indigo-600 to-violet-700',
+                    'from-fuchsia-600 via-purple-700 to-pink-700',
+                ];
+                $grad = $gradients[$loop->index % count($gradients)];
+            @endphp
+            <div class="promo-slide flex-none w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]">
+                <div class="relative bg-gradient-to-br {{ $grad }} rounded-3xl overflow-hidden shadow-xl h-full min-h-[200px] promo-card-shine">
+                    {{-- Background Thumbnail (blur) --}}
+                    @if($promo->thumbnail)
+                    <div class="absolute inset-0">
+                        <img src="{{ $promo->thumbnail->foto_url }}" alt="" class="w-full h-full object-cover opacity-20 mix-blend-overlay">
+                        <div class="absolute inset-0 bg-gradient-to-br {{ $grad }} opacity-80"></div>
+                    </div>
+                    @endif
+
+                    {{-- Decorative circles --}}
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full pointer-events-none"></div>
+                    <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-black/10 rounded-full pointer-events-none"></div>
+
+                    {{-- Content --}}
+                    <div class="relative z-10 p-6 flex flex-col h-full justify-between">
+                        <div>
+                            {{-- Label + Diskon Badge --}}
+                            <div class="flex items-start justify-between gap-2 mb-3">
+                                <span class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-black px-3 py-1.5 rounded-xl border border-white/30 uppercase tracking-wider">
+                                    🔥 {{ $promo->label_promo ?: 'PROMO SPESIAL' }}
+                                </span>
+                                @if($diskon)
+                                <span class="bg-yellow-400 text-yellow-900 text-sm font-black px-3 py-1.5 rounded-xl shadow-lg flex-none">
+                                    -{{ $diskon }}%
+                                </span>
+                                @endif
+                            </div>
+
+                            {{-- Nama Kamar --}}
+                            <h3 class="text-xl font-black text-white mb-1 leading-tight">{{ $promo->nama }}</h3>
+                            <p class="text-white/70 text-xs font-medium mb-4">
+                                {{ ucfirst($promo->tipe?->value ?? 'standar') }} &bull; {{ ucfirst($promo->gender?->value ?? 'campur') }}
+                                @if($promo->promo_selesai)
+                                &bull; s.d {{ $promo->promo_selesai->format('d M Y') }}
+                                @endif
+                            </p>
+
+                            {{-- Harga --}}
+                            <div class="flex items-end gap-3 flex-wrap">
+                                <div>
+                                    <span class="text-white/50 text-xs font-medium line-through block">
+                                        Rp {{ number_format($promo->harga_bulanan, 0, ',', '.') }}
+                                    </span>
+                                    <span class="text-white text-2xl font-black">
+                                        Rp {{ number_format($promo->harga_promo, 0, ',', '.') }}
+                                    </span>
+                                    <span class="text-white/70 text-xs font-medium">/bulan</span>
+                                </div>
+                                @if($promo->potongan_promo > 0)
+                                <span class="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-lg backdrop-blur-sm border border-white/20">
+                                    Hemat Rp {{ $hemat }}
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- CTA Button --}}
+                        <div class="mt-5">
+                            <a href="{{ route('kamar.show', $promo->id) }}"
+                               class="inline-flex items-center gap-2 bg-white text-slate-900 font-black text-sm px-5 py-2.5 rounded-xl hover:bg-slate-100 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
+                                Lihat & Booking Sekarang
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Prev / Next arrows (hanya jika lebih dari 1) --}}
+    @if($promoRooms->count() > 1)
+    <button onclick="prevPromoSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-slate-700 hover:bg-white hover:shadow-xl transition-all hidden sm:flex" id="promo-prev-btn" style="margin-top: 20px;">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <button onclick="nextPromoSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-slate-700 hover:bg-white hover:shadow-xl transition-all hidden sm:flex" id="promo-next-btn" style="margin-top: 20px;">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </button>
+    @endif
+</div>
+@endif
+
     
     <div class="flex flex-col lg:flex-row gap-8">
         
@@ -173,7 +318,12 @@
                                     </span>
                                 </div>
                                 
-                                <div class="absolute top-3 right-3 flex flex-col gap-2">
+                                <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                                    @if($room->isPromoAktif())
+                                        <span class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-sm bg-rose-500/95 text-white border border-white/20">
+                                            {{ $room->label_promo ?: 'PROMO' }}
+                                        </span>
+                                    @endif
                                     @if($isAvail)
                                         <span class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-sm bg-emerald-500/90 text-white border border-white/20">
                                             Sisa {{ $room->sisa_slot }} Slot
@@ -193,7 +343,14 @@
                                 </div>
                                 @elseif(!$isAvail)
                                 <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] flex items-center justify-center z-10">
-                                    <span class="bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(225,29,72,0.4)] border border-rose-400">KAMAR PENUH</span>
+                                    <div class="text-center">
+                                        <span class="bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(225,29,72,0.4)] border border-rose-400 block mb-1.5">KAMAR PENUH</span>
+                                        @if($room->tanggal_tersedia_kembali)
+                                        <span class="text-white text-[10px] font-bold bg-black/50 px-2.5 py-1 rounded-lg backdrop-blur-sm block">
+                                            Tersedia: {{ $room->tanggal_tersedia_kembali->format('d M Y') }}
+                                        </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 @endif
                             </div>
@@ -228,9 +385,7 @@
                                 <div class="mt-auto flex items-end justify-between pt-4 border-t border-slate-100 border-dashed">
                                     <div>
                                         <span class="text-xs text-slate-400 block mb-0.5 font-medium">Harga Bulanan</span>
-                                        <span class="text-xl font-black text-slate-800">
-                                            Rp{{ number_format($room->harga_bulanan, 0, ',', '.') }}<span class="text-xs text-slate-400 font-bold ml-1">/bln</span>
-                                        </span>
+                                        <x-harga-kamar :kamar="$room" size="sm" />
                                     </div>
                                     <a href="{{ route('kamar.show', $room->id) }}" class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-brand group-hover:rotate-12">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -359,7 +514,53 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* =============================================
+       ANIMASI RUNNING TEXT (MARQUEE)
+       ============================================= */
+    @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    .animate-marquee {
+        animation: marquee 35s linear infinite;
+    }
+    .animate-marquee:hover {
+        animation-play-state: paused;
+    }
+
+    /* =============================================
+       ANIMASI KILAU MENYAPU KARTU PROMO (SHINE)
+       ============================================= */
+    @keyframes promoShine {
+        0% { left: -150%; }
+        50% { left: 150%; }
+        100% { left: 150%; }
+    }
+    .promo-card-shine::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: skewX(-25deg);
+        animation: promoShine 5s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 5;
+    }
+    /* Mempercepat kilauan ketika di-hover */
+    .promo-card-shine:hover::after {
+        animation: promoShine 1.5s ease-in-out infinite;
+    }
 </style>
+
 
 <script>
     function toggleMobileFilter() {
@@ -388,5 +589,96 @@
             }, 400);
         }
     }
+
+    // =============================================
+    // PROMO BANNER CAROUSEL
+    // =============================================
+    (function() {
+        const track      = document.getElementById('promo-carousel-track');
+        const dotsEl     = document.getElementById('promo-dots');
+        if (!track) return; // Tidak ada promo, skip
+
+        const slides     = track.querySelectorAll('.promo-slide');
+        const totalSlides = slides.length;
+        if (totalSlides <= 1) return; // Hanya 1 slide, tidak perlu carousel
+
+        let currentIndex = 0;
+        let autoTimer    = null;
+        const AUTO_DELAY = 4000; // 4 detik
+
+        function getSlidesPerView() {
+            const w = window.innerWidth;
+            if (w >= 1024) return 3;  // lg
+            if (w >= 640)  return 2;  // sm
+            return 1;                  // mobile
+        }
+
+        function getSlideWidth() {
+            const wrapper  = document.getElementById('promo-carousel-wrapper');
+            const gap      = 16; // gap-4
+            const perView  = getSlidesPerView();
+            const totalGap = gap * (perView - 1);
+            return (wrapper.offsetWidth - totalGap) / perView;
+        }
+
+        function updateDots(idx) {
+            if (!dotsEl) return;
+            const dots = dotsEl.querySelectorAll('.promo-dot');
+            dots.forEach((d, i) => {
+                d.classList.toggle('bg-rose-500', i === idx);
+                d.classList.toggle('w-6',         i === idx);
+                d.classList.toggle('bg-slate-300', i !== idx);
+                d.classList.toggle('w-2',          i !== idx);
+            });
+        }
+
+        function goTo(idx) {
+            const perView    = getSlidesPerView();
+            const maxIndex   = Math.max(0, totalSlides - perView);
+            currentIndex     = Math.max(0, Math.min(idx, maxIndex));
+            const slideW     = getSlideWidth();
+            const gap        = 16;
+            const offset     = currentIndex * (slideW + gap);
+            track.style.transform = `translateX(-${offset}px)`;
+            updateDots(currentIndex);
+        }
+
+        function next() { goTo(currentIndex + 1 > Math.max(0, totalSlides - getSlidesPerView()) ? 0 : currentIndex + 1); }
+        function prev() { goTo(currentIndex - 1 < 0 ? Math.max(0, totalSlides - getSlidesPerView()) : currentIndex - 1); }
+
+        function startAuto() {
+            stopAuto();
+            autoTimer = setInterval(next, AUTO_DELAY);
+        }
+        function stopAuto() {
+            if (autoTimer) clearInterval(autoTimer);
+        }
+
+        // Expose to onclick handlers
+        window.goToPromoSlide  = function(i) { goTo(i); startAuto(); };
+        window.nextPromoSlide  = function()  { next();  startAuto(); };
+        window.prevPromoSlide  = function()  { prev();  startAuto(); };
+
+        // Pause on hover
+        const wrapper = document.getElementById('promo-carousel-wrapper');
+        wrapper.addEventListener('mouseenter', stopAuto);
+        wrapper.addEventListener('mouseleave', startAuto);
+
+        // Touch swipe support
+        let touchStartX = 0;
+        wrapper.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive: true});
+        wrapper.addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+        }, {passive: true});
+
+        // Recalculate on resize
+        window.addEventListener('resize', () => goTo(currentIndex));
+
+        // Initialize
+        goTo(0);
+        startAuto();
+    })();
 </script>
 @endsection
+

@@ -20,6 +20,7 @@ class KamarRepository extends BaseRepository implements KamarRepositoryInterface
         // Tambahan: hanya kamar yang diizinkan admin untuk tampil ke publik (show_to_public = true)
         $visibleStatuses = [
             StatusKamar::Tersedia->value,
+            StatusKamar::Terisi->value,
             StatusKamar::Maintenance->value,
             StatusKamar::Reserved->value,
         ];

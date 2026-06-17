@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Kamars\Schemas;
 use App\Enums\StatusKamar;
 use App\Enums\TipeKamar;
 use App\Enums\GenderKamar;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -58,12 +59,13 @@ class KamarForm
                         \Filament\Forms\Components\TagsInput::make('fasilitas')
                             ->columnSpanFull()
                             ->placeholder('Tambah fasilitas lalu tekan enter')
-                            ->suggestions(['AC', 'Kasur Springbed', 'Lemari', 'Kamar Mandi Dalam', 'Water Heater', 'Meja Belajar', 'WiFi']),
+                            ->suggestions(['AC', 'Smart TV', 'Kasur Springbed', 'Lemari', 'Kamar Mandi Dalam', 'Water Heater', 'Meja Belajar', 'WiFi', 'Kipas Angin', 'Kulkas Mini', 'Jendela Luar', 'Sofa']),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Harga')
                     ->schema([
                         TextInput::make('harga_bulanan')
+                            ->label('Harga Normal / Bulan')
                             ->required()
                             ->numeric()
                             ->prefix('Rp'),
@@ -72,6 +74,37 @@ class KamarForm
                             ->numeric()
                             ->default(0)
                             ->prefix('Rp'),
+                    ])->columns(2),
+
+                \Filament\Schemas\Components\Section::make('Promo Harga (seperti Agoda/Traveloka)')
+                    ->description('Atur harga promo yang tampil di halaman publik. Harga normal dicoret, harga promo ditampilkan menonjol.')
+                    ->schema([
+                        Toggle::make('promo_aktif')
+                            ->label('Aktifkan Promo')
+                            ->default(false)
+                            ->live(),
+                        TextInput::make('harga_promo')
+                            ->label('Harga Promo / Bulan')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->visible(fn ($get) => $get('promo_aktif'))
+                            ->required(fn ($get) => $get('promo_aktif'))
+                            ->lt('harga_bulanan')
+                            ->helperText('Harus lebih murah dari harga normal'),
+                        TextInput::make('label_promo')
+                            ->label('Label Promo')
+                            ->placeholder('Contoh: Promo Awal Tahun')
+                            ->maxLength(50)
+                            ->visible(fn ($get) => $get('promo_aktif')),
+                        DatePicker::make('promo_mulai')
+                            ->label('Mulai Promo')
+                            ->visible(fn ($get) => $get('promo_aktif'))
+                            ->helperText('Kosongkan = langsung aktif'),
+                        DatePicker::make('promo_selesai')
+                            ->label('Selesai Promo')
+                            ->visible(fn ($get) => $get('promo_aktif'))
+                            ->afterOrEqual('promo_mulai')
+                            ->helperText('Kosongkan = tanpa batas waktu'),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Visibilitas & Publikasi')
@@ -93,12 +126,33 @@ class KamarForm
                         \Filament\Forms\Components\RichEditor::make('deskripsi')
                             ->columnSpanFull(),
                         \Filament\Forms\Components\FileUpload::make('images')
+                            ->label('Foto Galeri (Biasa)')
                             ->multiple()
                             ->image()
                             ->maxFiles(5)
                             ->directory('kamar-images')
                             ->columnSpanFull(),
+                        \Filament\Forms\Components\FileUpload::make('foto_360')
+                            ->label('Foto Panorama 360° (Opsional)')
+                            ->image()
+                            ->directory('kamar-360')
+                            ->helperText('Upload foto panorama 360 derajat untuk mengaktifkan fitur Virtual Tour 360.')
+                            ->columnSpanFull(),
                     ]),
+
+                \Filament\Schemas\Components\Section::make('Kustomisasi Layout 3D')
+                    ->description('Sesuaikan warna untuk fitur Layout 3D agar mendekati warna asli kamar.')
+                    ->schema([
+                        \Filament\Forms\Components\ColorPicker::make('warna_dinding')
+                            ->label('Warna Dinding')
+                            ->default('#e8f4f8'),
+                        \Filament\Forms\Components\ColorPicker::make('warna_lantai')
+                            ->label('Warna Lantai')
+                            ->default('#8b5a2b'),
+                        \Filament\Forms\Components\ColorPicker::make('warna_kasur')
+                            ->label('Warna Sprei Kasur')
+                            ->default('#ffffff'),
+                    ])->columns(3),
             ]);
     }
 }

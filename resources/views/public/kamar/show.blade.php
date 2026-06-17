@@ -1,6 +1,14 @@
 @extends('layouts.app')
 @section('title', $room->nama . ' - KostPro')
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+@endpush
+
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-4 flex items-center text-sm text-slate-500">
@@ -30,34 +38,154 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
 
-            <!-- Lightbox Gallery Section -->
-            @php $fotos = $room->fotoKamar; @endphp
-            @if($fotos->isNotEmpty())
-            <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
-                <!-- Main Photo -->
-                <div class="relative aspect-video overflow-hidden cursor-pointer" onclick="openLightbox(0)">
-                    <img id="main-photo" src="{{ $fotos->first()->foto_url }}" alt="{{ $room->nama }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    <div class="absolute bottom-4 right-4 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
-                        🔍 Klik untuk perbesar
+            <!-- Gallery + 3D Tour Tabbed Section -->
+            @php
+                $fotos = $room->fotoKamar;
+                $hasPhotos = $fotos->isNotEmpty();
+                $has360 = !empty($room->foto_360);
+                
+                // Prioritas Tab Default: 360 -> Foto -> 3D
+                $defaultTab = $has360 ? '360' : ($hasPhotos ? 'gallery' : '3d');
+            @endphp
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden"
+                 x-data="room3DTab('{{ $defaultTab }}', {{ $hasPhotos ? 'true' : 'false' }}, {{ $has360 ? 'true' : 'false' }})"
+                 x-init="init()">
+
+                <!-- Tab Header -->
+                <div class="flex border-b border-slate-100">
+                    {{-- Tab Foto hanya tampil jika ada foto --}}
+                    @if($hasPhotos)
+                    <button @click="activeTab = 'gallery'"
+                        :class="activeTab === 'gallery' ? 'border-b-2 border-indigo-500 text-indigo-600 font-semibold' : 'text-slate-500 hover:text-slate-700'"
+                        class="flex-1 py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Foto Kamar
+                        <span class="text-slate-400 text-xs">({{ $fotos->count() }})</span>
+                    </button>
+                    @endif
+                    {{-- Tab 360 Panorama (opsional) --}}
+                    @if($has360)
+                    <button @click="switchTo360()"
+                        :class="activeTab === '360' ? 'border-b-2 border-indigo-500 text-indigo-600 font-semibold' : 'text-slate-500 hover:text-slate-700'"
+                        class="flex-1 py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        Tur 360°
+                        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-full">REAL</span>
+                    </button>
+                    @endif
+                    <button @click="switchTo3D()"
+                        :class="activeTab === '3d' ? 'border-b-2 border-indigo-500 text-indigo-600 font-semibold' : 'text-slate-500 hover:text-slate-700'"
+                        class="{{ (!$hasPhotos && !$has360) ? 'w-full' : 'flex-1' }} py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
+                        <span>Layout 3D</span>
+                        @if(!$hasPhotos)
+                        <span class="bg-indigo-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">Utama</span>
+                        @else
+                        <span class="bg-indigo-100 text-indigo-600 text-xs font-bold px-1.5 py-0.5 rounded-full">BARU</span>
+                        @endif
+                    </button>
+                </div>
+
+                <!-- GALLERY TAB (hanya render jika ada foto) -->
+                @if($hasPhotos)
+                <div x-show="activeTab === 'gallery'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <!-- Main Photo -->
+                    <div class="relative aspect-video overflow-hidden cursor-pointer" onclick="openLightbox(0)">
+                        <img id="main-photo" src="{{ $fotos->first()->foto_url }}" alt="{{ $room->nama }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 right-4 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                            🔍 Klik untuk perbesar
+                        </div>
+                    </div>
+                    <!-- Thumbnail Strip -->
+                    @if($fotos->count() > 1)
+                    <div class="p-4 flex gap-3 overflow-x-auto">
+                        @foreach($fotos as $i => $foto)
+                        <button onclick="openLightbox({{ $i }})" class="shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-all focus:outline-none focus:border-indigo-500">
+                            <img src="{{ $foto->foto_url }}" class="w-full h-full object-cover">
+                        </button>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    {{-- Banner ajakan mencoba Tur 3D (hanya di bawah galeri foto) --}}
+                    <div class="mx-4 mb-4 mt-1 flex items-center justify-between gap-3 bg-gradient-to-r from-indigo-50 to-slate-50 border border-indigo-100 rounded-xl px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-700">Ingin lihat tata letak ruangan?</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Jelajahi dimensi & furnitur kamar secara virtual 360°</p>
+                            </div>
+                        </div>
+                        <button @click="switchTo3D()" class="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap">
+                            Coba Tur 3D →
+                        </button>
                     </div>
                 </div>
-                <!-- Thumbnail Strip -->
-                @if($fotos->count() > 1)
-                <div class="p-4 flex gap-3 overflow-x-auto">
-                    @foreach($fotos as $i => $foto)
-                    <button onclick="openLightbox({{ $i }})" class="shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-all focus:outline-none focus:border-indigo-500">
-                        <img src="{{ $foto->foto_url }}" class="w-full h-full object-cover">
-                    </button>
-                    @endforeach
+                @endif
+
+                <!-- 360 PANORAMA TAB -->
+                @if($has360)
+                <div x-show="activeTab === '360'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <div id="panorama-container" style="width:100%; height:420px; background:#e2e8f0;"></div>
                 </div>
                 @endif
-            </div>
-            @else
-            <div class="bg-slate-100 rounded-2xl aspect-video flex items-center justify-center text-slate-400">
-                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            </div>
-            @endif
+
+                <!-- 3D TOUR TAB -->
+                <div x-show="activeTab === '3d'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+
+                    <!-- Day / Night Controls -->
+                    <div class="flex items-center justify-between px-4 pt-3 pb-2 border-b border-slate-100 bg-slate-50">
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Drag putar · Scroll zoom · Klik objek untuk info
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium" :class="isNight ? 'text-slate-500' : 'text-amber-600'">☀ Siang</span>
+                            <button @click="toggleDayNight()" class="relative w-10 h-5 rounded-full transition-colors duration-300 focus:outline-none" :class="isNight ? 'bg-indigo-900' : 'bg-amber-200'">
+                                <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform duration-300 shadow" :class="isNight ? 'translate-x-5 bg-indigo-300' : 'translate-x-0 bg-amber-400'"></span>
+                            </button>
+                            <span class="text-xs font-medium" :class="isNight ? 'text-indigo-400' : 'text-slate-400'">🌙 Malam</span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div id="room3d-canvas" style="width:100%; height:420px; position:relative; background:#1a1f2e; cursor:grab;">
+                        <!-- Loading State -->
+                        <div x-show="isLoading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10" style="background:#1a1f2e;">
+                            <div class="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                            <p class="text-slate-400 text-sm">Memuat model 3D...</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Object Legend -->
+                    <div class="px-4 py-3 bg-slate-50 border-t border-slate-100">
+                        <p class="text-xs text-slate-500 mb-2 font-medium">Objek interaktif dalam kamar (klik untuk info):</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">🛏 Kasur</span>
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">🪟 Jendela</span>
+                            @if($room->fasilitasMaster->where('nama', 'LIKE', '%meja%')->first() || $room->fasilitasMaster->where('nama', 'LIKE', '%Meja%')->first())
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">🪑 Meja Belajar</span>
+                            @endif
+                            @if($room->fasilitasMaster->where('nama', 'LIKE', '%lemari%')->first() || $room->fasilitasMaster->where('nama', 'LIKE', '%Lemari%')->first())
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">🚪 Lemari</span>
+                            @endif
+                            @if($room->fasilitasMaster->where('nama', 'LIKE', '%AC%')->first() || $room->fasilitasMaster->where('nama', 'LIKE', '%ac%')->first())
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">❄ AC</span>
+                            @endif
+                            @if($room->fasilitasMaster->where('nama', 'LIKE', '%TV%')->first() || $room->fasilitasMaster->where('nama', 'LIKE', '%tv%')->first())
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">📺 TV</span>
+                            @endif
+                            @if($room->fasilitasMaster->where('nama', 'LIKE', '%kamar mandi dalam%')->first() || $room->fasilitasMaster->where('nama', 'LIKE', '%Kamar Mandi%')->first())
+                            <span class="inline-flex items-center gap-1 text-xs bg-white border border-slate-200 rounded-full px-2.5 py-1 text-slate-600">🚿 KM Dalam</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- END tabbed card -->
 
             <!-- Description & Facilities -->
             <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 md:p-8">
@@ -110,15 +238,27 @@
                 <p class="text-slate-500 text-sm mb-6">Lantai {{ $room->lantai ?? '-' }} &bull; Luas {{ $room->luas ?? '-' }} m&sup2;</p>
                 
                 <div class="py-4 border-y border-slate-100 mb-6 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-slate-500">Harga Bulanan</span>
-                        <span class="font-bold text-slate-900">Rp {{ number_format($room->harga_bulanan, 0, ',', '.') }}</span>
+                    <div class="flex justify-between items-start gap-4">
+                        <span class="text-sm text-slate-500 shrink-0">Harga Bulanan</span>
+                        <div class="text-right">
+                            <x-harga-kamar :kamar="$room" size="lg" class="items-end" />
+                        </div>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-slate-500">Deposit Awal</span>
                         <span class="font-bold text-slate-900">Rp {{ number_format($room->harga_deposit, 0, ',', '.') }}</span>
                     </div>
                 </div>
+
+                @php
+                    $activeSewaForCurrentUser = null;
+                    if (Auth::check()) {
+                        $activeSewaForCurrentUser = $room->penyewaan()
+                            ->where('user_id', Auth::id())
+                            ->whereIn('status', ['active', 'approved'])
+                            ->first();
+                    }
+                @endphp
 
                 @if($isMaintenance)
                     <div class="w-full bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-center gap-3">
@@ -134,9 +274,23 @@
                     </a>
                     <p class="text-center text-xs text-slate-400 mt-4">Anda belum ditagih saat pengajuan.</p>
                 @else
-                    <button class="w-full bg-slate-100 text-slate-400 rounded-xl px-6 py-3 font-semibold text-sm cursor-not-allowed" disabled>
-                        Kamar Penuh
-                    </button>
+                    @if($activeSewaForCurrentUser)
+                        <a href="{{ route('dashboard', ['trigger_perpanjang_id' => $activeSewaForCurrentUser->id]) }}" class="btn-primary w-full justify-center text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Perpanjang Sewa Anda
+                        </a>
+                        <p class="text-center text-xs text-slate-500 mt-3">Masa sewa Anda sedang aktif untuk kamar ini.</p>
+                    @elseif($room->tanggal_tersedia_kembali)
+                        <a href="{{ route('user.penyewaan.create', $room->id) }}" class="btn-primary w-full justify-center text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Booking Inden (Mulai {{ $room->tanggal_tersedia_kembali->format('d M Y') }})
+                        </a>
+                        <p class="text-center text-xs text-slate-500 mt-3">Kamar sedang disewa. Anda dapat memesan untuk periode berikutnya mulai tanggal di atas.</p>
+                    @else
+                        <button class="w-full bg-slate-100 text-slate-400 rounded-xl px-6 py-3 font-semibold text-sm cursor-not-allowed" disabled>
+                            Kamar Penuh
+                        </button>
+                    @endif
                 @endif
             </div>
         </div>
@@ -202,4 +356,90 @@ document.addEventListener('keydown', (e) => {
 });
 </script>
 @endif
+
+{{-- ========================================
+     3D ROOM VIEWER – Room Data & Init Script
+     ======================================== --}}
+@php
+    $roomJsonData = [
+        'luas'       => $room->luas,
+        'tipe'       => $room->tipe?->value ?? '',
+        'facilities' => collect($room->fasilitas)->merge($room->fasilitasMaster->pluck('nama'))->unique()->toArray(),
+        'warna_dinding' => $room->warna_dinding,
+        'warna_lantai'  => $room->warna_lantai,
+        'warna_kasur'   => $room->warna_kasur,
+    ];
+@endphp
+@push('scripts')
+<script>
+const roomData = @json($roomJsonData);
+
+let viewer3D = null;
+let viewer360 = null;
+const foto360Url = '{{ $has360 ? Storage::url($room->foto_360) : "" }}';
+
+function room3DTab(defaultTab, hasPhotos, has360) {
+    return {
+        activeTab: defaultTab || 'gallery',
+        isNight: false,
+        isLoading: false,
+
+        init() {
+            if (this.activeTab === '360') {
+                this.switchTo360();
+            } else if (this.activeTab === '3d') {
+                this.switchTo3D();
+            }
+        },
+
+        switchTo360() {
+            this.activeTab = '360';
+            if (!viewer360 && has360) {
+                this.$nextTick(() => {
+                    const container = document.getElementById('panorama-container');
+                    if (container) {
+                        viewer360 = pannellum.viewer('panorama-container', {
+                            "type": "equirectangular",
+                            "panorama": foto360Url,
+                            "autoLoad": true,
+                            "compass": false,
+                            "showZoomCtrl": true,
+                            "mouseZoom": true,
+                        });
+                    }
+                });
+            }
+        },
+
+        switchTo3D() {
+            this.activeTab = '3d';
+            if (!viewer3D) {
+                this.isLoading = true;
+                this.$nextTick(async () => {
+                    const container = document.getElementById('room3d-canvas');
+                    if (container) {
+                        try {
+                            // Lazy load module hanya ketika tab 3D dibuka
+                            const module = await import('/js/room-3d-renderer.js');
+                            viewer3D = module.initRoom3DViewer(container, roomData);
+                        } catch (error) {
+                            console.error("Gagal memuat modul 3D:", error);
+                        } finally {
+                            this.isLoading = false;
+                        }
+                    }
+                });
+            }
+        },
+
+        toggleDayNight() {
+            this.isNight = !this.isNight;
+            if (viewer3D && viewer3D.setDayNightMode) {
+                viewer3D.setDayNightMode(this.isNight);
+            }
+        },
+    };
+}
+</script>
+@endpush
 @endsection
