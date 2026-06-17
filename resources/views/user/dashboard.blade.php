@@ -191,7 +191,15 @@
 
     <!-- Papan Pengumuman -->
     @if($pengumuman->isNotEmpty())
-    <div class="mb-8 space-y-4">
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                Papan Pengumuman
+            </h2>
+            <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">{{ $pengumuman->count() }} info</span>
+        </div>
+        <div class="space-y-4">
         @foreach($pengumuman as $p)
         <div class="rounded-2xl p-4 sm:p-5 flex gap-4 {{ $p->is_penting ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-slate-100 shadow-soft' }}">
             <div class="shrink-0 mt-1">
@@ -434,66 +442,88 @@
         </div>
 
         <!-- Detail Kamar Tersedia -->
-        <div class="lg:col-span-2 space-y-8">
-            @foreach($activePenyewaans as $ap)
-            @php
-                $sisaHariSewa = null;
-                if ($ap->tanggal_keluar) {
-                    $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($ap->tanggal_keluar)->startOfDay(), false));
-                }
-            @endphp
-            <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-                <div class="border-b border-slate-100 p-6 flex justify-between items-center">
-                    <h3 class="font-bold text-lg text-slate-900">Kamar {{ $loop->count > 1 ? '#' . $loop->iteration : '' }} Aktif</h3>
-                    <div class="flex items-center gap-2">
-                        @if($ap->status->value === 'active')
-                        <button onclick="openPerpanjangModal({{ $ap->id }})" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 shadow-md shadow-indigo-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            Perpanjang Sewa
-                        </button>
-                        @endif
-
-                        @if($ap->status->value === 'active')
-                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Berjalan</span>
-                        @elseif($ap->status->value === 'approved')
-                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">Belum Bayar (Approved)</span>
-                        @else
-                            <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full">Menunggu ACC (Pending)</span>
-                        @endif
-                    </div>
+        <div class="lg:col-span-2 space-y-8 min-w-0">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-xl text-slate-900">Kamar Aktif Anda</h3>
+                    <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">{{ $activePenyewaans->count() }} kamar</span>
                 </div>
-                <div class="p-6 grid sm:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-sm text-slate-500 mb-1">Nama Kamar</p>
-                        <p class="font-bold text-slate-900 text-lg">{{ $ap->kamar->nama }}</p>
-                        <p class="text-sm text-indigo-600 font-medium">{{ ucfirst($ap->kamar->tipe->value ?? 'Campur') }}</p>
+
+                <!-- Horizontal Scrollable Container (Carousel) -->
+                <div class="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 gap-5 snap-x snap-mandatory" style="scrollbar-width: none;">
+                    <style>
+                        /* Sembunyikan scrollbar untuk browser webkit */
+                        .flex.overflow-x-auto::-webkit-scrollbar { display: none; }
+                    </style>
+
+                    @foreach($activePenyewaans as $ap)
+                    @php
+                        $sisaHariSewa = null;
+                        if ($ap->tanggal_keluar) {
+                            $sisaHariSewa = ceil(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($ap->tanggal_keluar)->startOfDay(), false));
+                        }
+                    @endphp
+                    <div class="shrink-0 w-[85%] md:w-[360px] snap-center bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden flex flex-col">
+                        <div class="border-b border-slate-100 p-5 flex justify-between items-center bg-slate-50/50">
+                            <h3 class="font-bold text-slate-900 truncate pr-2">Kamar {{ $ap->kamar->nama }}</h3>
+                            <div class="shrink-0">
+                                @if($ap->status->value === 'active')
+                                    <span class="px-2.5 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Aktif</span>
+                                @elseif($ap->status->value === 'approved')
+                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Approved</span>
+                                @else
+                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Pending</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="p-5 flex-1 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium mb-0.5">Tipe Kamar</p>
+                                    <p class="text-sm font-semibold text-indigo-600">{{ ucfirst($ap->kamar->tipe->value ?? 'Campur') }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-400 font-medium mb-0.5">Kode Booking</p>
+                                    <p class="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{{ $ap->kode_penyewaan }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium mb-0.5">Tanggal Masuk</p>
+                                    <p class="text-sm font-bold text-slate-800">{{ \Carbon\Carbon::parse($ap->tanggal_masuk)->format('d M Y') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium mb-0.5">Tanggal Keluar</p>
+                                    <p class="text-sm font-bold text-slate-800">
+                                        {{ $ap->tanggal_keluar ? \Carbon\Carbon::parse($ap->tanggal_keluar)->format('d M Y') : '-' }}
+                                    </p>
+                                    @if($sisaHariSewa !== null && $sisaHariSewa >= 0)
+                                    <p class="text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded {{ $sisaHariSewa <= 7 ? 'bg-rose-100 text-rose-600' : ($sisaHariSewa <= 14 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600') }}">
+                                        Sisa {{ $sisaHariSewa }} hari
+                                    </p>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium mb-0.5">Harga Bulanan</p>
+                                    <p class="font-black text-slate-900">Rp {{ number_format($ap->harga_bulanan_snapshot, 0, ',', '.') }}</p>
+                                </div>
+                                @if($ap->status->value === 'active')
+                                <button onclick="openPerpanjangModal({{ $ap->id }})" class="btn-primary py-1.5 px-3 text-xs flex items-center gap-1 shadow-md shadow-indigo-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    Perpanjang
+                                </button>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-slate-500 mb-1">Kode Booking</p>
-                        <p class="font-mono text-slate-900 font-semibold">{{ $ap->kode_penyewaan }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500 mb-1">Tanggal Masuk</p>
-                        <p class="font-semibold text-slate-900">{{ \Carbon\Carbon::parse($ap->tanggal_masuk)->format('d M Y') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500 mb-1">Tanggal Keluar</p>
-                        <p class="font-semibold text-slate-900">
-                            {{ $ap->tanggal_keluar ? \Carbon\Carbon::parse($ap->tanggal_keluar)->format('d M Y') : '-' }}
-                        </p>
-                        @if($sisaHariSewa !== null && $sisaHariSewa >= 0)
-                        <p class="text-xs font-bold mt-1 {{ $sisaHariSewa <= 7 ? 'text-rose-500' : ($sisaHariSewa <= 14 ? 'text-amber-500' : 'text-emerald-500') }}">
-                            Sisa {{ $sisaHariSewa }} hari
-                        </p>
-                        @endif
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-500 mb-1">Harga Bulanan</p>
-                        <p class="font-bold text-slate-900">Rp {{ number_format($ap->harga_bulanan_snapshot, 0, ',', '.') }}</p>
-                    </div>
+                    @endforeach
                 </div>
             </div>
-            @endforeach
 
 
             <!-- Tagihan Section -->
