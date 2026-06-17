@@ -19,7 +19,8 @@
 
     @php
         $isMaintenance = $room->status?->value === 'maintenance';
-        $isAvail = !$isMaintenance && $room->sisa_slot > 0;
+        $isFullStatus  = in_array($room->status?->value, ['terisi', 'reserved']);
+        $isAvail = !$isMaintenance && !$isFullStatus && $room->sisa_slot > 0;
     @endphp
 
     @if($isMaintenance)
@@ -215,6 +216,16 @@
         <!-- Sidebar / Booking Card -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 sticky top-24">
+
+                @if(session('waiting_list_success'))
+                <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+                    <svg class="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div>
+                        <p class="font-bold text-emerald-800 text-sm">Berhasil Masuk Daftar Tunggu! 🎉</p>
+                        <p class="text-emerald-700 text-xs mt-0.5">Halo <strong>{{ session('waiting_list_nama') }}</strong>! Kami akan menghubungi Anda melalui WhatsApp segera setelah kamar ini tersedia.</p>
+                    </div>
+                </div>
+                @endif
                 <div class="flex items-center gap-3 mb-6">
                     <span class="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-600 uppercase tracking-wider">
                         {{ $room->gender?->label() ?? 'Campur' }}
@@ -287,9 +298,97 @@
                         </a>
                         <p class="text-center text-xs text-slate-500 mt-3">Kamar sedang disewa. Anda dapat memesan untuk periode berikutnya mulai tanggal di atas.</p>
                     @else
-                        <button class="w-full bg-slate-100 text-slate-400 rounded-xl px-6 py-3 font-semibold text-sm cursor-not-allowed" disabled>
-                            Kamar Penuh
-                        </button>
+                        <!-- 🔔 WAITING LIST MODAL TRIGGER -->
+                        <div x-data="{ openWL: {{ session('waiting_list_success') ? 'false' : 'false' }} }">
+                            <button @click="openWL = true"
+                                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-amber-200/50 transition-all duration-200 active:scale-95">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                🔔 Beritahu Saya Jika Kosong
+                            </button>
+                            <p class="text-center text-xs text-slate-400 mt-3">Kamar sedang penuh. Daftarkan diri Anda agar diinfokan ketika kamar tersedia.</p>
+
+                            <!-- MODAL OVERLAY -->
+                            <div x-show="openWL" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none;">
+                                <!-- Backdrop -->
+                                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="openWL = false"></div>
+
+                                <!-- Modal Card -->
+                                <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto z-10 overflow-hidden">
+                                    <!-- Header -->
+                                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5">
+                                        <h3 class="text-white text-xl font-bold">🔔 Daftar Tunggu Kamar</h3>
+                                        <p class="text-amber-100 text-sm mt-1">{{ $room->nama }} — Admin akan menghubungi Anda via WhatsApp jika kamar kosong.</p>
+                                    </div>
+
+                                    <!-- Form -->
+                                    <form method="POST" action="{{ route('kamar.waiting_list.store', $room->id) }}" class="px-6 py-5 space-y-4">
+                                        @csrf
+                                        <!-- Nama -->
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                                            <input type="text" name="nama" required placeholder="Nama Anda"
+                                                value="{{ Auth::check() ? Auth::user()->name : old('nama') }}"
+                                                class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition">
+                                        </div>
+                                        <!-- No WA -->
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">No WhatsApp Aktif <span class="text-red-500">*</span></label>
+                                            <input type="text" name="no_wa" required placeholder="Contoh: 08123456789"
+                                                class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition">
+                                        </div>
+                                        <!-- 2-col row -->
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <!-- Jenis Kelamin -->
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-700 mb-1">Jenis Kelamin</label>
+                                                <select name="jenis_kelamin" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="Laki-laki">Laki-laki</option>
+                                                    <option value="Perempuan">Perempuan</option>
+                                                </select>
+                                            </div>
+                                            <!-- Pekerjaan -->
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-700 mb-1">Pekerjaan</label>
+                                                <select name="pekerjaan" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="Mahasiswa">Mahasiswa</option>
+                                                    <option value="Karyawan Swasta">Karyawan Swasta</option>
+                                                    <option value="PNS/ASN">PNS/ASN</option>
+                                                    <option value="Wiraswasta">Wiraswasta</option>
+                                                    <option value="Lainnya">Lainnya</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <!-- Estimasi Masuk -->
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">Estimasi Ingin Masuk</label>
+                                            <select name="estimasi_masuk" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition">
+                                                <option value="">-- Kapan perkiraan masuk? --</option>
+                                                <option value="Bulan ini">Bulan ini</option>
+                                                <option value="1-2 bulan ke depan">1-2 bulan ke depan</option>
+                                                <option value="3-6 bulan ke depan">3-6 bulan ke depan</option>
+                                                <option value="Lebih dari 6 bulan">Lebih dari 6 bulan</option>
+                                                <option value="Belum pasti">Belum pasti</option>
+                                            </select>
+                                        </div>
+                                        <!-- Catatan -->
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">Catatan / Pertanyaan Khusus</label>
+                                            <textarea name="catatan_khusus" rows="2" placeholder="Contoh: Apakah bisa parkir motor? Boleh masak?"
+                                                class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition resize-none"></textarea>
+                                        </div>
+                                        <!-- Actions -->
+                                        <div class="flex gap-3 pt-1">
+                                            <button type="button" @click="openWL = false"
+                                                class="flex-1 border border-slate-200 text-slate-600 rounded-xl py-2.5 text-sm font-semibold hover:bg-slate-50 transition">Batal</button>
+                                            <button type="submit"
+                                                class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl py-2.5 text-sm font-bold hover:from-amber-600 hover:to-orange-600 transition shadow-md">Daftarkan Saya</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 @endif
             </div>

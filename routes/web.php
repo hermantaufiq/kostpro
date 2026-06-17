@@ -7,6 +7,7 @@ use App\Http\Controllers\Public\KamarController;
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/kamar', [KamarController::class, 'index'])->name('kamar.index');
 Route::get('/kamar/{id}', [KamarController::class, 'show'])->name('kamar.show');
+Route::post('/kamar/{id}/waiting-list', [KamarController::class, 'storeWaitingList'])->name('kamar.waiting_list.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
