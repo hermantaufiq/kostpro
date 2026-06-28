@@ -6,10 +6,23 @@
     <title>@yield('title', 'KosPro — Sistem Manajemen Kos Modern')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- PWA / Web App Manifest -->
+    <!-- ══ PWA / Web App Manifest ══ -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#4f46e5">
+
+    <!-- Apple / iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KosPro">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('icons/icon-152x152.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('icons/icon-144x144.png') }}">
+    <link rel="apple-touch-icon" sizes="128x128" href="{{ asset('icons/icon-128x128.png') }}">
+
+    <!-- Microsoft / Windows Meta -->
+    <meta name="msapplication-TileImage" content="{{ asset('icons/icon-144x144.png') }}">
+    <meta name="msapplication-TileColor" content="#4f46e5">
+    <meta name="msapplication-tap-highlight" content="no">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -318,15 +331,180 @@
     @endauth
 
     @stack('scripts')
-    <!-- PWA Service Worker Registration -->
+
+    {{-- ═══════════════════════════════════════════════════════
+         PWA INSTALL BANNER
+         Muncul otomatis saat browser siap untuk diinstall
+         ═══════════════════════════════════════════════════════ --}}
+    <div id="pwa-install-banner"
+         style="display:none; position:fixed; bottom:5rem; left:1rem; right:1rem; z-index:9999;
+                max-width:420px; margin:0 auto;"
+         class="md:bottom-6">
+        <div style="background:white; border-radius:1.25rem; padding:1rem 1.25rem;
+                    box-shadow:0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(79,70,229,0.1);
+                    display:flex; align-items:center; gap:0.875rem;">
+            {{-- App Icon --}}
+            <img src="{{ asset('icons/icon-96x96.png') }}" alt="KosPro"
+                 style="width:52px; height:52px; border-radius:14px; flex-shrink:0; box-shadow:0 4px 12px rgba(79,70,229,0.25);">
+
+            {{-- Text --}}
+            <div style="flex:1; min-width:0;">
+                <p style="font-weight:800; font-size:0.9rem; color:#0f172a; margin-bottom:2px;">Pasang KosPro di HP</p>
+                <p style="font-size:0.75rem; color:#64748b;">Akses lebih cepat dari home screen!</p>
+            </div>
+
+            {{-- Actions --}}
+            <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+                <button id="pwa-install-btn"
+                        style="background:linear-gradient(135deg,#4f46e5,#7c3aed); color:white;
+                               border:none; border-radius:50px; padding:0.5rem 1rem;
+                               font-weight:700; font-size:0.8rem; cursor:pointer;
+                               box-shadow:0 4px 12px rgba(79,70,229,0.3);">
+                    Pasang
+                </button>
+                <button id="pwa-install-close"
+                        style="background:#f1f5f9; border:none; border-radius:50px;
+                               width:36px; height:36px; cursor:pointer; display:flex;
+                               align-items:center; justify-content:center; color:#94a3b8;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══════════════════════════════════════════════════════
+         PWA UPDATE BANNER
+         Muncul saat ada versi baru service worker tersedia
+         ═══════════════════════════════════════════════════════ --}}
+    <div id="pwa-update-banner"
+         style="display:none; position:fixed; top:4.5rem; left:1rem; right:1rem; z-index:9999;
+                max-width:420px; margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed); border-radius:1rem;
+                    padding:0.875rem 1.25rem; box-shadow:0 8px 30px rgba(79,70,229,0.4);
+                    display:flex; align-items:center; gap:0.75rem; color:white;">
+            <svg style="width:20px; height:20px; flex-shrink:0; animation:spin 2s linear infinite;"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <p style="flex:1; font-size:0.8125rem; font-weight:600;">Update tersedia! Muat ulang untuk versi terbaru.</p>
+            <button id="pwa-update-btn"
+                    style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3);
+                           color:white; border-radius:50px; padding:0.35rem 0.875rem;
+                           font-weight:700; font-size:0.75rem; cursor:pointer; white-space:nowrap;">
+                Muat Ulang
+            </button>
+        </div>
+    </div>
+
+    {{-- ═══════════════════════════════════════════════════════
+         PWA JAVASCRIPT
+         Service Worker registration + Install Prompt handling
+         ═══════════════════════════════════════════════════════ --}}
     <script>
+    (function() {
+        'use strict';
+
+        let deferredPrompt = null;
+        const installBanner  = document.getElementById('pwa-install-banner');
+        const installBtn     = document.getElementById('pwa-install-btn');
+        const installClose   = document.getElementById('pwa-install-close');
+        const updateBanner   = document.getElementById('pwa-update-banner');
+        const updateBtn      = document.getElementById('pwa-update-btn');
+
+        // ── Service Worker Registration ──────────────────────
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed:', err));
+                    .then(registration => {
+                        // Cek update saat SW baru ditemukan
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Ada versi baru! Tampilkan banner update
+                                    showUpdateBanner(newWorker);
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.warn('[SW] Registration failed:', err));
+
+                // Reload saat SW baru aktif
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
+
+        // ── Install Prompt ───────────────────────────────────
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Jangan tampilkan jika sudah pernah dismiss
+            if (!sessionStorage.getItem('pwa-install-dismissed')) {
+                setTimeout(() => {
+                    if (installBanner) installBanner.style.display = 'block';
+                }, 3000); // Delay 3 detik setelah halaman load
+            }
+        });
+
+        // Tombol Pasang
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                installBanner.style.display = 'none';
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                console.log('[PWA] Install outcome:', outcome);
+            });
+        }
+
+        // Tombol Close
+        if (installClose) {
+            installClose.addEventListener('click', () => {
+                installBanner.style.display = 'none';
+                sessionStorage.setItem('pwa-install-dismissed', '1');
+            });
+        }
+
+        // Saat berhasil diinstall
+        window.addEventListener('appinstalled', () => {
+            installBanner.style.display = 'none';
+            deferredPrompt = null;
+            console.log('[PWA] App installed successfully!');
+        });
+
+        // ── Update Banner ────────────────────────────────────
+        function showUpdateBanner(newWorker) {
+            if (!updateBanner) return;
+            updateBanner.style.display = 'block';
+
+            if (updateBtn) {
+                updateBtn.addEventListener('click', () => {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    updateBanner.style.display = 'none';
+                });
+            }
+        }
+
+        // Inject CSS keyframes untuk animasi
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            #pwa-install-banner { animation: slideUpIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+            @keyframes slideUpIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        `;
+        document.head.appendChild(style);
+    })();
     </script>
 </body>
 </html>

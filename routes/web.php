@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\LandingController;
 use App\Http\Controllers\Public\KamarController;
+use App\Http\Controllers\OfflineController;
+
+// PWA Offline Fallback — harus tanpa auth agar SW bisa serve-nya
+Route::get('/offline', [OfflineController::class, 'index'])->name('pwa.offline');
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/kamar', [KamarController::class, 'index'])->name('kamar.index');

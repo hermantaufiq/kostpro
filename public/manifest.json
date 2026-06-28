@@ -1,22 +1,107 @@
 {
-  "name": "KosPro Penyewa",
+  "name": "KosPro — Manajemen Kos",
   "short_name": "KosPro",
-  "description": "Aplikasi manajemen penyewaan kos yang modern dan mudah digunakan.",
+  "description": "Aplikasi manajemen penyewaan kos modern. Cek tagihan, lapor keluhan, dan kelola kamar langsung dari genggaman Anda.",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
   "orientation": "portrait-primary",
+  "lang": "id",
+  "categories": ["productivity", "lifestyle"],
   "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tagihan Saya",
+      "short_name": "Tagihan",
+      "description": "Lihat dan bayar tagihan kos",
+      "url": "/user/tagihan",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Lapor Keluhan",
+      "short_name": "Keluhan",
+      "description": "Laporkan masalah fasilitas kos",
+      "url": "/user/keluhan",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Cari Kamar",
+      "short_name": "Cari",
+      "description": "Cari kamar kos tersedia",
+      "url": "/kamar",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
