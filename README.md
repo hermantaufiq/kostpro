@@ -7,6 +7,17 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Kelompok 7 - E-Commerce
+
+| Nama | NIM |
+|------|-----|
+| Muhamad Hermawan Taufiq | 1421 |
+| Astrit Dwi Antika | 1401 |
+| Muhammad Farih Fadli | 1416 |
+| Ahmad Hadi Agung Sarwono | 1406 |
+
+---
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
